@@ -49,13 +49,24 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: FloatingActionButton(
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Color(0xff4562a7),
+                  child: GestureDetector(
+                    onTap: () {
+                      print('Pressed');
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.white,
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Color(0xff4562a7),
+                        size: 30,
+                      ),
                     ),
-                    backgroundColor: Colors.white,
                   ),
                 )
               ],
