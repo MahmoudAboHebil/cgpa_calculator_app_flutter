@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -89,8 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 18),
                               enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey.shade200),
+                                borderSide: BorderSide(color: Colors.white),
                               ),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -107,12 +107,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(
                                 fontSize: 18, color: Color(0xff004d60)),
                             decoration: InputDecoration(
-                              hintText: 'Name or Student ID',
+                              hintText: 'Enter your Department',
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 18),
                               enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey.shade200),
+                                borderSide: BorderSide(color: Colors.white),
                               ),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -129,12 +128,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(
                                 fontSize: 18, color: Color(0xff004d60)),
                             decoration: InputDecoration(
-                              hintText: 'Name or Student ID',
+                              hintText: 'Enter Email',
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 18),
                               enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey.shade200),
+                                borderSide: BorderSide(color: Colors.white),
                               ),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -151,12 +149,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(
                                 fontSize: 18, color: Color(0xff004d60)),
                             decoration: InputDecoration(
-                              hintText: 'Name or Student ID',
+                              hintText: 'Enter Password',
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 18),
                               enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey.shade200),
+                                borderSide: BorderSide(color: Colors.white),
                               ),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -169,6 +166,104 @@ class _SignUpPageState extends State<SignUpPage> {
                       ],
                     ),
                   ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Already have account?',
+                      style: TextStyle(color: Color(0xffce2029), fontSize: 15),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Sign Up',
+                        style: TextStyle(
+                            color: Color(0xff4562a7),
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          print('Pressed');
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Color(0xff4562a7),
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'OR | Sign in with',
+                      style: TextStyle(color: Color(0xffce2029), fontSize: 18),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.facebook,
+                        color: Color(0xff4562a7),
+                        size: 50,
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Container(
+                        height: 43,
+                        width: 43,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Color(0xff4562a7),
+                        ),
+                        child: FaIcon(
+                          FontAwesomeIcons.twitter,
+                          color: Color(0xffb8c8d1),
+                          size: 25,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Container(
+                        height: 43,
+                        width: 43,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Color(0xff4562a7),
+                        ),
+                        child: FaIcon(
+                          FontAwesomeIcons.googlePlusG,
+                          color: Color(0xffb8c8d1),
+                          size: 25,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
