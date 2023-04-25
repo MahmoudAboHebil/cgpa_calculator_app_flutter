@@ -1,9 +1,9 @@
-import 'dart:io' show Platform;
 import 'package:flutter/services.dart';
 import 'package:cgp_calculator/pages/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';
 
 class Siginin extends StatefulWidget {
@@ -12,6 +12,7 @@ class Siginin extends StatefulWidget {
 }
 
 class _SigininState extends State<Siginin> {
+  final _auth = FirebaseAuth.instance;
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   String email = '';
@@ -117,6 +118,7 @@ class _SigininState extends State<Siginin> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 0, vertical: 10),
                             child: TextField(
+                              keyboardType: TextInputType.emailAddress,
                               controller: _controller1,
                               onChanged: (text) {
                                 setState(() {
@@ -226,7 +228,7 @@ class _SigininState extends State<Siginin> {
                                 fontWeight: FontWeight.bold),
                           ),
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               setState(() {
                                 pressed = true;
                               });
@@ -238,24 +240,30 @@ class _SigininState extends State<Siginin> {
                                   pressed = false;
                                   email = _controller1.text;
                                   password = _controller2.text;
-                                  print(
-                                      '#######################################');
-                                  print('email = $email');
-                                  print('password = $password');
                                 });
-                                _controller1.clear();
-                                _controller2.clear();
+                                try {
+                                  final user =
+                                      await _auth.signInWithEmailAndPassword(
+                                          email: email, password: password);
+                                  if (user != null) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomePage(),
+                                      ),
+                                      (route) => true,
+                                    );
+                                  }
+                                  _controller1.clear();
+                                  _controller2.clear();
+                                } catch (e) {
+                                  print(e);
+                                }
+
                                 // ScaffoldMessenger.of(context).showSnackBar(
                                 //   const SnackBar(
                                 //       content: Text('Processing Data')),
                                 // );
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomePage(),
-                                  ),
-                                  (route) => true,
-                                );
                               }
                             },
                             child: Container(

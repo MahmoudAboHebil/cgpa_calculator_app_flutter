@@ -1,12 +1,11 @@
 import 'dart:io';
-
-import 'package:cgp_calculator/pages/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:cgp_calculator/pages/signin.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -54,6 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   bool pressed = false;
+  final _auth = FirebaseAuth.instance;
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
@@ -402,7 +402,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 fontWeight: FontWeight.bold),
                           ),
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               setState(() {
                                 pressed = true;
                               });
@@ -418,13 +418,35 @@ class _SignUpPageState extends State<SignUpPage> {
                                   department = _controller2.text;
                                   email = _controller3.text;
                                   password = _controller4.text;
-                                  print(
-                                      '#######################################');
-                                  print('name = $nameOrID');
-                                  print('department = $department');
-                                  print('email = $email');
-                                  print('password = $password');
+                                  // print(
+                                  //     '#######################################');
+                                  // print('name = $nameOrID');
+                                  // print('department = $department');
+                                  // print('email = $email');
+                                  // print('password = $password');
                                 });
+                                try {
+                                  final user = await _auth
+                                      .createUserWithEmailAndPassword(
+                                          email: email, password: password);
+                                  if (user != null) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomePage(),
+                                      ),
+                                      (route) => true,
+                                    );
+                                    _controller1.clear();
+                                    _controller2.clear();
+                                    _controller3.clear();
+                                    _controller4.clear();
+                                  }
+                                  _controller1.clear();
+                                  _controller2.clear();
+                                } catch (e) {
+                                  print(e);
+                                }
                                 _controller1.clear();
                                 _controller2.clear();
                                 _controller3.clear();
