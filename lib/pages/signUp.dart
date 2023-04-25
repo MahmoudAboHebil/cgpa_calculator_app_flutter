@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
-import 'sign_in.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -333,19 +332,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Sign_in(),
-                              ));
-                        },
-                        child: Text(
-                          'Already have account?',
-                          style:
-                              TextStyle(color: Color(0xffce2029), fontSize: 15),
-                        ),
+                      child: Text(
+                        'Already have account?',
+                        style:
+                            TextStyle(color: Color(0xffce2029), fontSize: 15),
                       ),
                     ),
                     SizedBox(
