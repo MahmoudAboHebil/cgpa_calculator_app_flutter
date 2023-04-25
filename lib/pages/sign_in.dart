@@ -1,65 +1,23 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
-import 'sign_in.dart';
+import 'signUp.dart';
 
-class SignUpPage extends StatefulWidget {
+class Sign_in extends StatefulWidget {
+  const Sign_in({Key? key}) : super(key: key);
+
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<Sign_in> createState() => _Sign_inState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _Sign_inState extends State<Sign_in> {
   final _formKey = GlobalKey<FormState>();
-  File? image;
-
-  Future pickImage(ImageSource source) async {
-    try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
-      final imageTemporary = File(image.path);
-      setState(() {
-        this.image = imageTemporary;
-      });
-    } on PlatformException catch (e) {
-      print('Failed to pick Image: $e');
-    }
-  }
-
-  Future showImageDealog() async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        contentPadding: EdgeInsets.all(0),
-        content: Container(
-          height: 300,
-          width: 300,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.file(
-              image!,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   late bool valide;
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
-  final _controller3 = TextEditingController();
-  final _controller4 = TextEditingController();
-  String nameOrID = '';
-  String department = '';
   String email = '';
   String password = '';
+  bool remember = true;
 
   @override
   void initState() {
@@ -74,8 +32,6 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
     _controller1.dispose();
     _controller2.dispose();
-    _controller3.dispose();
-    _controller4.dispose();
   }
 
   @override
@@ -95,7 +51,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Create Account of',
+                      'Welcome back to',
                       style: TextStyle(
                         color: Color(0xff004d60),
                         fontSize: 20,
@@ -119,91 +75,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       style: TextStyle(color: Color(0xffce2029), fontSize: 18),
                     ),
                     Text(
-                      'to sign up...',
+                      'to signin...',
                       style: TextStyle(color: Color(0xffce2029), fontSize: 18),
                     ),
                     SizedBox(
                       height: 50,
-                    ),
-                    Stack(
-                      children: [
-                        Container(
-                          height: 70,
-                          width: 70,
-                          alignment: Alignment.topLeft,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(color: Colors.white30, width: 1),
-                          ),
-                        ),
-                        Positioned(
-                          child: image == null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Image.asset(
-                                    'images/user3.png',
-                                    width: 70,
-                                    height: 70,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      showImageDealog();
-                                    },
-                                    child: Image.file(
-                                      image!,
-                                      width: 70,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                        ),
-                        Positioned(
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                    content: Text(
-                                      "Choose image source",
-                                      style: TextStyle(
-                                        color: Color(0xff004d60),
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: Text("Camera",
-                                            style: TextStyle(
-                                                color: Color(0xff4562a7))),
-                                        onPressed: () {
-                                          pickImage(ImageSource.camera);
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: Text("Gallery",
-                                            style: TextStyle(
-                                                color: Color(0xff4562a7))),
-                                        onPressed: () {
-                                          pickImage(ImageSource.gallery);
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ]),
-                              );
-                            },
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              color: Color(0xff4562a7),
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                     SizedBox(
                       height: 25,
@@ -221,56 +97,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                 horizontal: 0, vertical: 10),
                             child: TextFormField(
                               controller: _controller1,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your name or ID ';
-                                }
-                                return null;
-                              },
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Name or Student ID',
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextFormField(
-                              controller: _controller2,
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter your Department(Option)',
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextFormField(
-                              controller: _controller3,
                               validator: (value) =>
                                   EmailValidator.validate(value!)
                                       ? null
@@ -296,7 +122,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 0, vertical: 10),
                             child: TextFormField(
-                              controller: _controller4,
+                              controller: _controller2,
                               obscureText: true,
                               enableSuggestions: false,
                               autocorrect: false,
@@ -328,34 +154,36 @@ class _SignUpPageState extends State<SignUpPage> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Sign_in(),
-                              ));
-                        },
-                        child: Text(
-                          'Already have account?',
+                    Row(
+                      children: [
+                        Switch(
+                          value: remember,
+                          onChanged: (value) {
+                            setState(() {
+                              remember = value;
+                            });
+                          },
+                          activeColor: Color(0xff4562a7),
+                          activeTrackColor: Colors.white,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          splashRadius: 0,
+                        ),
+                        Text(
+                          'Remember me',
                           style:
                               TextStyle(color: Color(0xffce2029), fontSize: 15),
                         ),
-                      ),
+                      ],
                     ),
                     SizedBox(
-                      height: 20,
+                      height: 25,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Sign Up',
+                          'Sign in',
                           style: TextStyle(
                               color: Color(0xff4562a7),
                               fontSize: 25,
@@ -366,25 +194,24 @@ class _SignUpPageState extends State<SignUpPage> {
                             if (_formKey.currentState!.validate()) {
                               setState(() {
                                 valide = false;
-                                nameOrID = _controller1.text;
-                                department = _controller2.text;
-                                email = _controller3.text;
-                                password = _controller4.text;
+                                email = _controller1.text;
+                                password = _controller2.text;
                                 print(
                                     '#######################################');
-                                print('name = $nameOrID');
-                                print('department = $department');
                                 print('email = $email');
                                 print('password = $password');
                               });
                               _controller1.clear();
                               _controller2.clear();
-                              _controller3.clear();
-                              _controller4.clear();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text('Processing Data')),
                               );
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SignUpPage(),
+                                  ));
                             }
                           },
                           child: Container(
@@ -405,7 +232,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ],
                     ),
                     SizedBox(
-                      height: 50,
+                      height: 230,
                     ),
                     Align(
                       alignment: Alignment.center,
