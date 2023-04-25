@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cgp_calculator/pages/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -112,395 +113,409 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xffb8c8d1),
-      child: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Scaffold(
-            backgroundColor: Color(0xffb8c8d1),
-            body: Padding(
-              padding: EdgeInsets.fromLTRB(35, 50, 35, 0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Create Account of',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 20,
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'CGPA App!',
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Siginin(),
+            ));
+        return false;
+      },
+      child: Container(
+        color: Color(0xffb8c8d1),
+        child: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Scaffold(
+              backgroundColor: Color(0xffb8c8d1),
+              body: Padding(
+                padding: EdgeInsets.fromLTRB(35, 50, 35, 0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Create Account of',
                         style: TextStyle(
                           color: Color(0xff004d60),
-                          fontSize: 25,
+                          fontSize: 20,
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      'Enter the following details',
-                      style: TextStyle(color: Color(0xffce2029), fontSize: 18),
-                    ),
-                    Text(
-                      'to sign up...',
-                      style: TextStyle(color: Color(0xffce2029), fontSize: 18),
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    Stack(
-                      children: [
-                        Container(
-                          height: 70,
-                          width: 70,
-                          alignment: Alignment.topLeft,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(color: Colors.white30, width: 1),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'CGPA App!',
+                          style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 25,
                           ),
                         ),
-                        Positioned(
-                          child: image == null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Image.asset(
-                                    'images/user3.png',
-                                    width: 70,
-                                    height: 70,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      showImageDealog();
-                                    },
-                                    child: Image.file(
-                                      image!,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        'Enter the following details',
+                        style:
+                            TextStyle(color: Color(0xffce2029), fontSize: 18),
+                      ),
+                      Text(
+                        'to sign up...',
+                        style:
+                            TextStyle(color: Color(0xffce2029), fontSize: 18),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Stack(
+                        children: [
+                          Container(
+                            height: 70,
+                            width: 70,
+                            alignment: Alignment.topLeft,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              border:
+                                  Border.all(color: Colors.white30, width: 1),
+                            ),
+                          ),
+                          Positioned(
+                            child: image == null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.asset(
+                                      'images/user3.png',
                                       width: 70,
                                       height: 70,
                                       fit: BoxFit.cover,
                                     ),
-                                  ),
-                                ),
-                        ),
-                        Positioned(
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                    content: Text(
-                                      "Choose image source",
-                                      style: TextStyle(
-                                        color: Color(0xff004d60),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        showImageDealog();
+                                      },
+                                      child: Image.file(
+                                        image!,
+                                        width: 70,
+                                        height: 70,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        child: Text("Camera",
-                                            style: TextStyle(
-                                                color: Color(0xff4562a7))),
-                                        onPressed: () {
-                                          pickImage(ImageSource.camera);
-                                          Navigator.pop(context);
-                                        },
+                                  ),
+                          ),
+                          Positioned(
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                      content: Text(
+                                        "Choose image source",
+                                        style: TextStyle(
+                                          color: Color(0xff004d60),
+                                        ),
                                       ),
-                                      TextButton(
-                                        child: Text("Gallery",
-                                            style: TextStyle(
-                                                color: Color(0xff4562a7))),
-                                        onPressed: () {
-                                          pickImage(ImageSource.gallery);
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ]),
-                              );
-                            },
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              color: Color(0xff4562a7),
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                          child: TextField(
-                            controller: _controller1,
-                            onChanged: (text) {
-                              setState(() {
-                                _errorText1;
-                              });
-                            },
-                            style: TextStyle(
-                                fontSize: 18, color: Color(0xff004d60)),
-                            decoration: InputDecoration(
-                              hintText: 'Name or Student ID',
-                              errorText: _errorText1,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xff4562a7),
-                                ),
+                                      actions: [
+                                        TextButton(
+                                          child: Text("Camera",
+                                              style: TextStyle(
+                                                  color: Color(0xff4562a7))),
+                                          onPressed: () {
+                                            pickImage(ImageSource.camera);
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text("Gallery",
+                                              style: TextStyle(
+                                                  color: Color(0xff4562a7))),
+                                          onPressed: () {
+                                            pickImage(ImageSource.gallery);
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ]),
+                                );
+                              },
+                              child: Icon(
+                                Icons.camera_alt_rounded,
+                                color: Color(0xff4562a7),
+                                size: 24,
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                          child: TextField(
-                            controller: _controller2,
-                            style: TextStyle(
-                                fontSize: 18, color: Color(0xff004d60)),
-                            decoration: InputDecoration(
-                              hintText: 'Enter your Department(Option)',
-                              hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                          child: TextField(
-                            controller: _controller3,
-                            onChanged: (text) {
-                              setState(() {
-                                _errorText2;
-                              });
-                            },
-                            style: TextStyle(
-                                fontSize: 18, color: Color(0xff004d60)),
-                            decoration: InputDecoration(
-                              hintText: 'Enter Email',
-                              errorText: _errorText2,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                          child: TextField(
-                            controller: _controller4,
-                            obscureText: true,
-                            enableSuggestions: false,
-                            autocorrect: false,
-                            onChanged: (text) {
-                              setState(() {
-                                _errorText3;
-                              });
-                            },
-                            style: TextStyle(
-                                fontSize: 18, color: Color(0xff004d60)),
-                            decoration: InputDecoration(
-                              hintText: 'Enter Password',
-                              errorText: _errorText3,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Siginin(),
-                              ));
-                        },
-                        child: Text(
-                          'Already have account?',
-                          style:
-                              TextStyle(color: Color(0xffce2029), fontSize: 15),
-                        ),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Sign Up',
-                          style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        GestureDetector(
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            child: TextField(
+                              controller: _controller1,
+                              onChanged: (text) {
+                                setState(() {
+                                  _errorText1;
+                                });
+                              },
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff004d60)),
+                              decoration: InputDecoration(
+                                hintText: 'Name or Student ID',
+                                errorText: _errorText1,
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            child: TextField(
+                              controller: _controller2,
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff004d60)),
+                              decoration: InputDecoration(
+                                hintText: 'Enter your Department(Option)',
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            child: TextField(
+                              controller: _controller3,
+                              onChanged: (text) {
+                                setState(() {
+                                  _errorText2;
+                                });
+                              },
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff004d60)),
+                              decoration: InputDecoration(
+                                hintText: 'Enter Email',
+                                errorText: _errorText2,
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            child: TextField(
+                              controller: _controller4,
+                              obscureText: true,
+                              enableSuggestions: false,
+                              autocorrect: false,
+                              onChanged: (text) {
+                                setState(() {
+                                  _errorText3;
+                                });
+                              },
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff004d60)),
+                              decoration: InputDecoration(
+                                hintText: 'Enter Password',
+                                errorText: _errorText3,
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
                           onTap: () {
-                            setState(() {
-                              pressed = true;
-                            });
-                            var validate1 = _errorText1;
-                            var validate2 = _errorText2;
-                            var validate3 = _errorText3;
-                            if (validate1 == null &&
-                                validate2 == null &&
-                                validate3 == null) {
-                              setState(() {
-                                pressed = false;
-                                nameOrID = _controller1.text;
-                                department = _controller2.text;
-                                email = _controller3.text;
-                                password = _controller4.text;
-                                print(
-                                    '#######################################');
-                                print('name = $nameOrID');
-                                print('department = $department');
-                                print('email = $email');
-                                print('password = $password');
-                              });
-                              _controller1.clear();
-                              _controller2.clear();
-                              _controller3.clear();
-                              _controller4.clear();
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(
-                              //       content: Text('Processing Data')),
-                              // );
-                              Navigator.pushAndRemoveUntil(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HomePage(),
-                                ),
-                                (route) => true,
-                              );
-                            }
+                                  builder: (context) => Siginin(),
+                                ));
                           },
-                          child: Container(
-                            height: 50,
-                            width: 50,
+                          child: Text(
+                            'Already have account?',
+                            style: TextStyle(
+                                color: Color(0xffce2029), fontSize: 15),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Sign Up',
+                            style: TextStyle(
+                                color: Color(0xff4562a7),
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                pressed = true;
+                              });
+                              var validate1 = _errorText1;
+                              var validate2 = _errorText2;
+                              var validate3 = _errorText3;
+                              if (validate1 == null &&
+                                  validate2 == null &&
+                                  validate3 == null) {
+                                setState(() {
+                                  pressed = false;
+                                  nameOrID = _controller1.text;
+                                  department = _controller2.text;
+                                  email = _controller3.text;
+                                  password = _controller4.text;
+                                  print(
+                                      '#######################################');
+                                  print('name = $nameOrID');
+                                  print('department = $department');
+                                  print('email = $email');
+                                  print('password = $password');
+                                });
+                                _controller1.clear();
+                                _controller2.clear();
+                                _controller3.clear();
+                                _controller4.clear();
+                                // ScaffoldMessenger.of(context).showSnackBar(
+                                //   const SnackBar(
+                                //       content: Text('Processing Data')),
+                                // );
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomePage(),
+                                  ),
+                                  (route) => true,
+                                );
+                              }
+                            },
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Colors.white,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_rounded,
+                                color: Color(0xff4562a7),
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'OR | Sign in with',
+                          style:
+                              TextStyle(color: Color(0xffce2029), fontSize: 18),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.facebook,
+                            color: Color(0xff4562a7),
+                            size: 50,
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Container(
+                            height: 43,
+                            width: 43,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
-                              color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.arrow_forward_rounded,
                               color: Color(0xff4562a7),
-                              size: 30,
+                            ),
+                            child: FaIcon(
+                              FontAwesomeIcons.twitter,
+                              color: Color(0xffb8c8d1),
+                              size: 25,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'OR | Sign in with',
-                        style:
-                            TextStyle(color: Color(0xffce2029), fontSize: 18),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.facebook,
-                          color: Color(0xff4562a7),
-                          size: 50,
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Container(
-                          height: 43,
-                          width: 43,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Color(0xff4562a7),
+                          SizedBox(
+                            width: 20,
                           ),
-                          child: FaIcon(
-                            FontAwesomeIcons.twitter,
-                            color: Color(0xffb8c8d1),
-                            size: 25,
+                          Container(
+                            height: 43,
+                            width: 43,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: Color(0xff4562a7),
+                            ),
+                            child: FaIcon(
+                              FontAwesomeIcons.googlePlusG,
+                              color: Color(0xffb8c8d1),
+                              size: 25,
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Container(
-                          height: 43,
-                          width: 43,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Color(0xff4562a7),
-                          ),
-                          child: FaIcon(
-                            FontAwesomeIcons.googlePlusG,
-                            color: Color(0xffb8c8d1),
-                            size: 25,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

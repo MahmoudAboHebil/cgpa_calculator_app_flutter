@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'signin.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -51,7 +52,11 @@ class _WelcomePageState extends State<WelcomePage> {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
-                      print('Pressed');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Siginin(),
+                          ));
                     },
                     child: Container(
                       height: 50,
