@@ -50,20 +50,19 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  late bool valide;
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
   final _controller4 = TextEditingController();
-  FocusNode _focus = FocusNode();
-
-  void _onFocusChange() {
-    print('############################');
-  }
+  String nameOrID = '';
+  String department = '';
+  String email = '';
+  String password = '';
 
   @override
   void initState() {
     super.initState();
-    _focus.addListener(_onFocusChange);
     setState(() {
       valide = true;
     });
@@ -72,16 +71,12 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void dispose() {
     super.dispose();
-    _focus.removeListener(_onFocusChange);
-    _focus.dispose();
-
     _controller1.dispose();
     _controller2.dispose();
     _controller3.dispose();
     _controller4.dispose();
   }
 
-  bool valide = true;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -224,7 +219,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 0, vertical: 10),
                             child: TextFormField(
-                              focusNode: _focus,
                               controller: _controller1,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -362,6 +356,16 @@ class _SignUpPageState extends State<SignUpPage> {
                             if (_formKey.currentState!.validate()) {
                               setState(() {
                                 valide = false;
+                                nameOrID = _controller1.text;
+                                department = _controller2.text;
+                                email = _controller3.text;
+                                password = _controller4.text;
+                                print(
+                                    '#######################################');
+                                print('name = $nameOrID');
+                                print('department = $department');
+                                print('email = $email');
+                                print('password = $password');
                               });
                               _controller1.clear();
                               _controller2.clear();
