@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
+import 'home.dart';
 
 class Siginin extends StatefulWidget {
   @override
@@ -8,21 +9,41 @@ class Siginin extends StatefulWidget {
 }
 
 class _SigininState extends State<Siginin> {
-  final _formKey = GlobalKey<FormState>();
-
-  late bool valide;
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   String email = '';
   String password = '';
   bool remember = true;
+  bool pressed = false;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      valide = true;
-    });
+  }
+
+  String? get _errorText1 {
+    var text = _controller1.text;
+    if ((text.isEmpty || text.trim().isEmpty) && pressed) {
+      return "Please enter an Email";
+    } else if (text.isNotEmpty && pressed) {
+      return EmailValidator.validate(text)
+          ? null
+          : "Please enter a valid email";
+    }
+
+    return null;
+  }
+
+  String? get _errorText2 {
+    var text = _controller2.text;
+
+    if ((text.isEmpty || text.trim().isEmpty) && pressed) {
+      return 'Please enter a Password ';
+    } else if (text.length < 6 && text.isNotEmpty && pressed) {
+      return 'At least 6 character';
+    }
+
+    return null;
   }
 
   @override
@@ -79,75 +100,69 @@ class _SigininState extends State<Siginin> {
                     SizedBox(
                       height: 25,
                     ),
-                    Form(
-                      key: _formKey,
-                      autovalidateMode: valide
-                          ? AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextFormField(
-                              controller: _controller1,
-                              validator: (value) =>
-                                  EmailValidator.validate(value!)
-                                      ? null
-                                      : "Please enter a valid email",
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter Email',
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                          child: TextField(
+                            controller: _controller1,
+                            onChanged: (text) {
+                              setState(() {
+                                _errorText1;
+                              });
+                            },
+                            style: TextStyle(
+                                fontSize: 18, color: Color(0xff004d60)),
+                            decoration: InputDecoration(
+                              hintText: 'Enter Email',
+                              errorText: _errorText1,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0xff4562a7),
                                 ),
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextFormField(
-                              controller: _controller2,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a Password ';
-                                } else if (value.length < 6) {
-                                  return 'At least 6 character';
-                                }
-                                return null;
-                              },
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter Password',
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
+                        ),
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                          child: TextField(
+                            controller: _controller2,
+                            obscureText: true,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            onChanged: (text) {
+                              setState(() {
+                                _errorText2;
+                              });
+                            },
+                            style: TextStyle(
+                                fontSize: 18, color: Color(0xff004d60)),
+                            decoration: InputDecoration(
+                              hintText: 'Enter Password',
+                              errorText: _errorText2,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0xff4562a7),
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [
@@ -183,9 +198,15 @@ class _SigininState extends State<Siginin> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              pressed = true;
+                            });
+
+                            var validate1 = _errorText1;
+                            var validate2 = _errorText2;
+                            if (validate1 == null && validate2 == null) {
                               setState(() {
-                                valide = false;
+                                pressed = false;
                                 email = _controller1.text;
                                 password = _controller2.text;
                                 print(
@@ -195,9 +216,16 @@ class _SigininState extends State<Siginin> {
                               });
                               _controller1.clear();
                               _controller2.clear();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Processing Data')),
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //       content: Text('Processing Data')),
+                              // );
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
+                                ),
+                                (route) => true,
                               );
                             }
                           },
