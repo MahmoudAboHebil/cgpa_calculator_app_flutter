@@ -12,16 +12,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: DropMenuWithIcon(),
-      ),
+      backgroundColor: Color(0xffb8c8d1),
     );
   }
 }
 
 class DropMenuWithIcon extends StatefulWidget {
-  const DropMenuWithIcon({Key? key}) : super(key: key);
-
   @override
   State<DropMenuWithIcon> createState() => _DropMenuWithIconState();
 }
@@ -45,10 +41,10 @@ class _DropMenuWithIconState extends State<DropMenuWithIcon> {
       child: DropdownButton2(
         customButton: Container(
           height: 40,
-          width: 130,
+          width: 120,
           decoration: BoxDecoration(
             color: Colors.transparent,
-            border: Border(bottom: BorderSide(color: Colors.red, width: 2)),
+            border: Border(bottom: BorderSide(color: Colors.white, width: 1)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -56,16 +52,12 @@ class _DropMenuWithIconState extends State<DropMenuWithIcon> {
               selectedValue == null
                   ? Text(
                       '',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
                     )
                   : Text(
                       '$selectedValue',
                       style: TextStyle(
                         fontSize: 20,
-                        color: Colors.redAccent,
+                        color: Color(0xff4562a7),
                       ),
                     ),
               SizedBox(
@@ -86,9 +78,21 @@ class _DropMenuWithIconState extends State<DropMenuWithIcon> {
             .map((item) => DropdownMenuItem<String>(
                   value: item,
                   child: Center(
-                    child: Text(
-                      item,
-                      style: const TextStyle(fontSize: 14, color: Colors.red),
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 45,
+                      height: 80,
+                      decoration: BoxDecoration(
+                          border: Border(
+                        bottom: BorderSide(color: Colors.white, width: 1),
+                      )),
+                      child: Text(
+                        item,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Color(0xff4562a7),
+                        ),
+                      ),
                     ),
                   ),
                 ))
@@ -99,13 +103,31 @@ class _DropMenuWithIconState extends State<DropMenuWithIcon> {
             selectedValue = value as String;
           });
         },
-        buttonStyleData: const ButtonStyleData(
-          height: 40,
-          width: 140,
+        dropdownStyleData: DropdownStyleData(
+          maxHeight: 200,
+          width: 70,
+          padding: null,
+          elevation: 2,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            color: Color(0xffb8c8d1),
+            // boxShadow: [
+            //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+            // ],
+          ),
+          offset: const Offset(20, 0),
+          scrollbarTheme: ScrollbarThemeData(
+            radius: const Radius.circular(40),
+            thickness: MaterialStateProperty.all(0),
+            thumbVisibility: MaterialStateProperty.all(false),
+          ),
         ),
-        menuItemStyleData: const MenuItemStyleData(
-          height: 40,
-        ),
+        // menuItemStyleData: const MenuItemStyleData(
+        //   height: 40,
+        //   padding: EdgeInsets.only(left: 14, right: 14),
+        // ),
       ),
     );
   }

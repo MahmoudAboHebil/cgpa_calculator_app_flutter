@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:cgp_calculator/test.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -153,10 +153,13 @@ class _HomePageState extends State<HomePage> {
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 30),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Container(
                             width: 125,
                             child: TextField(
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 18, color: Color(0xff004d60)),
                               decoration: InputDecoration(
@@ -174,6 +177,28 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
+                          Container(
+                            width: 60,
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff4562a7)),
+                              decoration: InputDecoration(
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          DropMenuWithIcon(),
                         ],
                       ),
                     ),
