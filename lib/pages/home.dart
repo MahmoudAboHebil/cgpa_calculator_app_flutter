@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -31,6 +32,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  final List<String> items = [
+    'Item1',
+    'Item2',
+    'Item3',
+    'Item4',
+    'Item5',
+    'Item6',
+    'Item7',
+    'Item8',
+  ];
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,8 +50,185 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           backgroundColor: Color(0xffb8c8d1),
           body: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               AppBarHome(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                child: Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      // height: 50,
+                      // width: 100,
+                      decoration: BoxDecoration(
+                          color: Color(0xffeaf1ed),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          border:
+                              Border.all(color: Color(0xff004d60), width: 2)),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                        child: Text(
+                          'Semester 1',
+                          style: TextStyle(
+                            color: Color(0xff4562a7),
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 15),
+                            child: Text(
+                              'Course Name',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          margin: EdgeInsets.symmetric(horizontal: 25),
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 15),
+                            child: Text(
+                              'Credit',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 15),
+                            child: Text(
+                              'Course Grade',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 30),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 125,
+                            child: TextField(
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff004d60)),
+                              decoration: InputDecoration(
+                                hintText: 'Enter Course',
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xff4562a7),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            child: Text(
+                              'Delete Course',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            child: Text(
+                              'Add Course',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:cgp_calculator/test.dart';
 import 'package:flutter/material.dart';
 import 'pages/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      home: MyHomePage(),
     );
   }
 }
