@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:cgp_calculator/test.dart';
+import 'package:provider/provider.dart';
+import 'package:cgp_calculator/providerBrain.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -49,8 +51,7 @@ class _HomePageState extends State<HomePage> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: Color(0xffb8c8d1),
-          body: Column(
-            mainAxisSize: MainAxisSize.min,
+          body: ListView(
             children: [
               AppBarHome(),
               Padding(
@@ -150,58 +151,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 125,
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter Course',
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 60,
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff4562a7)),
-                              decoration: InputDecoration(
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          DropMenuWithIcon(),
-                        ],
-                      ),
-                    ),
+                    Course(),
+                    Course(),
+                    Course(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -253,10 +205,95 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-              )
+              ),
+              Provider.of<MyData>(context).isChanged
+                  ? Container(
+                      width: 200,
+                      height: 100,
+                      child: GestureDetector(
+                        onTap: () {
+                          Provider.of<MyData>(context, listen: false)
+                              .change(false);
+                        },
+                        child: Center(
+                          child: Text(
+                            'Changed',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox()
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class Course extends StatefulWidget {
+  @override
+  State<Course> createState() => _CourseState();
+}
+
+class _CourseState extends State<Course> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            width: 125,
+            child: TextField(
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
+              onChanged: (value) {
+                Provider.of<MyData>(context, listen: false).change(true);
+                print('##############################################');
+                print(Provider.of<MyData>(context, listen: false).isChanged);
+              },
+              decoration: InputDecoration(
+                hintText: 'Enter Course',
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xff4562a7),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            width: 60,
+            child: TextField(
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+              decoration: InputDecoration(
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xff4562a7),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          DropMenuWithIcon(),
+        ],
       ),
     );
   }
