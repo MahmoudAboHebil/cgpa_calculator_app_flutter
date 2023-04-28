@@ -1,6 +1,7 @@
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
@@ -263,6 +264,10 @@ class _CourseState extends State<Course> {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
     if (pressed) {
+      if (credit.isNotEmpty && credit.length > 3) {
+        return '';
+      }
+
       if ((name.isNotEmpty && name.trim().isNotEmpty)) {
         if (credit.isEmpty || credit.trim().isEmpty) {
           return '';
@@ -272,7 +277,6 @@ class _CourseState extends State<Course> {
         return '';
       }
     }
-
     return null;
   }
 
@@ -302,18 +306,18 @@ class _CourseState extends State<Course> {
         if (selectedValue == null) {
           setState(() {
             selectedValueIsNull = true;
-            print('############# red ###############');
+            // print('############# red ###############');
           });
         } else {
           setState(() {
             selectedValueIsNull = false;
-            print('############# white ###############');
+            // print('############# white ###############');
           });
         }
       } else {
         setState(() {
           selectedValueIsNull = false;
-          print('############# white ###############');
+          // print('############# white ###############');
         });
       }
     }
@@ -364,6 +368,7 @@ class _CourseState extends State<Course> {
             width: 60,
             margin: EdgeInsets.only(bottom: 0.4),
             child: TextField(
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               controller: _controller_Credit,
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
