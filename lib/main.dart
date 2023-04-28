@@ -20,6 +20,10 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<MyData>(
       create: (context) => MyData(),
       child: MaterialApp(
+        theme: ThemeData().copyWith(
+            textSelectionTheme: TextSelectionThemeData(
+                selectionColor: Colors.transparent,
+                selectionHandleColor: Colors.transparent)),
         home: HomePage(),
       ),
     );

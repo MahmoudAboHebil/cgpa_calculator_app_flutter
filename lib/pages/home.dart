@@ -5,6 +5,8 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 
+bool pressed = false;
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
@@ -213,6 +215,9 @@ class _HomePageState extends State<HomePage> {
                         onTap: () {
                           Provider.of<MyData>(context, listen: false)
                               .change(false);
+                          setState(() {
+                            pressed = true;
+                          });
                         },
                         child: Center(
                           child: Text(
@@ -257,13 +262,15 @@ class _CourseState extends State<Course> {
   String? get _errorCredit {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if ((name.isNotEmpty && name.trim().isNotEmpty)) {
-      if (credit.isEmpty || credit.trim().isEmpty) {
+    if (pressed) {
+      if ((name.isNotEmpty && name.trim().isNotEmpty)) {
+        if (credit.isEmpty || credit.trim().isEmpty) {
+          return '';
+        }
+      } else if ((credit.isEmpty || credit.trim().isEmpty) &&
+          selectedValue != null) {
         return '';
       }
-    } else if ((credit.isEmpty || credit.trim().isEmpty) &&
-        selectedValue != null) {
-      return '';
     }
 
     return null;
@@ -272,12 +279,15 @@ class _CourseState extends State<Course> {
   String? get _errorName {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if (credit.isNotEmpty && credit.trim().isNotEmpty) {
-      if (name.isEmpty || name.trim().isEmpty) {
+    if (pressed) {
+      if (credit.isNotEmpty && credit.trim().isNotEmpty) {
+        if (name.isEmpty || name.trim().isEmpty) {
+          return '';
+        }
+      } else if ((name.isEmpty || name.trim().isEmpty) &&
+          selectedValue != null) {
         return '';
       }
-    } else if ((name.isEmpty || name.trim().isEmpty) && selectedValue != null) {
-      return '';
     }
 
     return null;
@@ -286,24 +296,26 @@ class _CourseState extends State<Course> {
   void errorGrade() {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if ((name.isNotEmpty && name.trim().isNotEmpty) ||
-        (credit.isNotEmpty && credit.trim().isNotEmpty)) {
-      if (selectedValue == null) {
-        setState(() {
-          selectedValueIsNull = true;
-          print('############# red ###############');
-        });
+    if (pressed) {
+      if ((name.isNotEmpty && name.trim().isNotEmpty) ||
+          (credit.isNotEmpty && credit.trim().isNotEmpty)) {
+        if (selectedValue == null) {
+          setState(() {
+            selectedValueIsNull = true;
+            print('############# red ###############');
+          });
+        } else {
+          setState(() {
+            selectedValueIsNull = false;
+            print('############# white ###############');
+          });
+        }
       } else {
         setState(() {
           selectedValueIsNull = false;
           print('############# white ###############');
         });
       }
-    } else {
-      setState(() {
-        selectedValueIsNull = false;
-        print('############# white ###############');
-      });
     }
   }
 
@@ -318,9 +330,12 @@ class _CourseState extends State<Course> {
         children: [
           Container(
             width: 125,
+            height: 19,
+            margin: EdgeInsets.only(bottom: 0.4),
             child: TextField(
               controller: _controller_Name,
               textAlign: TextAlign.center,
+              autofocus: false,
               style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
               onChanged: (value) {
                 Provider.of<MyData>(context, listen: false).change(true);
@@ -345,7 +360,9 @@ class _CourseState extends State<Course> {
             ),
           ),
           Container(
+            height: 19,
             width: 60,
+            margin: EdgeInsets.only(bottom: 0.4),
             child: TextField(
               controller: _controller_Credit,
               textAlign: TextAlign.center,
@@ -353,10 +370,14 @@ class _CourseState extends State<Course> {
               onChanged: (value) {
                 setState(() {});
               },
-              style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+              style: TextStyle(
+                fontSize: 18,
+                color: Color(0xff4562a7),
+              ),
               decoration: InputDecoration(
                 errorText: _errorCredit,
                 hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                hintText: 'Credit',
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
@@ -374,7 +395,7 @@ class _CourseState extends State<Course> {
                 errorGrade();
               },
               customButton: Container(
-                height: 40,
+                height: 35,
                 width: 120,
                 decoration: BoxDecoration(
                   color: Colors.transparent,
@@ -390,12 +411,13 @@ class _CourseState extends State<Course> {
                   children: [
                     selectedValue == null
                         ? Text(
-                            '',
+                            'Grade',
+                            style: TextStyle(color: Colors.grey, fontSize: 18),
                           )
                         : Text(
                             '$selectedValue',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               color: Color(0xff4562a7),
                             ),
                           ),
@@ -428,7 +450,7 @@ class _CourseState extends State<Course> {
                             child: Text(
                               item,
                               style: const TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 color: Color(0xff4562a7),
                               ),
                             ),
