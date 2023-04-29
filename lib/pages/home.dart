@@ -6,7 +6,8 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 
-bool pressed = false;
+// bool pressed = false;
+List<List> allCourses = [];
 
 class HomePage extends StatefulWidget {
   @override
@@ -214,11 +215,35 @@ class _HomePageState extends State<HomePage> {
                       height: 100,
                       child: GestureDetector(
                         onTap: () {
-                          Provider.of<MyData>(context, listen: false)
-                              .change(false);
-                          setState(() {
-                            pressed = true;
-                          });
+                          bool validName =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validName;
+                          bool validCredit =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validCredit;
+                          bool validGrade =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validGrade;
+
+                          if (validName && validGrade && validCredit) {
+                            Provider.of<MyData>(context, listen: false)
+                                .change(false);
+                            print(
+                                '####################### saveData ###########################');
+                            print(allCourses);
+                            // setState(() {
+                            //   pressed = false;
+                            // });
+                          } else {
+                            print(
+                                '####################### dont save ############################');
+                            print('validName: $validName');
+                            print('validCredit: $validCredit');
+                            print('validGrade: $validGrade');
+                          }
+                          // setState(() {
+                          //   pressed = true;
+                          // });
                         },
                         child: Center(
                           child: Text(
@@ -263,36 +288,35 @@ class _CourseState extends State<Course> {
   String? get _errorCredit {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if (pressed) {
-      if (credit.isNotEmpty && credit.length > 3) {
-        return '';
-      }
-
-      if ((name.isNotEmpty && name.trim().isNotEmpty)) {
-        if (credit.isEmpty || credit.trim().isEmpty) {
-          return '';
-        }
-      } else if ((credit.isEmpty || credit.trim().isEmpty) &&
-          selectedValue != null) {
-        return '';
-      }
+    // if (pressed) {
+    if (credit.isNotEmpty && credit.length > 3) {
+      return '';
     }
+
+    if ((name.isNotEmpty && name.trim().isNotEmpty)) {
+      if (credit.isEmpty || credit.trim().isEmpty) {
+        return '';
+      }
+    } else if ((credit.isEmpty || credit.trim().isEmpty) &&
+        selectedValue != null) {
+      return '';
+    }
+    // }
     return null;
   }
 
   String? get _errorName {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if (pressed) {
-      if (credit.isNotEmpty && credit.trim().isNotEmpty) {
-        if (name.isEmpty || name.trim().isEmpty) {
-          return '';
-        }
-      } else if ((name.isEmpty || name.trim().isEmpty) &&
-          selectedValue != null) {
+    // if (pressed) {
+    if (credit.isNotEmpty && credit.trim().isNotEmpty) {
+      if (name.isEmpty || name.trim().isEmpty) {
         return '';
       }
+    } else if ((name.isEmpty || name.trim().isEmpty) && selectedValue != null) {
+      return '';
     }
+    // }
 
     return null;
   }
@@ -300,26 +324,58 @@ class _CourseState extends State<Course> {
   void errorGrade() {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if (pressed) {
-      if ((name.isNotEmpty && name.trim().isNotEmpty) ||
-          (credit.isNotEmpty && credit.trim().isNotEmpty)) {
-        if (selectedValue == null) {
-          setState(() {
-            selectedValueIsNull = true;
-            // print('############# red ###############');
-          });
-        } else {
-          setState(() {
-            selectedValueIsNull = false;
-            // print('############# white ###############');
-          });
-        }
+    // if (pressed) {
+    if ((name.isNotEmpty && name.trim().isNotEmpty) ||
+        (credit.isNotEmpty && credit.trim().isNotEmpty)) {
+      if (selectedValue == null) {
+        setState(() {
+          selectedValueIsNull = true;
+          // print('############# red ###############');
+        });
       } else {
         setState(() {
           selectedValueIsNull = false;
           // print('############# white ###############');
         });
       }
+    } else {
+      setState(() {
+        selectedValueIsNull = false;
+        // print('############# white ###############');
+      });
+    }
+    // }
+  }
+
+  void collectDate() {
+    var name = _controller_Name.text;
+    var credit = _controller_Credit.text;
+    if (_errorName == null && _errorCredit == null && selectedValue != null) {
+      setState(() {
+        allCourses.add([name, credit, selectedValue]);
+      });
+      print('######################## values ########################### ');
+      print('Name : $name');
+      print('credit : $credit');
+      print('Grade : $selectedValue');
+    }
+  }
+
+  void theStateOfCourse() {
+    if (_errorName == null) {
+      Provider.of<MyData>(context, listen: false).stateOfName(true);
+    } else {
+      Provider.of<MyData>(context, listen: false).stateOfName(false);
+    }
+    if (_errorCredit == null) {
+      Provider.of<MyData>(context, listen: false).stateOfCredit(true);
+    } else {
+      Provider.of<MyData>(context, listen: false).stateOfCredit(false);
+    }
+    if (selectedValue != null) {
+      Provider.of<MyData>(context, listen: false).stateOfGrade(true);
+    } else {
+      Provider.of<MyData>(context, listen: false).stateOfGrade(false);
     }
   }
 
@@ -346,6 +402,8 @@ class _CourseState extends State<Course> {
                 setState(() {
                   errorGrade();
                   selectedValueIsNull;
+                  collectDate();
+                  theStateOfCourse();
                 });
               },
               decoration: InputDecoration(
@@ -373,7 +431,12 @@ class _CourseState extends State<Course> {
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                setState(() {});
+                Provider.of<MyData>(context, listen: false).change(true);
+
+                setState(() {
+                  collectDate();
+                  theStateOfCourse();
+                });
               },
               style: TextStyle(
                 fontSize: 18,
@@ -466,7 +529,10 @@ class _CourseState extends State<Course> {
               value: selectedValue,
               onChanged: (value) {
                 setState(() {
+                  Provider.of<MyData>(context, listen: false).change(true);
                   selectedValue = value as String;
+                  collectDate();
+                  theStateOfCourse();
                   errorGrade();
                 });
               },
