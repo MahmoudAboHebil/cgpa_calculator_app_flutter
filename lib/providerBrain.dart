@@ -5,7 +5,6 @@ class MyData extends ChangeNotifier {
   bool validName = false;
   bool validCredit = false;
   bool validGrade = false;
-
   void change(bool value) {
     isChanged = value;
     notifyListeners();

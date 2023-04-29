@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 // bool pressed = false;
-List<List> allCourses = [];
+// List<List> allCourses = [];
+var box = Hive.box('course');
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,10 +19,47 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _auth = FirebaseAuth.instance;
   User? loggedInUser;
+  List<List<String>> allCourse = [];
+  List<String> Ids = [];
+  List<int> numbersOfSemester = [];
+  void getData() async {
+    // box.put(courseId,[name,cr,selectedValue]);
+    var t = box.isEmpty;
+    if (!t) {
+      Map map1 = box.toMap();
+      for (final mapEntry in map1.entries) {
+        var key = mapEntry.key;
+        var value = mapEntry.value;
+        setState(() {
+          Ids.add(key);
+          allCourse.add(value);
+        });
+      }
+      for (String entety in Ids) {
+        List<String> splitedValues = entety.split('-');
+        try {
+          var sNum = int.parse(splitedValues[0]);
+          setState(() {
+            numbersOfSemester.add(sNum);
+          });
+        } catch (e) {
+          print('############## error in parse##################');
+        }
+      }
+    } else {
+      setState(() {
+        box.put('1-1-test', ['test', '3', 'A+']);
+        numbersOfSemester.add(1);
+      });
+    }
+    print(box.toMap());
+  }
+
   @override
   void initState() {
     super.initState();
     getCurrentUser();
+    getData();
   }
 
   void getCurrentUser() async {
@@ -47,233 +86,297 @@ class _HomePageState extends State<HomePage> {
     'Item7',
     'Item8',
   ];
+
   @override
   Widget build(BuildContext context) {
+    // getData();
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
         child: Scaffold(
           backgroundColor: Color(0xffb8c8d1),
-          body: ListView(
-            children: [
-              AppBarHome(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                child: Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      // height: 50,
-                      // width: 100,
-                      decoration: BoxDecoration(
-                          color: Color(0xffeaf1ed),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          border:
-                              Border.all(color: Color(0xff004d60), width: 2)),
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                        child: Text(
-                          'Semester 1',
-                          style: TextStyle(
-                            color: Color(0xff4562a7),
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          // height: 50,
-                          // width: 100,
-                          decoration: BoxDecoration(
-                              color: Color(0xffeaf1ed),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 15),
-                            child: Text(
-                              'Course Name',
-                              style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          // height: 50,
-                          // width: 100,
-                          margin: EdgeInsets.symmetric(horizontal: 25),
-                          decoration: BoxDecoration(
-                              color: Color(0xffeaf1ed),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 15),
-                            child: Text(
-                              'Credit',
-                              style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          // height: 50,
-                          // width: 100,
-                          decoration: BoxDecoration(
-                              color: Color(0xffeaf1ed),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 15),
-                            child: Text(
-                              'Course Grade',
-                              style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Course(),
-                    Course(),
-                    Course(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          // height: 50,
-                          // width: 100,
-                          decoration: BoxDecoration(
-                              color: Color(0xffeaf1ed),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            child: Text(
-                              'Delete Course',
-                              style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          // height: 50,
-                          // width: 100,
-                          decoration: BoxDecoration(
-                              color: Color(0xffeaf1ed),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            child: Text(
-                              'Add Course',
-                              style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Provider.of<MyData>(context).isChanged
-                  ? Container(
-                      width: 200,
-                      height: 100,
-                      child: GestureDetector(
-                        onTap: () {
-                          bool validName =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validName;
-                          bool validCredit =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validCredit;
-                          bool validGrade =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validGrade;
-
-                          if (validName && validGrade && validCredit) {
-                            Provider.of<MyData>(context, listen: false)
-                                .change(false);
-                            print(
-                                '####################### saveData ###########################');
-                            print(allCourses);
-                            // setState(() {
-                            //   pressed = false;
-                            // });
-                          } else {
-                            print(
-                                '####################### dont save ############################');
-                            print('validName: $validName');
-                            print('validCredit: $validCredit');
-                            print('validGrade: $validGrade');
-                          }
-                          // setState(() {
-                          //   pressed = true;
-                          // });
-                        },
-                        child: Center(
-                          child: Text(
-                            'Changed',
-                            style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : SizedBox()
-            ],
+          body: AnimatedList(
+            itemBuilder: (context, index, animation) {
+              return Semester(index + 1);
+            },
+            initialItemCount: numbersOfSemester.length,
           ),
+
+          // ListView(
+          //   children: [
+          //     AppBarHome(),
+          //     AnimatedList(
+          //       itemBuilder: (context, index, animation) {
+          //         return Semester(index + 1);
+          //       },
+          //       initialItemCount: numbersOfSemester.length,
+          //     ),
+          //     Provider.of<MyData>(context).isChanged
+          //         ? Container(
+          //             width: 200,
+          //             height: 100,
+          //             child: GestureDetector(
+          //               onTap: () {
+          //                 bool validName =
+          //                     Provider.of<MyData>(context, listen: false)
+          //                         .validName;
+          //                 bool validCredit =
+          //                     Provider.of<MyData>(context, listen: false)
+          //                         .validCredit;
+          //                 bool validGrade =
+          //                     Provider.of<MyData>(context, listen: false)
+          //                         .validGrade;
+          //
+          //                 if (validName && validGrade && validCredit) {
+          //                   Provider.of<MyData>(context, listen: false)
+          //                       .change(false);
+          //                   print(
+          //                       '####################### saveData ###########################');
+          //                   // print(allCourses);
+          //                   // setState(() {
+          //                   //   pressed = false;
+          //                   // });
+          //                 } else {
+          //                   print(
+          //                       '####################### dont save ############################');
+          //                   print('validName: $validName');
+          //                   print('validCredit: $validCredit');
+          //                   print('validGrade: $validGrade');
+          //                 }
+          //                 // setState(() {
+          //                 //   pressed = true;
+          //                 // });
+          //               },
+          //               child: Center(
+          //                 child: Text(
+          //                   'Changed',
+          //                   style: TextStyle(
+          //                     fontSize: 30,
+          //                     color: Colors.red,
+          //                   ),
+          //                 ),
+          //               ),
+          //             ),
+          //           )
+          //         : SizedBox()
+          //   ],
+          // ),
         ),
       ),
     );
   }
 }
 
+class Semester extends StatefulWidget {
+  int semesterNum;
+
+  Semester(this.semesterNum);
+
+  @override
+  State<Semester> createState() => _SemesterState();
+}
+
+class _SemesterState extends State<Semester> {
+  List<List<String>> listOfCourseInSemester = [];
+  List<String> nameOfCourses = [];
+  List<int> creditsOfCourses = [];
+  List<String> gradeOfCourses = [];
+  void getData() async {
+    // box.put(courseId,[name,cr,selectedValue]);
+    var t = box.isEmpty;
+    if (!t) {
+      Map map1 = box.toMap();
+      for (final mapEntry in map1.entries) {
+        var key = mapEntry.key;
+        var value = mapEntry.value;
+        List<String> splitedValues = key.split('-');
+        var sNum = int.parse(splitedValues[0]);
+        if (sNum == widget.semesterNum) {
+          setState(() {
+            listOfCourseInSemester.add(value);
+          });
+        }
+      }
+      for (List<String> course in listOfCourseInSemester) {
+        setState(() {
+          nameOfCourses.add(course[0]);
+          creditsOfCourses.add(int.parse(course[1]));
+          gradeOfCourses.add(course[2]);
+        });
+      }
+    } else {
+      print('################# emetey in semester####################');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // getData();
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            // height: 50,
+            // width: 100,
+            decoration: BoxDecoration(
+                color: Color(0xffeaf1ed),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                border: Border.all(color: Color(0xff004d60), width: 2)),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              child: Text(
+                'Semester 1',
+                style: TextStyle(
+                  color: Color(0xff4562a7),
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                alignment: Alignment.center,
+                // height: 50,
+                // width: 100,
+                decoration: BoxDecoration(
+                    color: Color(0xffeaf1ed),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  child: Text(
+                    'Course Name',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                // height: 50,
+                // width: 100,
+                margin: EdgeInsets.symmetric(horizontal: 25),
+                decoration: BoxDecoration(
+                    color: Color(0xffeaf1ed),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  child: Text(
+                    'Credit',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                // height: 50,
+                // width: 100,
+                decoration: BoxDecoration(
+                    color: Color(0xffeaf1ed),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  child: Text(
+                    'Course Grade',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          AnimatedList(
+            itemBuilder: (context, index, animation) {
+              return Course(widget.semesterNum, index + 1, nameOfCourses[index],
+                  creditsOfCourses[index], gradeOfCourses[index]);
+            },
+            initialItemCount: listOfCourseInSemester.length,
+            shrinkWrap: true,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                alignment: Alignment.center,
+                // height: 50,
+                // width: 100,
+                decoration: BoxDecoration(
+                    color: Color(0xffeaf1ed),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  child: Text(
+                    'Delete Course',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                // height: 50,
+                // width: 100,
+                decoration: BoxDecoration(
+                    color: Color(0xffeaf1ed),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  child: Text(
+                    'Add Course',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class Course extends StatefulWidget {
+  int semesterNum;
+  int courseNum;
+  String name;
+  int credit;
+  String grade;
+  Course(this.semesterNum, this.courseNum, this.name, this.credit, this.grade);
+
   @override
   State<Course> createState() => _CourseState();
 }
 
 class _CourseState extends State<Course> {
-  final TextEditingController _controller_Name = TextEditingController();
-  final TextEditingController _controller_Credit = TextEditingController();
-  String? selectedValue;
+  late TextEditingController _controller_Name;
+  late TextEditingController _controller_Credit;
+  late String selectedValue;
   bool selectedValueIsNull = false;
   final List<String> items = [
     'A+',
@@ -285,6 +388,14 @@ class _CourseState extends State<Course> {
     'g',
     'k+',
   ];
+  @override
+  void initState() {
+    super.initState();
+    _controller_Name = TextEditingController(text: widget.name);
+    _controller_Credit = TextEditingController(text: '${widget.credit}');
+    selectedValue = widget.grade;
+  }
+
   String? get _errorCredit {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
@@ -352,12 +463,18 @@ class _CourseState extends State<Course> {
     var credit = _controller_Credit.text;
     if (_errorName == null && _errorCredit == null && selectedValue != null) {
       setState(() {
-        allCourses.add([name, credit, selectedValue]);
+        // allCourses.add([name, credit, selectedValue]);
       });
       print('######################## values ########################### ');
       print('Name : $name');
       print('credit : $credit');
       print('Grade : $selectedValue');
+      // semesterNum+courseNum+CourseName
+      int sNom = widget.semesterNum;
+      int cNom = widget.courseNum;
+      String cr = credit + '';
+      String courseId = '$sNom-$cNom-$name';
+      box.put(courseId, [name, cr, selectedValue]);
     }
   }
 
