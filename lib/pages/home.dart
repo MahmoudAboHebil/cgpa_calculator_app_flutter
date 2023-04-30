@@ -9,7 +9,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 // bool pressed = false;
 // List<List> allCourses = [];
-var box = Hive.box('course');
+var box = Hive.box('course1');
+GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,9 +20,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _auth = FirebaseAuth.instance;
   User? loggedInUser;
-  List<List<String>> allCourse = [];
+  List allCourse = [];
   List<String> Ids = [];
-  List<int> numbersOfSemester = [];
+  int numbersOfSemester = 0;
   void getData() async {
     // box.put(courseId,[name,cr,selectedValue]);
     var t = box.isEmpty;
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
         try {
           var sNum = int.parse(splitedValues[0]);
           setState(() {
-            numbersOfSemester.add(sNum);
+            numbersOfSemester = sNum;
           });
         } catch (e) {
           print('############## error in parse##################');
@@ -49,10 +50,12 @@ class _HomePageState extends State<HomePage> {
     } else {
       setState(() {
         box.put('1-1-test', ['test', '3', 'A+']);
-        numbersOfSemester.add(1);
+        numbersOfSemester = 1;
       });
     }
     print(box.toMap());
+    print(numbersOfSemester);
+    print(allCourse);
   }
 
   @override
@@ -99,7 +102,7 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index, animation) {
               return Semester(index + 1);
             },
-            initialItemCount: numbersOfSemester.length,
+            initialItemCount: numbersOfSemester,
           ),
 
           // ListView(
@@ -177,10 +180,10 @@ class Semester extends StatefulWidget {
 }
 
 class _SemesterState extends State<Semester> {
-  List<List<String>> listOfCourseInSemester = [];
-  List<String> nameOfCourses = [];
-  List<int> creditsOfCourses = [];
-  List<String> gradeOfCourses = [];
+  List listOfCourseInSemester = [];
+  List nameOfCourses = [];
+  List creditsOfCourses = [];
+  List gradeOfCourses = [];
   void getData() async {
     // box.put(courseId,[name,cr,selectedValue]);
     var t = box.isEmpty;
@@ -197,7 +200,7 @@ class _SemesterState extends State<Semester> {
           });
         }
       }
-      for (List<String> course in listOfCourseInSemester) {
+      for (List course in listOfCourseInSemester) {
         setState(() {
           nameOfCourses.add(course[0]);
           creditsOfCourses.add(int.parse(course[1]));
@@ -218,6 +221,7 @@ class _SemesterState extends State<Semester> {
   @override
   Widget build(BuildContext context) {
     // getData();
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       child: Column(
@@ -311,6 +315,7 @@ class _SemesterState extends State<Semester> {
             },
             initialItemCount: listOfCourseInSemester.length,
             shrinkWrap: true,
+            key: _keyOfCourse,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -334,21 +339,38 @@ class _SemesterState extends State<Semester> {
                   ),
                 ),
               ),
-              Container(
-                alignment: Alignment.center,
-                // height: 50,
-                // width: 100,
-                decoration: BoxDecoration(
-                    color: Color(0xffeaf1ed),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  child: Text(
-                    'Add Course',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 15,
+              GestureDetector(
+                onTap: () {
+                  print(
+                      '###########################################################');
+                  setState(() {
+                    // listOfCourseInSemester.add(['add', '3', 'A+']);
+                    nameOfCourses.add(null);
+                    creditsOfCourses.add(null);
+                    gradeOfCourses.add(null);
+                  });
+                  _keyOfCourse.currentState!
+                      .insertItem(listOfCourseInSemester.length - 1);
+                  print(listOfCourseInSemester.length);
+
+                  // print()
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  // height: 50,
+                  // width: 100,
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    child: Text(
+                      'Add Course',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ),
@@ -364,9 +386,9 @@ class _SemesterState extends State<Semester> {
 class Course extends StatefulWidget {
   int semesterNum;
   int courseNum;
-  String name;
-  int credit;
-  String grade;
+  String? name;
+  int? credit;
+  String? grade;
   Course(this.semesterNum, this.courseNum, this.name, this.credit, this.grade);
 
   @override
@@ -376,7 +398,7 @@ class Course extends StatefulWidget {
 class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
-  late String selectedValue;
+  late String? selectedValue;
   bool selectedValueIsNull = false;
   final List<String> items = [
     'A+',
@@ -391,8 +413,16 @@ class _CourseState extends State<Course> {
   @override
   void initState() {
     super.initState();
-    _controller_Name = TextEditingController(text: widget.name);
-    _controller_Credit = TextEditingController(text: '${widget.credit}');
+    if (widget.name == null) {
+      _controller_Name = TextEditingController();
+    } else {
+      _controller_Name = TextEditingController(text: widget.name);
+    }
+    if (widget.credit == null) {
+      _controller_Credit = TextEditingController();
+    } else {
+      _controller_Credit = TextEditingController(text: '${widget.credit}');
+    }
     selectedValue = widget.grade;
   }
 
