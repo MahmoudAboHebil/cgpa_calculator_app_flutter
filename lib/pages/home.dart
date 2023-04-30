@@ -180,10 +180,11 @@ class Semester extends StatefulWidget {
 }
 
 class _SemesterState extends State<Semester> {
-  List listOfCourseInSemester = [];
+  List listOfCoursesInSemester = [];
   List nameOfCourses = [];
   List creditsOfCourses = [];
   List gradeOfCourses = [];
+  bool delete = false;
   void getData() async {
     // box.put(courseId,[name,cr,selectedValue]);
     var t = box.isEmpty;
@@ -196,11 +197,11 @@ class _SemesterState extends State<Semester> {
         var sNum = int.parse(splitedValues[0]);
         if (sNum == widget.semesterNum) {
           setState(() {
-            listOfCourseInSemester.add(value);
+            listOfCoursesInSemester.add(value);
           });
         }
       }
-      for (List course in listOfCourseInSemester) {
+      for (List course in listOfCoursesInSemester) {
         setState(() {
           nameOfCourses.add(course[0]);
           creditsOfCourses.add(int.parse(course[1]));
@@ -210,6 +211,26 @@ class _SemesterState extends State<Semester> {
     } else {
       print('################# emetey in semester####################');
     }
+  }
+
+  void deleteCourse(int semesterNum, var courseNum, int index) {
+    setState(() {
+      listOfCoursesInSemester.removeAt(index);
+      var name = nameOfCourses.removeAt(index);
+      var credit = creditsOfCourses.removeAt(index);
+      var grade = gradeOfCourses.removeAt(index);
+      _keyOfCourse.currentState!.removeItem(index, (context, animation) {
+        return SizeTransition(
+          key: ValueKey(name),
+          sizeFactor: animation,
+          child: Course(semesterNum, courseNum, name, credit, grade),
+        );
+      }, duration: Duration(milliseconds: 450));
+      if (courseNum != null) {
+        String courseId = '$semesterNum-$courseNum-$name';
+        box.delete(courseId);
+      }
+    });
   }
 
   @override
@@ -310,31 +331,62 @@ class _SemesterState extends State<Semester> {
           ),
           AnimatedList(
             itemBuilder: (context, index, animation) {
-              return Course(widget.semesterNum, index + 1, nameOfCourses[index],
-                  creditsOfCourses[index], gradeOfCourses[index]);
+              if (delete) {
+                return GestureDetector(
+                  onTap: () {
+                    print('################# delete #####################');
+                    deleteCourse(widget.semesterNum, index + 1, index);
+                    setState(() {
+                      delete = false;
+                    });
+                  },
+                  child: AbsorbPointer(
+                    child: Course(
+                        widget.semesterNum,
+                        index + 1,
+                        nameOfCourses[index],
+                        creditsOfCourses[index],
+                        gradeOfCourses[index]),
+                  ),
+                );
+              } else {
+                return Course(
+                    widget.semesterNum,
+                    index + 1,
+                    nameOfCourses[index],
+                    creditsOfCourses[index],
+                    gradeOfCourses[index]);
+              }
             },
-            initialItemCount: listOfCourseInSemester.length,
+            initialItemCount: listOfCoursesInSemester.length,
             shrinkWrap: true,
             key: _keyOfCourse,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                alignment: Alignment.center,
-                // height: 50,
-                // width: 100,
-                decoration: BoxDecoration(
-                    color: Color(0xffeaf1ed),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  child: Text(
-                    'Delete Course',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 15,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    delete = true;
+                  });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  // height: 50,
+                  // width: 100,
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    child: Text(
+                      'Delete Course',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ),
@@ -348,10 +400,11 @@ class _SemesterState extends State<Semester> {
                     nameOfCourses.add(null);
                     creditsOfCourses.add(null);
                     gradeOfCourses.add(null);
+                    listOfCoursesInSemester.add([null, null, null]);
                   });
                   _keyOfCourse.currentState!
-                      .insertItem(listOfCourseInSemester.length - 1);
-                  print(listOfCourseInSemester.length);
+                      .insertItem(listOfCoursesInSemester.length - 1);
+                  print(listOfCoursesInSemester.length);
 
                   // print()
                 },
