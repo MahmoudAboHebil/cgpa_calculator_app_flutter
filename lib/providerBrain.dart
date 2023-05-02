@@ -11,6 +11,7 @@ class MyData extends ChangeNotifier {
     notifyListeners();
   }
 
+// to save data
   void changeSaveData(bool value) {
     savaData = value;
     notifyListeners();

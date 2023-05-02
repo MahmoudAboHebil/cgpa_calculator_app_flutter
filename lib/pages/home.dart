@@ -8,8 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-// bool pressed = false;
-// List<List> allCourses = [];
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 
