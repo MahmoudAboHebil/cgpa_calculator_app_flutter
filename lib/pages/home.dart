@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 // bool pressed = false;
 // List<List> allCourses = [];
-var box = Hive.box('course1');
+var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 
 class HomePage extends StatefulWidget {
@@ -23,46 +24,11 @@ class _HomePageState extends State<HomePage> {
   List allCourse = [];
   List<String> Ids = [];
   int numbersOfSemester = 0;
-  void getData() async {
-    // box.put(courseId,[name,cr,selectedValue]);
-    var t = box.isEmpty;
-    if (!t) {
-      Map map1 = box.toMap();
-      for (final mapEntry in map1.entries) {
-        var key = mapEntry.key;
-        var value = mapEntry.value;
-        setState(() {
-          Ids.add(key);
-          allCourse.add(value);
-        });
-      }
-      for (String entety in Ids) {
-        List<String> splitedValues = entety.split('-');
-        try {
-          var sNum = int.parse(splitedValues[0]);
-          setState(() {
-            numbersOfSemester = sNum;
-          });
-        } catch (e) {
-          print('############## error in parse##################');
-        }
-      }
-    } else {
-      setState(() {
-        box.put('1-1-test', ['test', '3', 'A+']);
-        numbersOfSemester = 1;
-      });
-    }
-    print(box.toMap());
-    print(numbersOfSemester);
-    print(allCourse);
-  }
 
   @override
   void initState() {
     super.initState();
     getCurrentUser();
-    getData();
   }
 
   void getCurrentUser() async {
@@ -98,72 +64,52 @@ class _HomePageState extends State<HomePage> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: Color(0xffb8c8d1),
-          body: AnimatedList(
-            itemBuilder: (context, index, animation) {
-              return Semester(index + 1);
-            },
-            initialItemCount: numbersOfSemester,
-          ),
+          body: ListView(
+            shrinkWrap: true,
+            children: [
+              AppBarHome(),
+              Semester(1),
+              Provider.of<MyData>(context).isChanged
+                  ? Container(
+                      width: 200,
+                      height: 100,
+                      child: GestureDetector(
+                        onTap: () {
+                          bool validName =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validName;
+                          bool validCredit =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validCredit;
+                          bool validGrade =
+                              Provider.of<MyData>(context, listen: false)
+                                  .validGrade;
 
-          // ListView(
-          //   children: [
-          //     AppBarHome(),
-          //     AnimatedList(
-          //       itemBuilder: (context, index, animation) {
-          //         return Semester(index + 1);
-          //       },
-          //       initialItemCount: numbersOfSemester.length,
-          //     ),
-          //     Provider.of<MyData>(context).isChanged
-          //         ? Container(
-          //             width: 200,
-          //             height: 100,
-          //             child: GestureDetector(
-          //               onTap: () {
-          //                 bool validName =
-          //                     Provider.of<MyData>(context, listen: false)
-          //                         .validName;
-          //                 bool validCredit =
-          //                     Provider.of<MyData>(context, listen: false)
-          //                         .validCredit;
-          //                 bool validGrade =
-          //                     Provider.of<MyData>(context, listen: false)
-          //                         .validGrade;
-          //
-          //                 if (validName && validGrade && validCredit) {
-          //                   Provider.of<MyData>(context, listen: false)
-          //                       .change(false);
-          //                   print(
-          //                       '####################### saveData ###########################');
-          //                   // print(allCourses);
-          //                   // setState(() {
-          //                   //   pressed = false;
-          //                   // });
-          //                 } else {
-          //                   print(
-          //                       '####################### dont save ############################');
-          //                   print('validName: $validName');
-          //                   print('validCredit: $validCredit');
-          //                   print('validGrade: $validGrade');
-          //                 }
-          //                 // setState(() {
-          //                 //   pressed = true;
-          //                 // });
-          //               },
-          //               child: Center(
-          //                 child: Text(
-          //                   'Changed',
-          //                   style: TextStyle(
-          //                     fontSize: 30,
-          //                     color: Colors.red,
-          //                   ),
-          //                 ),
-          //               ),
-          //             ),
-          //           )
-          //         : SizedBox()
-          //   ],
-          // ),
+                          if (validName && validGrade && validCredit) {
+                            Provider.of<MyData>(context, listen: false)
+                                .change(false);
+                            Provider.of<MyData>(context, listen: false)
+                                .changeSaveData(true);
+                            Future.delayed(Duration(milliseconds: 500), () {
+                              Provider.of<MyData>(context, listen: false)
+                                  .changeSaveData(false);
+                            });
+                          } else {}
+                        },
+                        child: Center(
+                          child: Text(
+                            'Changed',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox()
+            ],
+          ),
         ),
       ),
     );
@@ -181,54 +127,62 @@ class Semester extends StatefulWidget {
 
 class _SemesterState extends State<Semester> {
   List listOfCoursesInSemester = [];
-  List nameOfCourses = [];
-  List creditsOfCourses = [];
-  List gradeOfCourses = [];
+  late String semestNumString;
+
   bool delete = false;
+  bool val = true;
   void getData() async {
-    // box.put(courseId,[name,cr,selectedValue]);
-    var t = box.isEmpty;
-    if (!t) {
-      Map map1 = box.toMap();
-      for (final mapEntry in map1.entries) {
+    bool t = box.isEmpty;
+    if (t && val) {
+      // emtyBox
+      setState(() {
+        listOfCoursesInSemester.add([semestNumString, null, null, null]);
+      });
+      setState(() {
+        val = false;
+      });
+    } else {
+      Map map = box.toMap();
+
+      for (final mapEntry in map.entries) {
         var key = mapEntry.key;
         var value = mapEntry.value;
-        List<String> splitedValues = key.split('-');
-        var sNum = int.parse(splitedValues[0]);
-        if (sNum == widget.semesterNum) {
-          setState(() {
-            listOfCoursesInSemester.add(value);
-          });
-        }
-      }
-      for (List course in listOfCoursesInSemester) {
         setState(() {
-          nameOfCourses.add(course[0]);
-          creditsOfCourses.add(int.parse(course[1]));
-          gradeOfCourses.add(course[2]);
+          listOfCoursesInSemester.add(value);
+          listOfCoursesInSemester = listOfCoursesInSemester.toSet().toList();
         });
       }
-    } else {
-      print('################# emetey in semester####################');
     }
   }
 
-  void deleteCourse(int semesterNum, var courseNum, int index) {
+  void addCourse() {
     setState(() {
-      listOfCoursesInSemester.removeAt(index);
-      var name = nameOfCourses.removeAt(index);
-      var credit = creditsOfCourses.removeAt(index);
-      var grade = gradeOfCourses.removeAt(index);
+      listOfCoursesInSemester.add([semestNumString, null, null, null]);
+    });
+    int insertIndex = listOfCoursesInSemester.isEmpty
+        ? listOfCoursesInSemester.length
+        : listOfCoursesInSemester.length - 1;
+    print('################# insertIndex: $insertIndex ######################');
+    _keyOfCourse.currentState!.insertItem(insertIndex);
+  }
+
+  void deleteCourse(int index) {
+    setState(() {
+      List deletedCourse = listOfCoursesInSemester.removeAt(index);
       _keyOfCourse.currentState!.removeItem(index, (context, animation) {
         return SizeTransition(
-          key: ValueKey(name),
+          key: ValueKey(deletedCourse[1]),
           sizeFactor: animation,
-          child: Course(semesterNum, courseNum, name, credit, grade),
+          child: Course(deletedCourse),
         );
       }, duration: Duration(milliseconds: 450));
-      if (courseNum != null) {
-        String courseId = '$semesterNum-$courseNum-$name';
-        box.delete(courseId);
+      if (deletedCourse[1] != null) {
+        Function eq = const ListEquality().equals;
+        var id = box.toMap().keys.firstWhere(
+            (k) => eq(box.toMap()[k], deletedCourse),
+            orElse: () => null);
+        print('################# id delete: $id ############################');
+        box.delete(id);
       }
     });
   }
@@ -236,13 +190,16 @@ class _SemesterState extends State<Semester> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      semestNumString = widget.semesterNum.toString();
+    });
     getData();
+    print('################### map #####################');
+    print(box.toMap());
   }
 
   @override
   Widget build(BuildContext context) {
-    // getData();
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       child: Column(
@@ -258,7 +215,7 @@ class _SemesterState extends State<Semester> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               child: Text(
-                'Semester 1',
+                'Semester $semestNumString',
                 style: TextStyle(
                   color: Color(0xff4562a7),
                   fontSize: 20,
@@ -334,28 +291,17 @@ class _SemesterState extends State<Semester> {
               if (delete) {
                 return GestureDetector(
                   onTap: () {
-                    print('################# delete #####################');
-                    deleteCourse(widget.semesterNum, index + 1, index);
+                    deleteCourse(index);
                     setState(() {
                       delete = false;
                     });
                   },
                   child: AbsorbPointer(
-                    child: Course(
-                        widget.semesterNum,
-                        index + 1,
-                        nameOfCourses[index],
-                        creditsOfCourses[index],
-                        gradeOfCourses[index]),
+                    child: Course(listOfCoursesInSemester[index]),
                   ),
                 );
               } else {
-                return Course(
-                    widget.semesterNum,
-                    index + 1,
-                    nameOfCourses[index],
-                    creditsOfCourses[index],
-                    gradeOfCourses[index]);
+                return Course(listOfCoursesInSemester[index]);
               }
             },
             initialItemCount: listOfCoursesInSemester.length,
@@ -373,8 +319,6 @@ class _SemesterState extends State<Semester> {
                 },
                 child: Container(
                   alignment: Alignment.center,
-                  // height: 50,
-                  // width: 100,
                   decoration: BoxDecoration(
                       color: Color(0xffeaf1ed),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -393,25 +337,10 @@ class _SemesterState extends State<Semester> {
               ),
               GestureDetector(
                 onTap: () {
-                  print(
-                      '###########################################################');
-                  setState(() {
-                    // listOfCourseInSemester.add(['add', '3', 'A+']);
-                    nameOfCourses.add(null);
-                    creditsOfCourses.add(null);
-                    gradeOfCourses.add(null);
-                    listOfCoursesInSemester.add([null, null, null]);
-                  });
-                  _keyOfCourse.currentState!
-                      .insertItem(listOfCoursesInSemester.length - 1);
-                  print(listOfCoursesInSemester.length);
-
-                  // print()
+                  addCourse();
                 },
                 child: Container(
                   alignment: Alignment.center,
-                  // height: 50,
-                  // width: 100,
                   decoration: BoxDecoration(
                       color: Color(0xffeaf1ed),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -437,12 +366,8 @@ class _SemesterState extends State<Semester> {
 }
 
 class Course extends StatefulWidget {
-  int semesterNum;
-  int courseNum;
-  String? name;
-  int? credit;
-  String? grade;
-  Course(this.semesterNum, this.courseNum, this.name, this.credit, this.grade);
+  List courseList;
+  Course(this.courseList);
 
   @override
   State<Course> createState() => _CourseState();
@@ -466,17 +391,17 @@ class _CourseState extends State<Course> {
   @override
   void initState() {
     super.initState();
-    if (widget.name == null) {
+    if (widget.courseList[1] == null) {
       _controller_Name = TextEditingController();
     } else {
-      _controller_Name = TextEditingController(text: widget.name);
+      _controller_Name = TextEditingController(text: widget.courseList[1]);
     }
-    if (widget.credit == null) {
+    if (widget.courseList[2] == null) {
       _controller_Credit = TextEditingController();
     } else {
-      _controller_Credit = TextEditingController(text: '${widget.credit}');
+      _controller_Credit = TextEditingController(text: widget.courseList[2]);
     }
-    selectedValue = widget.grade;
+    selectedValue = widget.courseList[3];
   }
 
   String? get _errorCredit {
@@ -542,22 +467,44 @@ class _CourseState extends State<Course> {
   }
 
   void collectDate() {
+    Function eq = const ListEquality().equals;
+    bool save = Provider.of<MyData>(context, listen: false).savaData;
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    if (_errorName == null && _errorCredit == null && selectedValue != null) {
-      setState(() {
-        // allCourses.add([name, credit, selectedValue]);
-      });
-      print('######################## values ########################### ');
-      print('Name : $name');
-      print('credit : $credit');
-      print('Grade : $selectedValue');
-      // semesterNum+courseNum+CourseName
-      int sNom = widget.semesterNum;
-      int cNom = widget.courseNum;
-      String cr = credit + '';
-      String courseId = '$sNom-$cNom-$name';
-      box.put(courseId, [name, cr, selectedValue]);
+    String? sNum = widget.courseList[0];
+    if (_errorName == null &&
+        _errorCredit == null &&
+        selectedValue != null &&
+        save) {
+      if (!eq([
+        sNum,
+        name,
+        credit,
+        selectedValue
+      ], [
+        sNum,
+        widget.courseList[1],
+        widget.courseList[2],
+        widget.courseList[3]
+      ])) {
+        var id = box.toMap().keys.firstWhere(
+            (k) => eq(box.toMap()[k], widget.courseList),
+            orElse: () => null);
+        if (id == null) {
+          box.add([sNum, name, credit, selectedValue]);
+        } else {
+          box.put(id, [sNum, name, credit, selectedValue]);
+        }
+      }
+
+      // var id = box.toMap().keys.firstWhere(
+      //     (k) => eq(box.toMap()[k], widget.courseList),
+      //     orElse: () => null);
+      // print('################## collect id: $id##########################');
+      // if (id == null) {
+      //   box.add([sNum, name, credit, selectedValue]);
+      // } else {
+      // }
     }
   }
 
@@ -582,6 +529,10 @@ class _CourseState extends State<Course> {
   @override
   Widget build(BuildContext context) {
     errorGrade();
+    Future.delayed(Duration.zero, () {
+      collectDate();
+    });
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 15),
       child: Row(

@@ -5,8 +5,14 @@ class MyData extends ChangeNotifier {
   bool validName = false;
   bool validCredit = false;
   bool validGrade = false;
+  bool savaData = false;
   void change(bool value) {
     isChanged = value;
+    notifyListeners();
+  }
+
+  void changeSaveData(bool value) {
+    savaData = value;
     notifyListeners();
   }
 
