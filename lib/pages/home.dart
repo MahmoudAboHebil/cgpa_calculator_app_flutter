@@ -8,6 +8,12 @@ import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+// ToDo: the data entry removed when click the deleteCourse button
+// ToDo: there is a problem sometimes when clicking the addCourse button
+// ToDo: there is a problem when scrolling
+// ToDo: the validation desgin need to fix
+// ToDo: name disappear when get long
+
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 
@@ -82,7 +88,9 @@ class _HomePageState extends State<HomePage> {
                           bool validGrade =
                               Provider.of<MyData>(context, listen: false)
                                   .validGrade;
-
+                          print('validName : $validName');
+                          print('validCredit : $validCredit');
+                          print('validGrade : $validGrade');
                           if (validName && validGrade && validCredit) {
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
@@ -127,7 +135,6 @@ class _SemesterState extends State<Semester> {
   List listOfCoursesInSemester = [];
   late String semestNumString;
 
-  bool delete = false;
   bool val = true;
   void getData() async {
     bool t = box.isEmpty;
@@ -164,27 +171,6 @@ class _SemesterState extends State<Semester> {
     _keyOfCourse.currentState!.insertItem(insertIndex);
   }
 
-  void deleteCourse(int index) {
-    setState(() {
-      List deletedCourse = listOfCoursesInSemester.removeAt(index);
-      _keyOfCourse.currentState!.removeItem(index, (context, animation) {
-        return SizeTransition(
-          key: ValueKey(deletedCourse[1]),
-          sizeFactor: animation,
-          child: Course(deletedCourse),
-        );
-      }, duration: Duration(milliseconds: 450));
-      if (deletedCourse[1] != null) {
-        Function eq = const ListEquality().equals;
-        var id = box.toMap().keys.firstWhere(
-            (k) => eq(box.toMap()[k], deletedCourse),
-            orElse: () => null);
-        print('################# id delete: $id ############################');
-        box.delete(id);
-      }
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -199,32 +185,34 @@ class _SemesterState extends State<Semester> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      padding: EdgeInsets.symmetric(vertical: 30),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            alignment: Alignment.center,
-            // height: 50,
-            // width: 100,
-            decoration: BoxDecoration(
-                color: Color(0xffeaf1ed),
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: Color(0xff004d60), width: 2)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              child: Text(
-                'Semester $semestNumString',
-                style: TextStyle(
-                  color: Color(0xff4562a7),
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ),
+          // Container(
+          //   alignment: Alignment.center,
+          //   // height: 50,
+          //   // width: 100,
+          //   decoration: BoxDecoration(
+          //       color: Color(0xffeaf1ed),
+          //       borderRadius: BorderRadius.all(Radius.circular(20)),
+          //       border: Border.all(color: Color(0xff004d60), width: 2)),
+          //   child: Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+          //     child: Text(
+          //       'Semester $semestNumString',
+          //       style: TextStyle(
+          //         color: Color(0xff4562a7),
+          //         fontSize: 20,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
+                margin: EdgeInsets.only(left: 20),
                 alignment: Alignment.center,
                 // height: 50,
                 // width: 100,
@@ -286,53 +274,24 @@ class _SemesterState extends State<Semester> {
           ),
           AnimatedList(
             itemBuilder: (context, index, animation) {
-              if (delete) {
-                return GestureDetector(
-                  onTap: () {
-                    deleteCourse(index);
-                    setState(() {
-                      delete = false;
-                    });
-                  },
-                  child: AbsorbPointer(
-                    child: Course(listOfCoursesInSemester[index]),
-                  ),
-                );
-              } else {
-                return Course(listOfCoursesInSemester[index]);
-              }
+              return Course(
+                  listOfCoursesInSemester[index][0],
+                  listOfCoursesInSemester[index][1],
+                  listOfCoursesInSemester[index][2],
+                  listOfCoursesInSemester[index][3],
+                  listOfCoursesInSemester[index], () {
+                setState(() {
+                  listOfCoursesInSemester;
+                });
+              }, listOfCoursesInSemester);
             },
             initialItemCount: listOfCoursesInSemester.length,
             shrinkWrap: true,
             key: _keyOfCourse,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    delete = true;
-                  });
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    child: Text(
-                      'Delete Course',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
               GestureDetector(
                 onTap: () {
                   addCourse();
@@ -364,8 +323,15 @@ class _SemesterState extends State<Semester> {
 }
 
 class Course extends StatefulWidget {
+  String? semestNum;
+  String? name;
+  String? credite;
+  String? grade;
   List courseList;
-  Course(this.courseList);
+  Function function;
+  List semestCourse;
+  Course(this.semestNum, this.name, this.credite, this.grade, this.courseList,
+      this.function, this.semestCourse);
 
   @override
   State<Course> createState() => _CourseState();
@@ -376,6 +342,7 @@ class _CourseState extends State<Course> {
   late TextEditingController _controller_Credit;
   late String? selectedValue;
   bool selectedValueIsNull = false;
+  int index = 0;
   final List<String> items = [
     'A+',
     'b+',
@@ -389,17 +356,21 @@ class _CourseState extends State<Course> {
   @override
   void initState() {
     super.initState();
-    if (widget.courseList[1] == null) {
+    setState(() {
+      index = widget.semestCourse.indexOf(widget.courseList);
+    });
+
+    if (widget.name == null) {
       _controller_Name = TextEditingController();
     } else {
-      _controller_Name = TextEditingController(text: widget.courseList[1]);
+      _controller_Name = TextEditingController(text: widget.name);
     }
-    if (widget.courseList[2] == null) {
+    if (widget.credite == null) {
       _controller_Credit = TextEditingController();
     } else {
-      _controller_Credit = TextEditingController(text: widget.courseList[2]);
+      _controller_Credit = TextEditingController(text: widget.credite);
     }
-    selectedValue = widget.courseList[3];
+    selectedValue = widget.grade;
   }
 
   String? get _errorCredit {
@@ -464,6 +435,44 @@ class _CourseState extends State<Course> {
     // }
   }
 
+  void deleteCourse() {
+    setState(() {
+      // List deletedCourse = [
+      //   widget.semestCourse,
+      //   widget.name,
+      //   widget.credite,
+      //   widget.grade
+      // ];
+      int index = widget.semestCourse.indexOf(widget.courseList);
+      List deletedCourse = widget.semestCourse.removeAt(index);
+      print('################## deleted course###############################');
+      print(deletedCourse);
+      _keyOfCourse.currentState!.removeItem(index, (context, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          key: ValueKey(
+            widget.name,
+          ),
+          child: Course(widget.semestNum, widget.name, widget.credite,
+              widget.grade, widget.courseList, () {
+            setState(() {
+              widget.semestCourse;
+            });
+          }, widget.semestCourse),
+        );
+      }, duration: Duration(milliseconds: 450));
+      Function eq = const ListEquality().equals;
+      var id = box.toMap().keys.firstWhere(
+          (k) => eq(box.toMap()[k], deletedCourse),
+          orElse: () => null);
+      if (id != null) {
+        print('################# id delete: $id ############################');
+        box.delete(id);
+      }
+      widget.function();
+    });
+  }
+
   void collectDate() {
     Function eq = const ListEquality().equals;
     bool save = Provider.of<MyData>(context, listen: false).savaData;
@@ -495,14 +504,13 @@ class _CourseState extends State<Course> {
         }
       }
 
-      // var id = box.toMap().keys.firstWhere(
-      //     (k) => eq(box.toMap()[k], widget.courseList),
-      //     orElse: () => null);
-      // print('################## collect id: $id##########################');
-      // if (id == null) {
-      //   box.add([sNum, name, credit, selectedValue]);
-      // } else {
-      // }
+      var id = box.toMap().keys.firstWhere(
+          (k) => eq(box.toMap()[k], widget.courseList),
+          orElse: () => null);
+      print('################## collect id: $id##########################');
+      if (id == null) {
+        box.add([sNum, name, credit, selectedValue]);
+      } else {}
     }
   }
 
@@ -526,52 +534,69 @@ class _CourseState extends State<Course> {
 
   @override
   Widget build(BuildContext context) {
-    errorGrade();
-    Future.delayed(Duration.zero, () {
+    if (mounted) {
+      errorGrade();
+      theStateOfCourse;
       collectDate();
-    });
+    }
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 15),
+      padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Container(
-            width: 125,
-            height: 19,
-            margin: EdgeInsets.only(bottom: 0.4),
-            child: TextField(
-              controller: _controller_Name,
-              textAlign: TextAlign.center,
-              autofocus: false,
-              style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
-              onChanged: (value) {
-                Provider.of<MyData>(context, listen: false).change(true);
-                setState(() {
-                  errorGrade();
-                  selectedValueIsNull;
-                  collectDate();
-                  theStateOfCourse();
-                });
-              },
-              decoration: InputDecoration(
-                errorText: _errorName,
-                hintText: 'Enter Course',
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    deleteCourse();
+                  });
+                },
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Color(0xffce2029),
                 ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xff4562a7),
+              ),
+              Container(
+                width: 125,
+                margin: EdgeInsets.only(top: 4, left: 10),
+                child: TextField(
+                  controller: _controller_Name,
+                  textAlign: TextAlign.center,
+                  autofocus: false,
+                  style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
+                  onChanged: (value) {
+                    Provider.of<MyData>(context, listen: false).change(true);
+                    setState(() {
+                      widget.courseList[1] = _controller_Name.text;
+
+                      widget.semestCourse[index] = widget.courseList;
+                      errorGrade();
+                      selectedValueIsNull;
+                      theStateOfCourse();
+                      collectDate();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    errorText: _errorName,
+                    hintText: 'Enter Course',
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xff4562a7),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
           Container(
-            height: 19,
             width: 60,
             margin: EdgeInsets.only(bottom: 0.4),
             child: TextField(
@@ -581,10 +606,11 @@ class _CourseState extends State<Course> {
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 Provider.of<MyData>(context, listen: false).change(true);
-
                 setState(() {
-                  collectDate();
+                  widget.courseList[2] = _controller_Credit.text;
+                  widget.semestCourse[index] = widget.courseList;
                   theStateOfCourse();
+                  collectDate();
                 });
               },
               style: TextStyle(
@@ -612,7 +638,6 @@ class _CourseState extends State<Course> {
                 errorGrade();
               },
               customButton: Container(
-                height: 35,
                 width: 120,
                 decoration: BoxDecoration(
                   color: Colors.transparent,
@@ -680,9 +705,17 @@ class _CourseState extends State<Course> {
                 setState(() {
                   Provider.of<MyData>(context, listen: false).change(true);
                   selectedValue = value as String;
-                  collectDate();
-                  theStateOfCourse();
+                  widget.courseList[3] = selectedValue;
+                  widget.semestCourse[index] = widget.courseList;
+                  // print('################# courseList ######################');
+                  // print(courseList);
+                  // print(
+                  //     '################# semsestcourses ######################');
+                  // print(widget.semestCourse[index]);
+
                   errorGrade();
+                  theStateOfCourse();
+                  collectDate();
                 });
               },
               dropdownStyleData: DropdownStyleData(
