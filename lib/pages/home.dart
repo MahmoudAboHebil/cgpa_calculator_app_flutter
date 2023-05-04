@@ -16,6 +16,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
+List listOfCoursesInSemester = [];
 
 class HomePage extends StatefulWidget {
   @override
@@ -132,7 +133,6 @@ class Semester extends StatefulWidget {
 }
 
 class _SemesterState extends State<Semester> {
-  List listOfCoursesInSemester = [];
   late String semestNumString;
 
   bool val = true;
@@ -275,15 +275,12 @@ class _SemesterState extends State<Semester> {
           AnimatedList(
             itemBuilder: (context, index, animation) {
               return Course(
-                  listOfCoursesInSemester[index][0],
-                  listOfCoursesInSemester[index][1],
-                  listOfCoursesInSemester[index][2],
-                  listOfCoursesInSemester[index][3],
-                  listOfCoursesInSemester[index], () {
-                setState(() {
-                  listOfCoursesInSemester;
-                });
-              }, listOfCoursesInSemester);
+                listOfCoursesInSemester[index][0],
+                listOfCoursesInSemester[index][1],
+                listOfCoursesInSemester[index][2],
+                listOfCoursesInSemester[index][3],
+                listOfCoursesInSemester[index],
+              );
             },
             initialItemCount: listOfCoursesInSemester.length,
             shrinkWrap: true,
@@ -328,10 +325,7 @@ class Course extends StatefulWidget {
   String? credite;
   String? grade;
   List courseList;
-  Function function;
-  List semestCourse;
-  Course(this.semestNum, this.name, this.credite, this.grade, this.courseList,
-      this.function, this.semestCourse);
+  Course(this.semestNum, this.name, this.credite, this.grade, this.courseList);
 
   @override
   State<Course> createState() => _CourseState();
@@ -341,6 +335,7 @@ class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
   late String? selectedValue;
+  bool delete = false;
   bool selectedValueIsNull = false;
   int index = 0;
   final List<String> items = [
@@ -353,24 +348,27 @@ class _CourseState extends State<Course> {
     'g',
     'k+',
   ];
+  void test() {
+    setState(() {
+      index = listOfCoursesInSemester.indexOf(widget.courseList);
+      selectedValue = widget.grade;
+      if (widget.name == null) {
+        _controller_Name = TextEditingController();
+      } else {
+        _controller_Name = TextEditingController(text: widget.name);
+      }
+      if (widget.credite == null) {
+        _controller_Credit = TextEditingController();
+      } else {
+        _controller_Credit = TextEditingController(text: widget.credite);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    setState(() {
-      index = widget.semestCourse.indexOf(widget.courseList);
-    });
-
-    if (widget.name == null) {
-      _controller_Name = TextEditingController();
-    } else {
-      _controller_Name = TextEditingController(text: widget.name);
-    }
-    if (widget.credite == null) {
-      _controller_Credit = TextEditingController();
-    } else {
-      _controller_Credit = TextEditingController(text: widget.credite);
-    }
-    selectedValue = widget.grade;
+    test();
   }
 
   String? get _errorCredit {
@@ -443,8 +441,8 @@ class _CourseState extends State<Course> {
       //   widget.credite,
       //   widget.grade
       // ];
-      int index = widget.semestCourse.indexOf(widget.courseList);
-      List deletedCourse = widget.semestCourse.removeAt(index);
+      int index = listOfCoursesInSemester.indexOf(widget.courseList);
+      List deletedCourse = listOfCoursesInSemester.removeAt(index);
       print('################## deleted course###############################');
       print(deletedCourse);
       _keyOfCourse.currentState!.removeItem(index, (context, animation) {
@@ -454,11 +452,7 @@ class _CourseState extends State<Course> {
             widget.name,
           ),
           child: Course(widget.semestNum, widget.name, widget.credite,
-              widget.grade, widget.courseList, () {
-            setState(() {
-              widget.semestCourse;
-            });
-          }, widget.semestCourse),
+              widget.grade, widget.courseList),
         );
       }, duration: Duration(milliseconds: 450));
       Function eq = const ListEquality().equals;
@@ -469,7 +463,6 @@ class _CourseState extends State<Course> {
         print('################# id delete: $id ############################');
         box.delete(id);
       }
-      widget.function();
     });
   }
 
@@ -535,6 +528,8 @@ class _CourseState extends State<Course> {
   @override
   Widget build(BuildContext context) {
     if (mounted) {
+      test();
+
       errorGrade();
       theStateOfCourse;
       collectDate();
@@ -572,7 +567,7 @@ class _CourseState extends State<Course> {
                     setState(() {
                       widget.courseList[1] = _controller_Name.text;
 
-                      widget.semestCourse[index] = widget.courseList;
+                      listOfCoursesInSemester[index] = widget.courseList;
                       errorGrade();
                       selectedValueIsNull;
                       theStateOfCourse();
@@ -608,7 +603,7 @@ class _CourseState extends State<Course> {
                 Provider.of<MyData>(context, listen: false).change(true);
                 setState(() {
                   widget.courseList[2] = _controller_Credit.text;
-                  widget.semestCourse[index] = widget.courseList;
+                  listOfCoursesInSemester[index] = widget.courseList;
                   theStateOfCourse();
                   collectDate();
                 });
@@ -706,7 +701,7 @@ class _CourseState extends State<Course> {
                   Provider.of<MyData>(context, listen: false).change(true);
                   selectedValue = value as String;
                   widget.courseList[3] = selectedValue;
-                  widget.semestCourse[index] = widget.courseList;
+                  listOfCoursesInSemester[index] = widget.courseList;
                   // print('################# courseList ######################');
                   // print(courseList);
                   // print(
