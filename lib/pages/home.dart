@@ -349,6 +349,28 @@ class _CourseState extends State<Course> {
     'k+',
   ];
   void test() {
+    bool delete = Provider.of<MyData>(context, listen: false).delete;
+    if (delete) {
+      setState(() {
+        index = listOfCoursesInSemester.indexOf(widget.courseList);
+        selectedValue = widget.grade;
+        if (widget.name == null) {
+          _controller_Name = TextEditingController();
+        } else {
+          _controller_Name = TextEditingController(text: widget.name);
+        }
+        if (widget.credite == null) {
+          _controller_Credit = TextEditingController();
+        } else {
+          _controller_Credit = TextEditingController(text: widget.credite);
+        }
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
     setState(() {
       index = listOfCoursesInSemester.indexOf(widget.courseList);
       selectedValue = widget.grade;
@@ -363,12 +385,6 @@ class _CourseState extends State<Course> {
         _controller_Credit = TextEditingController(text: widget.credite);
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    test();
   }
 
   String? get _errorCredit {
@@ -466,6 +482,25 @@ class _CourseState extends State<Course> {
     });
   }
 
+  late MyData _provider;
+
+  @override
+  void didChangeDependencies() {
+    _provider = Provider.of<MyData>(context, listen: false);
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Future.delayed(Duration(seconds: 1), () {
+      _provider.changeDelete(false);
+      bool d = _provider.delete;
+      print('############## $d #######################');
+    });
+  }
+
   void collectDate() {
     Function eq = const ListEquality().equals;
     bool save = Provider.of<MyData>(context, listen: false).savaData;
@@ -529,6 +564,9 @@ class _CourseState extends State<Course> {
   Widget build(BuildContext context) {
     if (mounted) {
       test();
+      bool deleted = Provider.of<MyData>(context, listen: false).delete;
+      print(
+          '#################### deleted : $deleted ################################');
 
       errorGrade();
       theStateOfCourse;
@@ -546,6 +584,8 @@ class _CourseState extends State<Course> {
               GestureDetector(
                 onTap: () {
                   setState(() {
+                    Provider.of<MyData>(context, listen: false)
+                        .changeDelete(true);
                     deleteCourse();
                   });
                 },
