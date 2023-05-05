@@ -1,5 +1,3 @@
-import 'package:collection/collection.dart';
-import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -7,12 +5,14 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:collection/collection.dart';
+import 'package:dropdown_button2/src/dropdown_button2.dart';
+// ToDo: the data entry removed when click the deleteCourse button  (done)
+// ToDo: there is a problem sometimes when clicking the addCourse button  (done)
+// ToDo: name disappear when get long  (done)
 
-// ToDo: the data entry removed when click the deleteCourse button
-// ToDo: there is a problem sometimes when clicking the addCourse button
 // ToDo: there is a problem when scrolling
-// ToDo: the validation desgin need to fix
-// ToDo: name disappear when get long
+// ToDo: the validation design need to fix
 
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
@@ -89,14 +89,20 @@ class _HomePageState extends State<HomePage> {
                           bool validGrade =
                               Provider.of<MyData>(context, listen: false)
                                   .validGrade;
-                          print('validName : $validName');
-                          print('validCredit : $validCredit');
-                          print('validGrade : $validGrade');
+                          // print('validName : $validName');
+                          // print('validCredit : $validCredit');
+                          // print('validGrade : $validGrade');
+                          // print(
+                          //     '########################## list ############################################');
+                          // print(listOfCoursesInSemester);
                           if (validName && validGrade && validCredit) {
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
                             Provider.of<MyData>(context, listen: false)
                                 .changeSaveData(true);
+                            // print(
+                            //     '###################### map #######################');
+                            // print(box.toMap());
                             Future.delayed(Duration(milliseconds: 500), () {
                               Provider.of<MyData>(context, listen: false)
                                   .changeSaveData(false);
@@ -167,7 +173,7 @@ class _SemesterState extends State<Semester> {
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
         : listOfCoursesInSemester.length - 1;
-    print('################# insertIndex: $insertIndex ######################');
+    // print('################# insertIndex: $insertIndex ######################');
     _keyOfCourse.currentState!.insertItem(insertIndex);
   }
 
@@ -178,8 +184,8 @@ class _SemesterState extends State<Semester> {
       semestNumString = widget.semesterNum.toString();
     });
     getData();
-    print('################### map #####################');
-    print(box.toMap());
+    // print('################### map #####################');
+    // print(box.toMap());
   }
 
   @override
@@ -334,10 +340,13 @@ class Course extends StatefulWidget {
 class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
+  final Function eq = const ListEquality().equals;
+
   late String? selectedValue;
   bool delete = false;
   bool selectedValueIsNull = false;
   int index = 0;
+  int? id = null;
   final List<String> items = [
     'A+',
     'b+',
@@ -384,6 +393,16 @@ class _CourseState extends State<Course> {
       } else {
         _controller_Credit = TextEditingController(text: widget.credite);
       }
+    });
+
+    var name = _controller_Name.text;
+    var credit = _controller_Credit.text;
+    String? sNum = widget.courseList[0];
+    var idBox = box.toMap().keys.firstWhere(
+        (k) => eq(box.toMap()[k], [sNum, name, credit, selectedValue]),
+        orElse: () => null);
+    setState(() {
+      id = idBox;
     });
   }
 
@@ -459,8 +478,8 @@ class _CourseState extends State<Course> {
       // ];
       int index = listOfCoursesInSemester.indexOf(widget.courseList);
       List deletedCourse = listOfCoursesInSemester.removeAt(index);
-      print('################## deleted course###############################');
-      print(deletedCourse);
+      // print('################## deleted course###############################');
+      // print(deletedCourse);
       _keyOfCourse.currentState!.removeItem(index, (context, animation) {
         return SizeTransition(
           sizeFactor: animation,
@@ -472,9 +491,6 @@ class _CourseState extends State<Course> {
         );
       }, duration: Duration(milliseconds: 450));
       Function eq = const ListEquality().equals;
-      var id = box.toMap().keys.firstWhere(
-          (k) => eq(box.toMap()[k], deletedCourse),
-          orElse: () => null);
       if (id != null) {
         print('################# id delete: $id ############################');
         box.delete(id);
@@ -497,12 +513,10 @@ class _CourseState extends State<Course> {
     Future.delayed(Duration(seconds: 1), () {
       _provider.changeDelete(false);
       bool d = _provider.delete;
-      print('############## $d #######################');
     });
   }
 
   void collectDate() {
-    Function eq = const ListEquality().equals;
     bool save = Provider.of<MyData>(context, listen: false).savaData;
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
@@ -511,34 +525,21 @@ class _CourseState extends State<Course> {
         _errorCredit == null &&
         selectedValue != null &&
         save) {
-      if (!eq([
-        sNum,
-        name,
-        credit,
-        selectedValue
-      ], [
-        sNum,
-        widget.courseList[1],
-        widget.courseList[2],
-        widget.courseList[3]
-      ])) {
-        var id = box.toMap().keys.firstWhere(
-            (k) => eq(box.toMap()[k], widget.courseList),
-            orElse: () => null);
-        if (id == null) {
-          box.add([sNum, name, credit, selectedValue]);
-        } else {
-          box.put(id, [sNum, name, credit, selectedValue]);
-        }
-      }
-
-      var id = box.toMap().keys.firstWhere(
-          (k) => eq(box.toMap()[k], widget.courseList),
-          orElse: () => null);
-      print('################## collect id: $id##########################');
-      if (id == null) {
+      List? alreadyExistValue = box.get(id);
+      if (alreadyExistValue != null) {
+        // list is already exist
+        box.put(id, [sNum, name, credit, selectedValue]);
+      } else {
+        // a  new list
         box.add([sNum, name, credit, selectedValue]);
-      } else {}
+        var idBox = box.toMap().keys.firstWhere(
+            (k) => eq(box.toMap()[k], [sNum, name, credit, selectedValue]),
+            orElse: () => null);
+
+        setState(() {
+          id = idBox;
+        });
+      }
     }
   }
 
@@ -563,14 +564,10 @@ class _CourseState extends State<Course> {
   @override
   Widget build(BuildContext context) {
     if (mounted) {
-      test();
-      bool deleted = Provider.of<MyData>(context, listen: false).delete;
-      print(
-          '#################### deleted : $deleted ################################');
-
       errorGrade();
       theStateOfCourse;
       collectDate();
+      test();
     }
 
     return Padding(
