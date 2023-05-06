@@ -10,8 +10,9 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the data entry removed when click the deleteCourse button  (done)
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
 // ToDo: name disappear when get long  (done)
+// ToDo: save data in DataBase automatic without press any button  (done)
+// ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
 
-// ToDo: there is a problem when save a data in dataBase in same time there some  validation errors
 // ToDo: there is a problem when scrolling
 // ToDo: the validation design need to fix
 
@@ -108,8 +109,7 @@ class _HomePageState extends State<HomePage> {
                             if (validName && validGrade && validCredit) {
                               Provider.of<MyData>(context, listen: false)
                                   .change(false);
-                              Provider.of<MyData>(context, listen: false)
-                                  .changeSaveData(true);
+
                               // print(
                               //     '###################### map #######################');
                               // print(box.toMap());
@@ -364,8 +364,10 @@ class _CourseState extends State<Course> {
 
     if (_focusName.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
     } else {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
+      Provider.of<MyData>(context, listen: false).changeSaveData(false);
     }
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
     // print(
@@ -377,8 +379,10 @@ class _CourseState extends State<Course> {
 
     if (_focusCredite.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
     } else {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
+      Provider.of<MyData>(context, listen: false).changeSaveData(false);
     }
 
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
@@ -519,6 +523,7 @@ class _CourseState extends State<Course> {
   }
 
   void deleteCourse() {
+    Provider.of<MyData>(context, listen: false).changeSaveData(false);
     setState(() {
       // List deletedCourse = [
       //   widget.semestCourse,
@@ -599,6 +604,8 @@ class _CourseState extends State<Course> {
           id = idBox;
         });
       }
+      print('################## save :$save ############################');
+      print(box.toMap());
     }
   }
 
@@ -805,6 +812,8 @@ class _CourseState extends State<Course> {
                 value: selectedValue,
                 onChanged: (value) {
                   setState(() {
+                    Provider.of<MyData>(context, listen: false)
+                        .changeSaveData(true);
                     Provider.of<MyData>(context, listen: false).change(true);
                     selectedValue = value as String;
                     widget.courseList[3] = selectedValue;
