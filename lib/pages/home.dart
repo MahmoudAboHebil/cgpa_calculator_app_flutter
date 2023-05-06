@@ -13,8 +13,10 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: save data in DataBase automatic without press any button  (done)
 // ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
 
-// ToDo: there is a problem when scrolling
 // ToDo: the validation design need to fix
+// ToDo: the validation need to be more handel like the course must be not repeated in one semester
+// ToDo: must do not call calc button function if there any errors about  validation
+// ToDo: there is a problem when scrolling
 
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
@@ -67,6 +69,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // getData();
+    Provider.of<MyData>(context).isChanged;
+
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -79,58 +83,6 @@ class _HomePageState extends State<HomePage> {
               children: [
                 AppBarHome(),
                 Semester(1),
-                Provider.of<MyData>(context).isChanged
-                    ? Container(
-                        width: 200,
-                        height: 100,
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-
-                            bool validName =
-                                Provider.of<MyData>(context, listen: false)
-                                    .validName;
-                            bool validCredit =
-                                Provider.of<MyData>(context, listen: false)
-                                    .validCredit;
-                            bool validGrade =
-                                Provider.of<MyData>(context, listen: false)
-                                    .validGrade;
-                            // print('validName : $validName');
-                            // print('validCredit : $validCredit');
-                            // print('validGrade : $validGrade');
-                            // print(
-                            //     '########################## list ############################################');
-                            // print(listOfCoursesInSemester);
-                            print('validName : $validName');
-                            print('validCredit : $validCredit');
-                            print('validGrade : $validGrade');
-
-                            if (validName && validGrade && validCredit) {
-                              Provider.of<MyData>(context, listen: false)
-                                  .change(false);
-
-                              // print(
-                              //     '###################### map #######################');
-                              // print(box.toMap());
-                              Future.delayed(Duration(milliseconds: 500), () {
-                                Provider.of<MyData>(context, listen: false)
-                                    .changeSaveData(false);
-                              });
-                            } else {}
-                          },
-                          child: Center(
-                            child: Text(
-                              'Changed',
-                              style: TextStyle(
-                                fontSize: 30,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : SizedBox()
               ],
             ),
           ),
@@ -306,7 +258,9 @@ class _SemesterState extends State<Semester> {
               key: _keyOfCourse,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: Provider.of<MyData>(context).isChanged
+                  ? MainAxisAlignment.spaceEvenly
+                  : MainAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -332,6 +286,37 @@ class _SemesterState extends State<Semester> {
                     ),
                   ),
                 ),
+                Provider.of<MyData>(context).isChanged
+                    ? GestureDetector(
+                        onTap: () {
+                          Provider.of<MyData>(context, listen: false)
+                              .change(false);
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: Color(0xff4562a7),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            child: Text(
+                              'Calc GPA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(
+                        width: 0,
+                      ),
               ],
             ),
           ],
