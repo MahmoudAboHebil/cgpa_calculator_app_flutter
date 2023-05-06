@@ -6,7 +6,8 @@ class MyData extends ChangeNotifier {
   bool validCredit = false;
   bool validGrade = false;
   bool savaData = false;
-  bool delete = false;
+  //setTheValuesOFTextFiled
+  bool setValues = true;
   void change(bool value) {
     isChanged = value;
     notifyListeners();
@@ -18,8 +19,8 @@ class MyData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeDelete(bool value) {
-    delete = value;
+  void changeSetValues(bool value) {
+    setValues = value;
     notifyListeners();
   }
 

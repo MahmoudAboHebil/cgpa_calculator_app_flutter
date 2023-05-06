@@ -11,6 +11,7 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
 // ToDo: name disappear when get long  (done)
 
+// ToDo: there is a problem when save a data in dataBase in same time there some  validation errors
 // ToDo: there is a problem when scrolling
 // ToDo: the validation design need to fix
 
@@ -67,61 +68,66 @@ class _HomePageState extends State<HomePage> {
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Color(0xffb8c8d1),
-          body: ListView(
-            shrinkWrap: true,
-            children: [
-              AppBarHome(),
-              Semester(1),
-              Provider.of<MyData>(context).isChanged
-                  ? Container(
-                      width: 200,
-                      height: 100,
-                      child: GestureDetector(
-                        onTap: () {
-                          bool validName =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validName;
-                          bool validCredit =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validCredit;
-                          bool validGrade =
-                              Provider.of<MyData>(context, listen: false)
-                                  .validGrade;
-                          // print('validName : $validName');
-                          // print('validCredit : $validCredit');
-                          // print('validGrade : $validGrade');
-                          // print(
-                          //     '########################## list ############################################');
-                          // print(listOfCoursesInSemester);
-                          if (validName && validGrade && validCredit) {
-                            Provider.of<MyData>(context, listen: false)
-                                .change(false);
-                            Provider.of<MyData>(context, listen: false)
-                                .changeSaveData(true);
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Scaffold(
+            backgroundColor: Color(0xffb8c8d1),
+            body: ListView(
+              shrinkWrap: true,
+              children: [
+                AppBarHome(),
+                Semester(1),
+                Provider.of<MyData>(context).isChanged
+                    ? Container(
+                        width: 200,
+                        height: 100,
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+
+                            bool validName =
+                                Provider.of<MyData>(context, listen: false)
+                                    .validName;
+                            bool validCredit =
+                                Provider.of<MyData>(context, listen: false)
+                                    .validCredit;
+                            bool validGrade =
+                                Provider.of<MyData>(context, listen: false)
+                                    .validGrade;
+                            // print('validName : $validName');
+                            // print('validCredit : $validCredit');
+                            // print('validGrade : $validGrade');
                             // print(
-                            //     '###################### map #######################');
-                            // print(box.toMap());
-                            Future.delayed(Duration(milliseconds: 500), () {
+                            //     '########################## list ############################################');
+                            // print(listOfCoursesInSemester);
+                            if (validName && validGrade && validCredit) {
                               Provider.of<MyData>(context, listen: false)
-                                  .changeSaveData(false);
-                            });
-                          } else {}
-                        },
-                        child: Center(
-                          child: Text(
-                            'Changed',
-                            style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.red,
+                                  .change(false);
+                              Provider.of<MyData>(context, listen: false)
+                                  .changeSaveData(true);
+                              // print(
+                              //     '###################### map #######################');
+                              // print(box.toMap());
+                              Future.delayed(Duration(milliseconds: 500), () {
+                                Provider.of<MyData>(context, listen: false)
+                                    .changeSaveData(false);
+                              });
+                            } else {}
+                          },
+                          child: Center(
+                            child: Text(
+                              'Changed',
+                              style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.red,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : SizedBox()
-            ],
+                      )
+                    : SizedBox()
+              ],
+            ),
           ),
         ),
       ),
@@ -192,123 +198,46 @@ class _SemesterState extends State<Semester> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Container(
-          //   alignment: Alignment.center,
-          //   // height: 50,
-          //   // width: 100,
-          //   decoration: BoxDecoration(
-          //       color: Color(0xffeaf1ed),
-          //       borderRadius: BorderRadius.all(Radius.circular(20)),
-          //       border: Border.all(color: Color(0xff004d60), width: 2)),
-          //   child: Padding(
-          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          //     child: Text(
-          //       'Semester $semestNumString',
-          //       style: TextStyle(
-          //         color: Color(0xff4562a7),
-          //         fontSize: 20,
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 20),
-                alignment: Alignment.center,
-                // height: 50,
-                // width: 100,
-                decoration: BoxDecoration(
-                    color: Color(0xffeaf1ed),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                  child: Text(
-                    'Course Name',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                // height: 50,
-                // width: 100,
-                margin: EdgeInsets.symmetric(horizontal: 25),
-                decoration: BoxDecoration(
-                    color: Color(0xffeaf1ed),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                  child: Text(
-                    'Credit',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                // height: 50,
-                // width: 100,
-                decoration: BoxDecoration(
-                    color: Color(0xffeaf1ed),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                  child: Text(
-                    'Course Grade',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          AnimatedList(
-            itemBuilder: (context, index, animation) {
-              return Course(
-                listOfCoursesInSemester[index][0],
-                listOfCoursesInSemester[index][1],
-                listOfCoursesInSemester[index][2],
-                listOfCoursesInSemester[index][3],
-                listOfCoursesInSemester[index],
-              );
-            },
-            initialItemCount: listOfCoursesInSemester.length,
-            shrinkWrap: true,
-            key: _keyOfCourse,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  addCourse();
-                },
-                child: Container(
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Container(
+            //   alignment: Alignment.center,
+            //   // height: 50,
+            //   // width: 100,
+            //   decoration: BoxDecoration(
+            //       color: Color(0xffeaf1ed),
+            //       borderRadius: BorderRadius.all(Radius.circular(20)),
+            //       border: Border.all(color: Color(0xff004d60), width: 2)),
+            //   child: Padding(
+            //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            //     child: Text(
+            //       'Semester $semestNumString',
+            //       style: TextStyle(
+            //         color: Color(0xff4562a7),
+            //         fontSize: 20,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 20),
                   alignment: Alignment.center,
+                  // height: 50,
+                  // width: 100,
                   decoration: BoxDecoration(
                       color: Color(0xffeaf1ed),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: Colors.white, width: 2)),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                     child: Text(
-                      'Add Course',
+                      'Course Name',
                       style: TextStyle(
                         color: Color(0xff004d60),
                         fontSize: 15,
@@ -316,10 +245,92 @@ class _SemesterState extends State<Semester> {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                Container(
+                  alignment: Alignment.center,
+                  // height: 50,
+                  // width: 100,
+                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                    child: Text(
+                      'Credit',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  // height: 50,
+                  // width: 100,
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                    child: Text(
+                      'Course Grade',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            AnimatedList(
+              itemBuilder: (context, index, animation) {
+                return Course(
+                  listOfCoursesInSemester[index][0],
+                  listOfCoursesInSemester[index][1],
+                  listOfCoursesInSemester[index][2],
+                  listOfCoursesInSemester[index][3],
+                  listOfCoursesInSemester[index],
+                );
+              },
+              initialItemCount: listOfCoursesInSemester.length,
+              shrinkWrap: true,
+              key: _keyOfCourse,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    addCourse();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: Color(0xffeaf1ed),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white, width: 2)),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      child: Text(
+                        'Add Course',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -341,9 +352,36 @@ class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
   final Function eq = const ListEquality().equals;
+  FocusNode _focusName = FocusNode();
+  FocusNode _focusCredite = FocusNode();
+  void _onFocusNameChange() {
+    // print("Focus Name: ${_focusName.hasFocus.toString()}");
+
+    if (_focusName.hasFocus) {
+      Provider.of<MyData>(context, listen: false).changeSetValues(false);
+    } else {
+      Provider.of<MyData>(context, listen: false).changeSetValues(true);
+    }
+    bool setValues = Provider.of<MyData>(context, listen: false).setValues;
+    print(
+        '######################  $setValues  #################################');
+  }
+
+  void _onFocusCrediteChange() {
+    // print("Focus Credite: ${_focusCredite.hasFocus.toString()}");
+
+    if (_focusCredite.hasFocus) {
+      Provider.of<MyData>(context, listen: false).changeSetValues(false);
+    } else {
+      Provider.of<MyData>(context, listen: false).changeSetValues(true);
+    }
+
+    bool setValues = Provider.of<MyData>(context, listen: false).setValues;
+    print(
+        '######################  $setValues  #################################');
+  }
 
   late String? selectedValue;
-  bool delete = false;
   bool selectedValueIsNull = false;
   int index = 0;
   int? id = null;
@@ -358,11 +396,14 @@ class _CourseState extends State<Course> {
     'k+',
   ];
   void test() {
-    bool delete = Provider.of<MyData>(context, listen: false).delete;
-    if (delete) {
+    bool setValues = Provider.of<MyData>(context, listen: false).setValues;
+    if (setValues) {
       setState(() {
         index = listOfCoursesInSemester.indexOf(widget.courseList);
         selectedValue = widget.grade;
+        // selectedValue == null
+        //     ? selectedValueIsNull = true
+        //     : selectedValueIsNull = false;
         if (widget.name == null) {
           _controller_Name = TextEditingController();
         } else {
@@ -380,6 +421,9 @@ class _CourseState extends State<Course> {
   @override
   void initState() {
     super.initState();
+    _focusName.addListener(_onFocusNameChange);
+    _focusCredite.addListener(_onFocusCrediteChange);
+
     setState(() {
       index = listOfCoursesInSemester.indexOf(widget.courseList);
       selectedValue = widget.grade;
@@ -407,8 +451,8 @@ class _CourseState extends State<Course> {
   }
 
   String? get _errorCredit {
-    var name = _controller_Name.text;
-    var credit = _controller_Credit.text;
+    var name = widget.name ?? '';
+    var credit = widget.credite ?? '';
     // if (pressed) {
     if (credit.isNotEmpty && credit.length > 3) {
       return '';
@@ -427,9 +471,10 @@ class _CourseState extends State<Course> {
   }
 
   String? get _errorName {
-    var name = _controller_Name.text;
-    var credit = _controller_Credit.text;
+    var name = widget.name ?? '';
+    var credit = widget.credite ?? '';
     // if (pressed) {
+
     if (credit.isNotEmpty && credit.trim().isNotEmpty) {
       if (name.isEmpty || name.trim().isEmpty) {
         return '';
@@ -443,8 +488,8 @@ class _CourseState extends State<Course> {
   }
 
   void errorGrade() {
-    var name = _controller_Name.text;
-    var credit = _controller_Credit.text;
+    var name = widget.name ?? '';
+    var credit = widget.credite ?? '';
     // if (pressed) {
     if ((name.isNotEmpty && name.trim().isNotEmpty) ||
         (credit.isNotEmpty && credit.trim().isNotEmpty)) {
@@ -510,10 +555,16 @@ class _CourseState extends State<Course> {
   @override
   void dispose() {
     super.dispose();
-    Future.delayed(Duration(seconds: 1), () {
-      _provider.changeDelete(false);
-      bool d = _provider.delete;
-    });
+    _controller_Name.dispose();
+    _controller_Credit.dispose();
+    _focusName.removeListener(_onFocusNameChange);
+    _focusName.dispose();
+    _focusCredite.removeListener(_onFocusCrediteChange);
+    _focusCredite.dispose();
+    // Future.delayed(Duration(seconds: 1), () {
+    //   _provider.changeDelete(false);
+    //   bool d = _provider.delete;
+    // });
   }
 
   void collectDate() {
@@ -564,10 +615,10 @@ class _CourseState extends State<Course> {
   @override
   Widget build(BuildContext context) {
     if (mounted) {
+      test();
       errorGrade();
       theStateOfCourse;
       collectDate();
-      test();
     }
 
     return Padding(
@@ -581,8 +632,11 @@ class _CourseState extends State<Course> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    Provider.of<MyData>(context, listen: false)
-                        .changeDelete(true);
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    // Provider.of<MyData>(context, listen: false)
+                    //     .changeDelete(true);
+                    //
                     deleteCourse();
                   });
                 },
@@ -598,11 +652,12 @@ class _CourseState extends State<Course> {
                   controller: _controller_Name,
                   textAlign: TextAlign.center,
                   autofocus: false,
+                  focusNode: _focusName,
                   style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
                   onChanged: (value) {
                     Provider.of<MyData>(context, listen: false).change(true);
                     setState(() {
-                      widget.courseList[1] = _controller_Name.text;
+                      widget.courseList[1] = value;
 
                       listOfCoursesInSemester[index] = widget.courseList;
                       errorGrade();
@@ -635,11 +690,12 @@ class _CourseState extends State<Course> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               controller: _controller_Credit,
               textAlign: TextAlign.center,
+              focusNode: _focusCredite,
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 Provider.of<MyData>(context, listen: false).change(true);
                 setState(() {
-                  widget.courseList[2] = _controller_Credit.text;
+                  widget.courseList[2] = value;
                   listOfCoursesInSemester[index] = widget.courseList;
                   theStateOfCourse();
                   collectDate();
@@ -664,117 +720,124 @@ class _CourseState extends State<Course> {
               ),
             ),
           ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton2(
-              onMenuStateChange: (value) {
-                errorGrade();
-              },
-              customButton: Container(
-                width: 120,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border(
-                      bottom: BorderSide(
-                          color: selectedValueIsNull
-                              ? Color(0xffce2029)
-                              : Colors.white,
-                          width: 1)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    selectedValue == null
-                        ? Text(
-                            'Grade',
-                            style: TextStyle(color: Colors.grey, fontSize: 18),
-                          )
-                        : Text(
-                            '$selectedValue',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff4562a7),
-                            ),
-                          ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 35,
-                        color: Color(0xff4562a7),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              items: items
-                  .map((item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Center(
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: 45,
-                            height: 80,
-                            decoration: BoxDecoration(
-                                border: Border(
-                              bottom: BorderSide(color: Colors.white, width: 1),
-                            )),
-                            child: Text(
-                              item,
-                              style: const TextStyle(
+          GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2(
+                onMenuStateChange: (value) {
+                  errorGrade();
+                },
+                customButton: Container(
+                  width: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border(
+                        bottom: BorderSide(
+                            color: selectedValueIsNull
+                                ? Color(0xffce2029)
+                                : Colors.white,
+                            width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      selectedValue == null
+                          ? Text(
+                              'Grade',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                            )
+                          : Text(
+                              '$selectedValue',
+                              style: TextStyle(
                                 fontSize: 18,
                                 color: Color(0xff4562a7),
                               ),
                             ),
-                          ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 35,
+                          color: Color(0xff4562a7),
                         ),
-                      ))
-                  .toList(),
-              value: selectedValue,
-              onChanged: (value) {
-                setState(() {
-                  Provider.of<MyData>(context, listen: false).change(true);
-                  selectedValue = value as String;
-                  widget.courseList[3] = selectedValue;
-                  listOfCoursesInSemester[index] = widget.courseList;
-                  // print('################# courseList ######################');
-                  // print(courseList);
-                  // print(
-                  //     '################# semsestcourses ######################');
-                  // print(widget.semestCourse[index]);
+                      )
+                    ],
+                  ),
+                ),
+                items: items
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Center(
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: 45,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                bottom:
+                                    BorderSide(color: Colors.white, width: 1),
+                              )),
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xff4562a7),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ))
+                    .toList(),
+                value: selectedValue,
+                onChanged: (value) {
+                  setState(() {
+                    Provider.of<MyData>(context, listen: false).change(true);
+                    selectedValue = value as String;
+                    widget.courseList[3] = selectedValue;
+                    listOfCoursesInSemester[index] = widget.courseList;
+                    // print('################# courseList ######################');
+                    // print(courseList);
+                    // print(
+                    //     '################# semsestcourses ######################');
+                    // print(widget.semestCourse[index]);
 
-                  errorGrade();
-                  theStateOfCourse();
-                  collectDate();
-                });
-              },
-              dropdownStyleData: DropdownStyleData(
-                maxHeight: 200,
-                width: 70,
-                padding: null,
-                elevation: 2,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10)),
-                  color: Color(0xffb8c8d1),
-                  // boxShadow: [
-                  //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                  // ],
+                    errorGrade();
+                    theStateOfCourse();
+                    collectDate();
+                  });
+                },
+                dropdownStyleData: DropdownStyleData(
+                  maxHeight: 200,
+                  width: 70,
+                  padding: null,
+                  elevation: 2,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10)),
+                    color: Color(0xffb8c8d1),
+                    // boxShadow: [
+                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                    // ],
+                  ),
+                  offset: const Offset(20, 0),
+                  scrollbarTheme: ScrollbarThemeData(
+                    radius: const Radius.circular(40),
+                    thickness: MaterialStateProperty.all(0),
+                    thumbVisibility: MaterialStateProperty.all(false),
+                  ),
                 ),
-                offset: const Offset(20, 0),
-                scrollbarTheme: ScrollbarThemeData(
-                  radius: const Radius.circular(40),
-                  thickness: MaterialStateProperty.all(0),
-                  thumbVisibility: MaterialStateProperty.all(false),
-                ),
+                // menuItemStyleData: const MenuItemStyleData(
+                //   height: 40,
+                //   padding: EdgeInsets.only(left: 14, right: 14),
+                // ),
               ),
-              // menuItemStyleData: const MenuItemStyleData(
-              //   height: 40,
-              //   padding: EdgeInsets.only(left: 14, right: 14),
-              // ),
             ),
           ),
         ],
