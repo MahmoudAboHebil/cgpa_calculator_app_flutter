@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getCurrentUser();
+    print(box.toMap());
   }
 
   void getCurrentUser() async {
@@ -100,6 +101,10 @@ class _HomePageState extends State<HomePage> {
                             // print(
                             //     '########################## list ############################################');
                             // print(listOfCoursesInSemester);
+                            print('validName : $validName');
+                            print('validCredit : $validCredit');
+                            print('validGrade : $validGrade');
+
                             if (validName && validGrade && validCredit) {
                               Provider.of<MyData>(context, listen: false)
                                   .change(false);
@@ -362,9 +367,9 @@ class _CourseState extends State<Course> {
     } else {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
-    bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-    print(
-        '######################  $setValues  #################################');
+    // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
+    // print(
+    //     '######################  $setValues  #################################');
   }
 
   void _onFocusCrediteChange() {
@@ -376,9 +381,9 @@ class _CourseState extends State<Course> {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
 
-    bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-    print(
-        '######################  $setValues  #################################');
+    // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
+    // print(
+    //     '######################  $setValues  #################################');
   }
 
   late String? selectedValue;
@@ -535,7 +540,10 @@ class _CourseState extends State<Course> {
               widget.grade, widget.courseList),
         );
       }, duration: Duration(milliseconds: 450));
-      Function eq = const ListEquality().equals;
+      var id = box.toMap().keys.firstWhere(
+          (k) => eq(box.toMap()[k], deletedCourse),
+          orElse: () => null);
+
       if (id != null) {
         print('################# id delete: $id ############################');
         box.delete(id);
