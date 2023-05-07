@@ -5,7 +5,7 @@ class MyData extends ChangeNotifier {
   bool validName = false;
   bool validCredit = false;
   bool validGrade = false;
-  bool savaData = false;
+  bool savaData = true;
   //setTheValuesOFTextFiled
   bool setValues = true;
   void change(bool value) {

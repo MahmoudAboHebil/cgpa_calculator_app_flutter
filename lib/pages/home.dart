@@ -567,9 +567,10 @@ class _CourseState extends State<Course> {
     // print("Focus Name: ${_focusName.hasFocus.toString()}");
 
     if (_focusName.hasFocus) {
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
+      Provider.of<MyData>(context, listen: false).changeSaveData(false);
 
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
@@ -582,9 +583,10 @@ class _CourseState extends State<Course> {
     // print("Focus Credite: ${_focusCredite.hasFocus.toString()}");
 
     if (_focusCredite.hasFocus) {
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
+      Provider.of<MyData>(context, listen: false).changeSaveData(false);
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
 
@@ -725,9 +727,11 @@ class _CourseState extends State<Course> {
     // }
   }
 
+  bool pressDelete = false;
   void deleteCourse() {
     Provider.of<MyData>(context, listen: false).changeSaveData(false);
     setState(() {
+      pressDelete = true;
       // delete = true;
       // List deletedCourse = [
       //   widget.semestCourse,
@@ -748,7 +752,7 @@ class _CourseState extends State<Course> {
           child: Course(widget.semestNum, widget.name, widget.credite,
               widget.grade, widget.courseList),
         );
-      }, duration: Duration(milliseconds: 450));
+      }, duration: Duration(milliseconds: 400));
       var id = box.toMap().keys.firstWhere(
           (k) => eq(box.toMap()[k], deletedCourse),
           orElse: () => null);
@@ -761,6 +765,11 @@ class _CourseState extends State<Course> {
         });
       }
     });
+    // Future.delayed(Duration(milliseconds: 600), () {
+    //   setState(() {
+    //     pressDelete = false;
+    //   });
+    // });
   }
 
   late MyData _provider;
@@ -792,7 +801,8 @@ class _CourseState extends State<Course> {
     if (_errorName == null &&
         _errorCredit == null &&
         selectedValue != null &&
-        save) {
+        save &&
+        !pressDelete) {
       List? alreadyExistValue = box.get(id);
       if (alreadyExistValue != null) {
         // list is already exist
@@ -837,7 +847,9 @@ class _CourseState extends State<Course> {
       test();
       errorGrade();
       theStateOfCourse;
+      // if (!pressDelete) {
       collectDate();
+      // }
     }
 
     return Padding(
@@ -856,6 +868,7 @@ class _CourseState extends State<Course> {
                     // Provider.of<MyData>(context, listen: false)
                     //     .changeDelete(true);
                     //
+                    pressDelete = true;
                     deleteCourse();
                   });
                 },
