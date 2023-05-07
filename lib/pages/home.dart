@@ -10,12 +10,12 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the data entry removed when click the deleteCourse button  (done)
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
 // ToDo: name disappear when get long  (done)
-// ToDo: save data in DataBase automatic without press any button  (done)
+// ToDo: save data in DataBase automatic without press any button  (its hard to handel that consider when delete, so no need)
 // ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
+// ToDo: must do not call calc button function if there any errors about  validation (done)
 
 // ToDo: the validation design need to fix
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester
-// ToDo: must do not call calc button function if there any errors about  validation
 // ToDo: there is a problem when scrolling
 
 var box = Hive.box('courses1');
@@ -103,9 +103,11 @@ class Semester extends StatefulWidget {
 
 class _SemesterState extends State<Semester> {
   late String semestNumString;
-
   bool val = true;
   void getData() async {
+    setState(() {
+      listOfCoursesInSemester.clear();
+    });
     bool t = box.isEmpty;
     if (t && val) {
       // emtyBox
@@ -124,6 +126,112 @@ class _SemesterState extends State<Semester> {
         setState(() {
           listOfCoursesInSemester.add(value);
           listOfCoursesInSemester = listOfCoursesInSemester.toSet().toList();
+        });
+      }
+    }
+  }
+
+  List<int?> errorTypeName = [];
+  // 1 mean that some fields are empty
+
+  List<int?> errorTypeCredit = [];
+  // 1 mean that some fields are empty
+  // 2 means that the credit is more than three numbers
+  // 3 means that the credit  equals zero
+
+  List<int?> errorTypeGrade = [];
+  // 1 mean that some fields are empty
+
+  String? emptyField;
+  String? creditMoreThanThree;
+  String? creditEqZero;
+  void findErrors() {
+    for (List course in listOfCoursesInSemester) {
+      // not empty course
+      if (!(course[1] == null && course[2] == null && course[3] == null)) {
+        //name validation
+        if (course[1] == null ||
+            course[1].isEmpty ||
+            course[1].trim().isEmpty) {
+          setState(() {
+            errorTypeName.add(1);
+          });
+        } else {
+          setState(() {
+            errorTypeName.add(null);
+          });
+        }
+
+        // credit validation
+        if (course[2] == null ||
+            course[2].isEmpty ||
+            course[2].trim().isEmpty) {
+          setState(() {
+            errorTypeCredit.add(1);
+          });
+        } else if (course[2].trim().isNotEmpty || course[2].isNotEmpty) {
+          if (course[2].length > 3) {
+            setState(() {
+              errorTypeCredit.add(2);
+            });
+          } else if (int.parse(course[2]) == 0 ||
+              int.parse(course[2]) == 00 ||
+              int.parse(course[2]) == 000) {
+            setState(() {
+              errorTypeCredit.add(3);
+            });
+          } else {
+            setState(() {
+              errorTypeCredit.add(null);
+            });
+          }
+        }
+
+        //grade validation
+        if (course[3] == null ||
+            course[3].isEmpty ||
+            course[3].trim().isEmpty) {
+          setState(() {
+            errorTypeGrade.add(1);
+          });
+        } else {
+          setState(() {
+            errorTypeGrade.add(null);
+          });
+        }
+      }
+    }
+
+    for (int? name in errorTypeName) {
+      if (name == 1) {
+        setState(() {
+          emptyField = 'there is an empty field';
+        });
+      }
+    }
+
+    for (int? credit in errorTypeCredit) {
+      if (credit == 1) {
+        setState(() {
+          emptyField = 'there is an empty field';
+        });
+      }
+      if (credit == 2) {
+        setState(() {
+          creditMoreThanThree = 'the credit must be less than 3 numbers';
+        });
+      }
+
+      if (credit == 3) {
+        setState(() {
+          creditEqZero = 'the credit must not equal Zero';
+        });
+      }
+    }
+    for (int? grade in errorTypeGrade) {
+      if (grade == 1) {
+        setState(() {
+          emptyField = 'there is an empty field';
         });
       }
     }
@@ -149,6 +257,91 @@ class _SemesterState extends State<Semester> {
     getData();
     // print('################### map #####################');
     // print(box.toMap());
+  }
+
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      clipBehavior: Clip.none,
+      elevation: 0,
+      content: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            height: 75,
+            decoration: const BoxDecoration(
+              color: Color(0xff4562a7),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 48,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Oops Error!',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      Text(
+                        'This Username is not found! Please try again later',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+              bottom: 25,
+              left: 20,
+              child: ClipRRect(
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: Colors.red.shade200,
+                      size: 17,
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+              top: -20,
+              left: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                  ),
+                  Positioned(
+                      top: 5,
+                      child: Icon(
+                        Icons.clear_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ))
+                ],
+              )),
+        ],
+      ),
+    ));
   }
 
   @override
@@ -289,9 +482,35 @@ class _SemesterState extends State<Semester> {
                 Provider.of<MyData>(context).isChanged
                     ? GestureDetector(
                         onTap: () {
-                          Provider.of<MyData>(context, listen: false)
-                              .change(false);
                           FocusManager.instance.primaryFocus?.unfocus();
+                          // message();
+                          findErrors();
+                          print(listOfCoursesInSemester);
+                          print(emptyField);
+                          print(creditEqZero);
+                          print(creditMoreThanThree);
+
+                          if (emptyField == null &&
+                              creditEqZero == null &&
+                              creditMoreThanThree == null) {
+                            Provider.of<MyData>(context, listen: false)
+                                .changeSaveData(true);
+                            Provider.of<MyData>(context, listen: false)
+                                .change(false);
+                          }
+
+                          setState(() {
+                            emptyField = null;
+                            creditMoreThanThree = null;
+                            creditEqZero = null;
+                            errorTypeGrade.clear();
+                            errorTypeCredit.clear();
+                            errorTypeName.clear();
+                          });
+                          Future.delayed(Duration(milliseconds: 600), () {
+                            Provider.of<MyData>(context, listen: false)
+                                .changeSaveData(false);
+                          });
                         },
                         child: Container(
                           alignment: Alignment.center,
@@ -349,10 +568,8 @@ class _CourseState extends State<Course> {
 
     if (_focusName.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
     } else {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
-      Provider.of<MyData>(context, listen: false).changeSaveData(false);
     }
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
     // print(
@@ -364,10 +581,8 @@ class _CourseState extends State<Course> {
 
     if (_focusCredite.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
     } else {
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
-      Provider.of<MyData>(context, listen: false).changeSaveData(false);
     }
 
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
@@ -508,8 +723,9 @@ class _CourseState extends State<Course> {
   }
 
   void deleteCourse() {
-    Provider.of<MyData>(context, listen: false).changeSaveData(false);
+    // Provider.of<MyData>(context, listen: false).changeSaveData(false);
     setState(() {
+      // delete = true;
       // List deletedCourse = [
       //   widget.semestCourse,
       //   widget.name,
@@ -559,10 +775,6 @@ class _CourseState extends State<Course> {
     _focusName.dispose();
     _focusCredite.removeListener(_onFocusCrediteChange);
     _focusCredite.dispose();
-    // Future.delayed(Duration(seconds: 1), () {
-    //   _provider.changeDelete(false);
-    //   bool d = _provider.delete;
-    // });
   }
 
   void collectDate() {
@@ -570,6 +782,7 @@ class _CourseState extends State<Course> {
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
+
     if (_errorName == null &&
         _errorCredit == null &&
         selectedValue != null &&
@@ -589,7 +802,7 @@ class _CourseState extends State<Course> {
           id = idBox;
         });
       }
-      print('################## save :$save ############################');
+      // print('################## save :$save ############################');
       print(box.toMap());
     }
   }
@@ -659,7 +872,7 @@ class _CourseState extends State<Course> {
                     setState(() {
                       widget.courseList[1] = value;
 
-                      listOfCoursesInSemester[index] = widget.courseList;
+                      listOfCoursesInSemester[index][1] = value;
                       errorGrade();
                       selectedValueIsNull;
                       theStateOfCourse();
@@ -696,7 +909,7 @@ class _CourseState extends State<Course> {
                 Provider.of<MyData>(context, listen: false).change(true);
                 setState(() {
                   widget.courseList[2] = value;
-                  listOfCoursesInSemester[index] = widget.courseList;
+                  listOfCoursesInSemester[index][2] = value;
                   theStateOfCourse();
                   collectDate();
                 });
@@ -797,12 +1010,12 @@ class _CourseState extends State<Course> {
                 value: selectedValue,
                 onChanged: (value) {
                   setState(() {
-                    Provider.of<MyData>(context, listen: false)
-                        .changeSaveData(true);
+                    // Provider.of<MyData>(context, listen: false)
+                    //     .changeSaveData(true);
                     Provider.of<MyData>(context, listen: false).change(true);
                     selectedValue = value as String;
                     widget.courseList[3] = selectedValue;
-                    listOfCoursesInSemester[index] = widget.courseList;
+                    listOfCoursesInSemester[index][3] = value;
                     // print('################# courseList ######################');
                     // print(courseList);
                     // print(
