@@ -593,7 +593,7 @@ class _CourseState extends State<Course> {
   late String? selectedValue;
   bool selectedValueIsNull = false;
   int index = 0;
-  int? id = null;
+  int? id;
   final List<String> items = [
     'A+',
     'b+',
@@ -746,13 +746,13 @@ class _CourseState extends State<Course> {
               widget.grade, widget.courseList),
         );
       }, duration: Duration(milliseconds: 450));
-      var id = box.toMap().keys.firstWhere(
-          (k) => eq(box.toMap()[k], deletedCourse),
-          orElse: () => null);
-
+      print('################# id delete: $id ############################');
       if (id != null) {
         print('################# id delete: $id ############################');
         box.delete(id);
+        setState(() {
+          id == null;
+        });
       }
     });
   }
