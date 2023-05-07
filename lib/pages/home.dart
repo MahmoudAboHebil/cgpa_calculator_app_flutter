@@ -10,7 +10,7 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the data entry removed when click the deleteCourse button  (done)
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
 // ToDo: name disappear when get long  (done)
-// ToDo: save data in DataBase automatic without press any button  (its hard to handel that consider when delete, so no need)
+// ToDo: save data in DataBase automatic without press any button  ( -i need that to update the id- done)
 // ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
 // ToDo: must do not call calc button function if there any errors about  validation (done)
 
@@ -569,6 +569,8 @@ class _CourseState extends State<Course> {
     if (_focusName.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
+
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
@@ -582,6 +584,7 @@ class _CourseState extends State<Course> {
     if (_focusCredite.hasFocus) {
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
+      Provider.of<MyData>(context, listen: false).changeSaveData(true);
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
 
@@ -723,7 +726,7 @@ class _CourseState extends State<Course> {
   }
 
   void deleteCourse() {
-    // Provider.of<MyData>(context, listen: false).changeSaveData(false);
+    Provider.of<MyData>(context, listen: false).changeSaveData(false);
     setState(() {
       // delete = true;
       // List deletedCourse = [
@@ -746,9 +749,12 @@ class _CourseState extends State<Course> {
               widget.grade, widget.courseList),
         );
       }, duration: Duration(milliseconds: 450));
+      var id = box.toMap().keys.firstWhere(
+          (k) => eq(box.toMap()[k], deletedCourse),
+          orElse: () => null);
       print('################# id delete: $id ############################');
       if (id != null) {
-        print('################# id delete: $id ############################');
+        // print('################# id delete: $id ############################');
         box.delete(id);
         setState(() {
           id == null;
@@ -802,7 +808,7 @@ class _CourseState extends State<Course> {
           id = idBox;
         });
       }
-      // print('################## save :$save ############################');
+      print('################## save :$save ############################');
       print(box.toMap());
     }
   }
