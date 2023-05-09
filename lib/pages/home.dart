@@ -13,8 +13,8 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: save data in DataBase automatic without press any button  ( -i need that to update the id- done)
 // ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
 // ToDo: must do not call calc button function if there any errors about  validation (done)
+// ToDo: the validation design need to fix  (done)
 
-// ToDo: the validation design need to fix
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester
 // ToDo: there is a problem when scrolling
 
@@ -632,6 +632,22 @@ class _CourseState extends State<Course> {
     }
   }
 
+  // void isNameRepeating() {
+  //   var t = box.isNotEmpty;
+  //   if (t) {
+  //     Map map = box.toMap();
+  //     List list = [];
+  //     for (final mapEntry in map.entries) {
+  //       var key = mapEntry.key;
+  //       var value = mapEntry.value;
+  //       list.add(value[1]);
+  //     }
+  //
+  //     print('############## list ######################');
+  //     print(list);
+  //   }
+  // }
+
   @override
   void initState() {
     super.initState();
@@ -662,6 +678,44 @@ class _CourseState extends State<Course> {
     setState(() {
       id = idBox;
     });
+    validationMethod();
+  }
+
+  bool valideName = true;
+  bool valideCredit = true;
+  void validationMethod() {
+    // bool containe = false;
+    // setState(() {
+    //   if (_controller_Name.text.isNotEmpty && box.isNotEmpty) {
+    //     Map map = box.toMap();
+    //     for (final mapEntry in map.entries) {
+    //       var key = mapEntry.key;
+    //       var values = mapEntry.value;
+    //       if (values[1] == _controller_Name.text) {
+    //         containe = true;
+    //       }
+    //     }
+    //   }
+    // });
+    if (_errorName != null) {
+      setState(() {
+        valideName = false;
+      });
+    } else {
+      setState(() {
+        valideName = true;
+      });
+    }
+
+    if (_errorCredit != null) {
+      setState(() {
+        valideCredit = false;
+      });
+    } else {
+      setState(() {
+        valideCredit = true;
+      });
+    }
   }
 
   String? get _errorCredit {
@@ -798,8 +852,8 @@ class _CourseState extends State<Course> {
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
 
-    if (_errorName == null &&
-        _errorCredit == null &&
+    if (valideName &&
+        valideCredit &&
         selectedValue != null &&
         save &&
         !pressDelete) {
@@ -846,6 +900,7 @@ class _CourseState extends State<Course> {
     if (mounted) {
       test();
       errorGrade();
+      validationMethod();
       theStateOfCourse;
       // if (!pressDelete) {
       collectDate();
@@ -899,15 +954,16 @@ class _CourseState extends State<Course> {
                     });
                   },
                   decoration: InputDecoration(
-                    errorText: _errorName,
                     hintText: 'Enter Course',
                     hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
                     enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
+                      borderSide: BorderSide(
+                          color: valideName ? Colors.white : Color(0xffce2029)),
                     ),
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xff4562a7),
+                        color:
+                            valideName ? Color(0xff4562a7) : Color(0xffce2029),
                       ),
                     ),
                   ),
@@ -938,15 +994,15 @@ class _CourseState extends State<Course> {
                 color: Color(0xff4562a7),
               ),
               decoration: InputDecoration(
-                errorText: _errorCredit,
                 hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
                 hintText: 'Credit',
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
+                  borderSide: BorderSide(
+                      color: valideCredit ? Colors.white : Color(0xffce2029)),
                 ),
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: Color(0xff4562a7),
+                    color: valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
                   ),
                 ),
               ),
@@ -1029,8 +1085,6 @@ class _CourseState extends State<Course> {
                 value: selectedValue,
                 onChanged: (value) {
                   setState(() {
-                    // Provider.of<MyData>(context, listen: false)
-                    //     .changeSaveData(true);
                     Provider.of<MyData>(context, listen: false).change(true);
                     selectedValue = value as String;
                     widget.courseList[3] = selectedValue;
@@ -1043,6 +1097,9 @@ class _CourseState extends State<Course> {
 
                     errorGrade();
                     theStateOfCourse();
+                    // Provider.of<MyData>(context, listen: false)
+                    //     .changeSaveData(true);
+
                     collectDate();
                   });
                 },
