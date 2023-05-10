@@ -18,8 +18,8 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
 // ToDo: validation message  (done)
 
-// ToDo: there is a problem when scrolling
 // ToDo: finish the semester design
+// ToDo: there is a problem when scrolling
 
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
@@ -385,25 +385,92 @@ class _SemesterState extends State<Semester> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Container(
-            //   alignment: Alignment.center,
-            //   // height: 50,
-            //   // width: 100,
-            //   decoration: BoxDecoration(
-            //       color: Color(0xffeaf1ed),
-            //       borderRadius: BorderRadius.all(Radius.circular(20)),
-            //       border: Border.all(color: Color(0xff004d60), width: 2)),
-            //   child: Padding(
-            //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-            //     child: Text(
-            //       'Semester $semestNumString',
-            //       style: TextStyle(
-            //         color: Color(0xff4562a7),
-            //         fontSize: 20,
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Container(
+              alignment: Alignment.centerLeft,
+              // height: 50,
+              margin: EdgeInsets.only(left: 25, bottom: 10, right: 10),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                border: Border.all(color: Color(0xff4562a7), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                      blurRadius: 1,
+                      color: Colors.grey,
+                      spreadRadius: 0.1,
+                      blurStyle: BlurStyle.outer)
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Semester',
+                        style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        '$semestNumString',
+                        style: TextStyle(
+                          color: Color(0xff4562a7),
+                          fontSize: 18,
+                        ),
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'GPA 2.57',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 18,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        '2.57',
+                        style: TextStyle(
+                          color: Color(0xff4562a7),
+                          fontSize: 18,
+                        ),
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Earn credits',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 18,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        '333',
+                        style: TextStyle(
+                          color: Color(0xff4562a7),
+                          fontSize: 18,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1172,10 +1239,11 @@ class AppBarHome extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(10, 30, 10, 10),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Color(0xffeaf1ed),
+            color: Colors.white,
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20)),
+            border: Border.all(color: Colors.white, width: 2),
           ),
           child: Column(
             children: [
@@ -1204,7 +1272,7 @@ class AppBarHome extends StatelessWidget {
                     ),
                   ),
                   SizedBox(
-                    width: 70,
+                    width: 65,
                   ),
                   Padding(
                     padding: EdgeInsets.only(right: 10, left: 10),
