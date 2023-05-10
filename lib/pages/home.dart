@@ -7,6 +7,7 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
+
 // ToDo: the data entry removed when click the deleteCourse button  (done)
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
 // ToDo: name disappear when get long  (done)
@@ -14,9 +15,11 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
 // ToDo: must do not call calc button function if there any errors about  validation (done)
 // ToDo: the validation design need to fix  (done)
+// ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
+// ToDo: validation message  (done)
 
-// ToDo: the validation need to be more handel like the course must be not repeated in one semester
 // ToDo: there is a problem when scrolling
+// ToDo: finish the semester design
 
 var box = Hive.box('courses1');
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
@@ -270,31 +273,60 @@ class _SemesterState extends State<Semester> {
         clipBehavior: Clip.none,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
-            height: 75,
-            decoration: const BoxDecoration(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
               color: Color(0xff4562a7),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             child: Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 48,
                 ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Oops Error!',
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      Text(
-                        'This Username is not found! Please try again later',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      emptyField != null
+                          ? Text(
+                              '$emptyField',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      creditMoreThanThree != null
+                          ? Text(
+                              '$creditMoreThanThree',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      creditEqZero != null
+                          ? Text(
+                              '$creditEqZero',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
                     ],
                   ),
                 ),
@@ -483,7 +515,6 @@ class _SemesterState extends State<Semester> {
                     ? GestureDetector(
                         onTap: () {
                           FocusManager.instance.primaryFocus?.unfocus();
-                          // message();
                           findErrors();
                           print(listOfCoursesInSemester);
                           print(emptyField);
@@ -497,8 +528,9 @@ class _SemesterState extends State<Semester> {
                                 .changeSaveData(true);
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
+                          } else {
+                            message();
                           }
-
                           setState(() {
                             emptyField = null;
                             creditMoreThanThree = null;
@@ -684,19 +716,6 @@ class _CourseState extends State<Course> {
   bool valideName = true;
   bool valideCredit = true;
   void validationMethod() {
-    // bool containe = false;
-    // setState(() {
-    //   if (_controller_Name.text.isNotEmpty && box.isNotEmpty) {
-    //     Map map = box.toMap();
-    //     for (final mapEntry in map.entries) {
-    //       var key = mapEntry.key;
-    //       var values = mapEntry.value;
-    //       if (values[1] == _controller_Name.text) {
-    //         containe = true;
-    //       }
-    //     }
-    //   }
-    // });
     if (_errorName != null) {
       setState(() {
         valideName = false;
@@ -723,6 +742,12 @@ class _CourseState extends State<Course> {
     var credit = widget.credite ?? '';
     // if (pressed) {
     if (credit.isNotEmpty && credit.length > 3) {
+      return '';
+    }
+    if (credit.isNotEmpty &&
+        (int.parse(credit) == 0 ||
+            int.parse(credit) == 00 ||
+            int.parse(credit) == 000)) {
       return '';
     }
 
