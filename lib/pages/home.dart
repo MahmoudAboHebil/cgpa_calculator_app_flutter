@@ -394,7 +394,7 @@ class _SemesterState extends State<Semester> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: Color(0xff4562a7), width: 2),
+                border: Border.all(color: Colors.white54, width: 2),
                 boxShadow: [
                   BoxShadow(
                       blurRadius: 1,
@@ -475,31 +475,46 @@ class _SemesterState extends State<Semester> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  margin: EdgeInsets.only(left: 20),
-                  alignment: Alignment.center,
-                  // height: 50,
-                  // width: 100,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'Course Name',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(left: 25),
+                      alignment: Alignment.center,
+                      // height: 50,
+                      // width: 100,
+                      decoration: BoxDecoration(
+                          color: Color(0xffeaf1ed),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: Colors.white, width: 2)),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                        child: Text(
+                          'Course Name',
+                          style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 15,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Positioned(
+                      left: -10,
+                      top: 12,
+                      child: Icon(
+                        Icons.not_listed_location_outlined,
+                        color: Colors.green,
+                        size: 28,
+                      ),
+                    )
+                  ],
                 ),
                 Container(
                   alignment: Alignment.center,
                   // height: 50,
                   // width: 100,
-                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  margin: EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
                       color: Color(0xffeaf1ed),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -748,6 +763,7 @@ class _CourseState extends State<Course> {
   //   }
   // }
 
+  bool secondTry = false;
   @override
   void initState() {
     super.initState();
@@ -988,6 +1004,18 @@ class _CourseState extends State<Course> {
     }
   }
 
+  void findSecondTryCourse() {
+    if (_controller_Name.text.endsWith('*')) {
+      setState(() {
+        secondTry = true;
+      });
+    } else {
+      setState(() {
+        secondTry = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (mounted) {
@@ -997,6 +1025,7 @@ class _CourseState extends State<Course> {
       theStateOfCourse;
       // if (!pressDelete) {
       collectDate();
+      findSecondTryCourse();
       // }
     }
 
@@ -1033,7 +1062,9 @@ class _CourseState extends State<Course> {
                   textAlign: TextAlign.center,
                   autofocus: false,
                   focusNode: _focusName,
-                  style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: secondTry ? Colors.green : Color(0xff004d60)),
                   onChanged: (value) {
                     Provider.of<MyData>(context, listen: false).change(true);
                     setState(() {
@@ -1111,7 +1142,7 @@ class _CourseState extends State<Course> {
                   errorGrade();
                 },
                 customButton: Container(
-                  width: 50,
+                  width: 120,
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     border: Border(
@@ -1137,133 +1168,16 @@ class _CourseState extends State<Course> {
                                 color: Color(0xff4562a7),
                               ),
                             ),
-                      // SizedBox(
-                      //   width: 5,
-                      // ),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 25,
-                        color: Color(0xff4562a7),
-                      )
-                    ],
-                  ),
-                ),
-                items: items
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Center(
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: 45,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                bottom:
-                                    BorderSide(color: Colors.white, width: 1),
-                              )),
-                              child: Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValue,
-                onChanged: (value) {
-                  setState(() {
-                    Provider.of<MyData>(context, listen: false).change(true);
-                    selectedValue = value as String;
-                    widget.courseList[3] = selectedValue;
-                    listOfCoursesInSemester[index][3] = value;
-                    // print('################# courseList ######################');
-                    // print(courseList);
-                    // print(
-                    //     '################# semsestcourses ######################');
-                    // print(widget.semestCourse[index]);
-
-                    errorGrade();
-                    theStateOfCourse();
-                    // Provider.of<MyData>(context, listen: false)
-                    //     .changeSaveData(true);
-
-                    collectDate();
-                  });
-                },
-                dropdownStyleData: DropdownStyleData(
-                  maxHeight: 200,
-                  width: 70,
-                  padding: null,
-                  elevation: 2,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                    color: Color(0xffb8c8d1),
-                    // boxShadow: [
-                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                    // ],
-                  ),
-                  offset: const Offset(20, 0),
-                  scrollbarTheme: ScrollbarThemeData(
-                    radius: const Radius.circular(40),
-                    thickness: MaterialStateProperty.all(0),
-                    thumbVisibility: MaterialStateProperty.all(false),
-                  ),
-                ),
-                // menuItemStyleData: const MenuItemStyleData(
-                //   height: 40,
-                //   padding: EdgeInsets.only(left: 14, right: 14),
-                // ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2(
-                onMenuStateChange: (value) {
-                  errorGrade();
-                },
-                customButton: Container(
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border(
-                        bottom: BorderSide(
-                            color: selectedValueIsNull
-                                ? Color(0xffce2029)
-                                : Colors.white,
-                            width: 1)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      selectedValue == null
-                          ? Text(
-                              'Grade',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                            )
-                          : Text(
-                              '$selectedValue',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xff4562a7),
-                              ),
-                            ),
-                      // SizedBox(
-                      //   width: 5,
-                      // ),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 25,
-                        color: Color(0xff4562a7),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 35,
+                          color: Color(0xff4562a7),
+                        ),
                       )
                     ],
                   ),
@@ -1361,7 +1275,7 @@ class AppBarHome extends StatelessWidget {
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20)),
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: Colors.white54, width: 2),
           ),
           child: Column(
             children: [
