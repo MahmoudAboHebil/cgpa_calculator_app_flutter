@@ -1111,7 +1111,7 @@ class _CourseState extends State<Course> {
                   errorGrade();
                 },
                 customButton: Container(
-                  width: 120,
+                  width: 50,
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     border: Border(
@@ -1137,16 +1137,133 @@ class _CourseState extends State<Course> {
                                 color: Color(0xff4562a7),
                               ),
                             ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 35,
-                          color: Color(0xff4562a7),
-                        ),
+                      // SizedBox(
+                      //   width: 5,
+                      // ),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 25,
+                        color: Color(0xff4562a7),
+                      )
+                    ],
+                  ),
+                ),
+                items: items
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Center(
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: 45,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                bottom:
+                                    BorderSide(color: Colors.white, width: 1),
+                              )),
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xff4562a7),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ))
+                    .toList(),
+                value: selectedValue,
+                onChanged: (value) {
+                  setState(() {
+                    Provider.of<MyData>(context, listen: false).change(true);
+                    selectedValue = value as String;
+                    widget.courseList[3] = selectedValue;
+                    listOfCoursesInSemester[index][3] = value;
+                    // print('################# courseList ######################');
+                    // print(courseList);
+                    // print(
+                    //     '################# semsestcourses ######################');
+                    // print(widget.semestCourse[index]);
+
+                    errorGrade();
+                    theStateOfCourse();
+                    // Provider.of<MyData>(context, listen: false)
+                    //     .changeSaveData(true);
+
+                    collectDate();
+                  });
+                },
+                dropdownStyleData: DropdownStyleData(
+                  maxHeight: 200,
+                  width: 70,
+                  padding: null,
+                  elevation: 2,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10)),
+                    color: Color(0xffb8c8d1),
+                    // boxShadow: [
+                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                    // ],
+                  ),
+                  offset: const Offset(20, 0),
+                  scrollbarTheme: ScrollbarThemeData(
+                    radius: const Radius.circular(40),
+                    thickness: MaterialStateProperty.all(0),
+                    thumbVisibility: MaterialStateProperty.all(false),
+                  ),
+                ),
+                // menuItemStyleData: const MenuItemStyleData(
+                //   height: 40,
+                //   padding: EdgeInsets.only(left: 14, right: 14),
+                // ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2(
+                onMenuStateChange: (value) {
+                  errorGrade();
+                },
+                customButton: Container(
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border(
+                        bottom: BorderSide(
+                            color: selectedValueIsNull
+                                ? Color(0xffce2029)
+                                : Colors.white,
+                            width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      selectedValue == null
+                          ? Text(
+                              'Grade',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                            )
+                          : Text(
+                              '$selectedValue',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xff4562a7),
+                              ),
+                            ),
+                      // SizedBox(
+                      //   width: 5,
+                      // ),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 25,
+                        color: Color(0xff4562a7),
                       )
                     ],
                   ),
