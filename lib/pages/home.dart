@@ -18,7 +18,7 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
 // ToDo: validation message  (done)
 
-// ToDo: add second try course
+// ToDo: add second try course (  )
 // ToDo: finish the semester design
 // ToDo: there is a problem when scrolling
 
