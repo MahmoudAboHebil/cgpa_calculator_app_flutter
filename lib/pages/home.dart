@@ -763,7 +763,7 @@ class _CourseState extends State<Course> {
   //   }
   // }
 
-  bool secondTry = false;
+  // bool secondTry = false;
   @override
   void initState() {
     super.initState();
@@ -1004,18 +1004,19 @@ class _CourseState extends State<Course> {
     }
   }
 
-  void findSecondTryCourse() {
-    if (_controller_Name.text.endsWith('*')) {
-      setState(() {
-        secondTry = true;
-      });
-    } else {
-      setState(() {
-        secondTry = false;
-      });
-    }
-  }
+  // void findSecondTryCourse() {
+  //   if (_controller_Name.text.endsWith('*')) {
+  //     setState(() {
+  //       secondTry = true;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       secondTry = false;
+  //     });
+  //   }
+  // }
 
+  bool val = true;
   @override
   Widget build(BuildContext context) {
     if (mounted) {
@@ -1025,237 +1026,512 @@ class _CourseState extends State<Course> {
       theStateOfCourse;
       // if (!pressDelete) {
       collectDate();
-      findSecondTryCourse();
+      // findSecondTryCourse();
       // }
     }
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    FocusManager.instance.primaryFocus?.unfocus();
-
-                    // Provider.of<MyData>(context, listen: false)
-                    //     .changeDelete(true);
-                    //
-                    pressDelete = true;
-                    deleteCourse();
-                  });
-                },
-                child: Icon(
-                  Icons.delete_outline,
-                  color: Color(0xffce2029),
-                ),
-              ),
-              Container(
-                width: 125,
-                margin: EdgeInsets.only(top: 4, left: 10),
-                child: TextField(
-                  controller: _controller_Name,
-                  textAlign: TextAlign.center,
-                  autofocus: false,
-                  focusNode: _focusName,
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: secondTry ? Colors.green : Color(0xff004d60)),
-                  onChanged: (value) {
-                    Provider.of<MyData>(context, listen: false).change(true);
+      child: Container(
+        height: 31,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
                     setState(() {
-                      widget.courseList[1] = value;
+                      FocusManager.instance.primaryFocus?.unfocus();
 
-                      listOfCoursesInSemester[index][1] = value;
-                      errorGrade();
-                      selectedValueIsNull;
-                      theStateOfCourse();
-                      collectDate();
+                      // Provider.of<MyData>(context, listen: false)
+                      //     .changeDelete(true);
+                      //
+                      pressDelete = true;
+                      deleteCourse();
                     });
                   },
-                  decoration: InputDecoration(
-                    hintText: 'Enter Course',
-                    hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: valideName ? Colors.white : Color(0xffce2029)),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Color(0xffce2029),
+                  ),
+                ),
+                Container(
+                  width: 125,
+                  height: 18,
+                  margin: EdgeInsets.only(top: 4, left: 10),
+                  child: TextField(
+                    controller: _controller_Name,
+                    textAlign: TextAlign.center,
+                    autofocus: false,
+                    focusNode: _focusName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xff004d60),
                     ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color:
-                            valideName ? Color(0xff4562a7) : Color(0xffce2029),
+                    onChanged: (value) {
+                      Provider.of<MyData>(context, listen: false).change(true);
+                      setState(() {
+                        widget.courseList[1] = value;
+
+                        listOfCoursesInSemester[index][1] = value;
+                        errorGrade();
+                        selectedValueIsNull;
+                        theStateOfCourse();
+                        collectDate();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter Course',
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color:
+                                valideName ? Colors.white : Color(0xffce2029)),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Container(
-            width: 60,
-            margin: EdgeInsets.only(bottom: 0.4),
-            child: TextField(
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              controller: _controller_Credit,
-              textAlign: TextAlign.center,
-              focusNode: _focusCredite,
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                Provider.of<MyData>(context, listen: false).change(true);
-                setState(() {
-                  widget.courseList[2] = value;
-                  listOfCoursesInSemester[index][2] = value;
-                  theStateOfCourse();
-                  collectDate();
-                });
-              },
-              style: TextStyle(
-                fontSize: 18,
-                color: Color(0xff4562a7),
-              ),
-              decoration: InputDecoration(
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                hintText: 'Credit',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: valideCredit ? Colors.white : Color(0xffce2029)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2(
-                onMenuStateChange: (value) {
-                  errorGrade();
-                },
-                customButton: Container(
-                  width: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border(
-                        bottom: BorderSide(
-                            color: selectedValueIsNull
-                                ? Color(0xffce2029)
-                                : Colors.white,
-                            width: 1)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      selectedValue == null
-                          ? Text(
-                              'Grade',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                            )
-                          : Text(
-                              '$selectedValue',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xff4562a7),
-                              ),
-                            ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 35,
-                          color: Color(0xff4562a7),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: valideName
+                              ? Color(0xff4562a7)
+                              : Color(0xffce2029),
                         ),
-                      )
-                    ],
+                      ),
+                    ),
                   ),
                 ),
-                items: items
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Center(
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: 45,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                bottom:
-                                    BorderSide(color: Colors.white, width: 1),
-                              )),
-                              child: Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValue,
+              ],
+            ),
+            Container(
+              width: 60,
+              height: 18,
+              margin: EdgeInsets.only(bottom: 0.4),
+              child: TextField(
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                controller: _controller_Credit,
+                textAlign: TextAlign.center,
+                focusNode: _focusCredite,
+                keyboardType: TextInputType.number,
                 onChanged: (value) {
+                  Provider.of<MyData>(context, listen: false).change(true);
                   setState(() {
-                    Provider.of<MyData>(context, listen: false).change(true);
-                    selectedValue = value as String;
-                    widget.courseList[3] = selectedValue;
-                    listOfCoursesInSemester[index][3] = value;
-                    // print('################# courseList ######################');
-                    // print(courseList);
-                    // print(
-                    //     '################# semsestcourses ######################');
-                    // print(widget.semestCourse[index]);
-
-                    errorGrade();
+                    widget.courseList[2] = value;
+                    listOfCoursesInSemester[index][2] = value;
                     theStateOfCourse();
-                    // Provider.of<MyData>(context, listen: false)
-                    //     .changeSaveData(true);
-
                     collectDate();
                   });
                 },
-                dropdownStyleData: DropdownStyleData(
-                  maxHeight: 200,
-                  width: 70,
-                  padding: null,
-                  elevation: 2,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                    color: Color(0xffb8c8d1),
-                    // boxShadow: [
-                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                    // ],
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Color(0xff4562a7),
+                ),
+                decoration: InputDecoration(
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                  hintText: 'Credit',
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: valideCredit ? Colors.white : Color(0xffce2029)),
                   ),
-                  offset: const Offset(20, 0),
-                  scrollbarTheme: ScrollbarThemeData(
-                    radius: const Radius.circular(40),
-                    thickness: MaterialStateProperty.all(0),
-                    thumbVisibility: MaterialStateProperty.all(false),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
+                    ),
                   ),
                 ),
-                // menuItemStyleData: const MenuItemStyleData(
-                //   height: 40,
-                //   padding: EdgeInsets.only(left: 14, right: 14),
-                // ),
               ),
             ),
-          ),
-        ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                val
+                    ? Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton2(
+                                onMenuStateChange: (value) {
+                                  errorGrade();
+                                },
+                                customButton: Container(
+                                  width: 45,
+                                  height: 31,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: selectedValueIsNull
+                                                ? Color(0xffce2029)
+                                                : Colors.white,
+                                            width: 1)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      selectedValue == null
+                                          ? Text(
+                                              '1 st',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 18),
+                                            )
+                                          : Text(
+                                              '$selectedValue',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xff4562a7),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                items: items
+                                    .map((item) => DropdownMenuItem<String>(
+                                          value: item,
+                                          child: Center(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              width: 45,
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                  border: Border(
+                                                bottom: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1),
+                                              )),
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  color: Color(0xff4562a7),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedValue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    Provider.of<MyData>(context, listen: false)
+                                        .change(true);
+                                    selectedValue = value as String;
+                                    widget.courseList[3] = selectedValue;
+                                    listOfCoursesInSemester[index][3] = value;
+                                    // print('################# courseList ######################');
+                                    // print(courseList);
+                                    // print(
+                                    //     '################# semsestcourses ######################');
+                                    // print(widget.semestCourse[index]);
+
+                                    errorGrade();
+                                    theStateOfCourse();
+                                    // Provider.of<MyData>(context, listen: false)
+                                    //     .changeSaveData(true);
+
+                                    collectDate();
+                                  });
+                                },
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 200,
+                                  width: 70,
+                                  padding: null,
+                                  elevation: 2,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        bottomRight: Radius.circular(10)),
+                                    color: Color(0xffb8c8d1),
+                                    // boxShadow: [
+                                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                                    // ],
+                                  ),
+                                  offset: const Offset(20, 0),
+                                  scrollbarTheme: ScrollbarThemeData(
+                                    radius: const Radius.circular(40),
+                                    thickness: MaterialStateProperty.all(0),
+                                    thumbVisibility:
+                                        MaterialStateProperty.all(false),
+                                  ),
+                                ),
+                                // menuItemStyleData: const MenuItemStyleData(
+                                //   height: 40,
+                                //   padding: EdgeInsets.only(left: 14, right: 14),
+                                // ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton2(
+                                onMenuStateChange: (value) {
+                                  errorGrade();
+                                },
+                                customButton: Container(
+                                  width: 45,
+                                  height: 31,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: selectedValueIsNull
+                                                ? Color(0xffce2029)
+                                                : Colors.white,
+                                            width: 1)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      selectedValue == null
+                                          ? Text(
+                                              '2 sd',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 18),
+                                            )
+                                          : Text(
+                                              '$selectedValue',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xff4562a7),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                items: items
+                                    .map((item) => DropdownMenuItem<String>(
+                                          value: item,
+                                          child: Center(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              width: 45,
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                  border: Border(
+                                                bottom: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1),
+                                              )),
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  color: Color(0xff4562a7),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedValue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    Provider.of<MyData>(context, listen: false)
+                                        .change(true);
+                                    selectedValue = value as String;
+                                    widget.courseList[3] = selectedValue;
+                                    listOfCoursesInSemester[index][3] = value;
+                                    // print('################# courseList ######################');
+                                    // print(courseList);
+                                    // print(
+                                    //     '################# semsestcourses ######################');
+                                    // print(widget.semestCourse[index]);
+
+                                    errorGrade();
+                                    theStateOfCourse();
+                                    // Provider.of<MyData>(context, listen: false)
+                                    //     .changeSaveData(true);
+
+                                    collectDate();
+                                  });
+                                },
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 200,
+                                  width: 70,
+                                  padding: null,
+                                  elevation: 2,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        bottomRight: Radius.circular(10)),
+                                    color: Color(0xffb8c8d1),
+                                    // boxShadow: [
+                                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                                    // ],
+                                  ),
+                                  offset: const Offset(20, 0),
+                                  scrollbarTheme: ScrollbarThemeData(
+                                    radius: const Radius.circular(40),
+                                    thickness: MaterialStateProperty.all(0),
+                                    thumbVisibility:
+                                        MaterialStateProperty.all(false),
+                                  ),
+                                ),
+                                // menuItemStyleData: const MenuItemStyleData(
+                                //   height: 40,
+                                //   padding: EdgeInsets.only(left: 14, right: 14),
+                                // ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton2(
+                            onMenuStateChange: (value) {
+                              errorGrade();
+                            },
+                            customButton: Container(
+                              width: 95,
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color: selectedValueIsNull
+                                            ? Color(0xffce2029)
+                                            : Colors.white,
+                                        width: 1)),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  selectedValue == null
+                                      ? Text(
+                                          'Grade',
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 18),
+                                        )
+                                      : Text(
+                                          '$selectedValue',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xff4562a7),
+                                          ),
+                                        ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 0),
+                                    child: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 30,
+                                      color: Color(0xff4562a7),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            items: items
+                                .map((item) => DropdownMenuItem<String>(
+                                      value: item,
+                                      child: Center(
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: 45,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.white, width: 1),
+                                          )),
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xff4562a7),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            value: selectedValue,
+                            onChanged: (value) {
+                              setState(() {
+                                Provider.of<MyData>(context, listen: false)
+                                    .change(true);
+                                selectedValue = value as String;
+                                widget.courseList[3] = selectedValue;
+                                listOfCoursesInSemester[index][3] = value;
+                                // print('################# courseList ######################');
+                                // print(courseList);
+                                // print(
+                                //     '################# semsestcourses ######################');
+                                // print(widget.semestCourse[index]);
+
+                                errorGrade();
+                                theStateOfCourse();
+                                // Provider.of<MyData>(context, listen: false)
+                                //     .changeSaveData(true);
+
+                                collectDate();
+                              });
+                            },
+                            dropdownStyleData: DropdownStyleData(
+                              maxHeight: 200,
+                              width: 70,
+                              padding: null,
+                              elevation: 2,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(10),
+                                    bottomRight: Radius.circular(10)),
+                                color: Color(0xffb8c8d1),
+                                // boxShadow: [
+                                //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                                // ],
+                              ),
+                              offset: const Offset(20, 0),
+                              scrollbarTheme: ScrollbarThemeData(
+                                radius: const Radius.circular(40),
+                                thickness: MaterialStateProperty.all(0),
+                                thumbVisibility:
+                                    MaterialStateProperty.all(false),
+                              ),
+                            ),
+                            // menuItemStyleData: const MenuItemStyleData(
+                            //   height: 40,
+                            //   padding: EdgeInsets.only(left: 14, right: 14),
+                            // ),
+                          ),
+                        ),
+                      ),
+                Container(
+                  margin: EdgeInsets.only(left: 10),
+                  // padding: EdgeInsets.only(bottom: 10),
+                  width: 15,
+                  height: 20,
+                  alignment: Alignment.bottomRight,
+                  child: Checkbox(
+                    checkColor: Colors.white,
+                    side: BorderSide(width: 2, color: Colors.green),
+                    fillColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.green),
+                    value: val,
+                    shape: CircleBorder(),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        val = value!;
+                      });
+                    },
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
