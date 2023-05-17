@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Hive.initFlutter();
-  await Hive.openBox('courses1');
+  await Hive.openBox('courses177');
   runApp(const MyApp());
 }
 

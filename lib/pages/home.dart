@@ -18,11 +18,13 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
 // ToDo: validation message  (done)
 
-// ToDo: add second try course (  )
+// ToDo: add second try course ( need to save option in database & put its validation when press the calc button)
+// ToDo: there is a bug in arrangement elment when delete course
 // ToDo: finish the semester design
 // ToDo: there is a problem when scrolling
 
-var box = Hive.box('courses1');
+var box = Hive.box('courses177');
+// [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 List listOfCoursesInSemester = [];
 
@@ -116,7 +118,7 @@ class _SemesterState extends State<Semester> {
     if (t && val) {
       // emtyBox
       setState(() {
-        listOfCoursesInSemester.add([semestNumString, null, null, null]);
+        listOfCoursesInSemester.add([semestNumString, null, null, null, null]);
       });
       setState(() {
         val = false;
@@ -203,6 +205,17 @@ class _SemesterState extends State<Semester> {
             errorTypeGrade.add(null);
           });
         }
+        // if (course[4] == null ||
+        //     course[4].isEmpty ||
+        //     course[4].trim().isEmpty) {
+        //   setState(() {
+        //     errorTypeGrade.add(1);
+        //   });
+        // } else {
+        //   setState(() {
+        //     errorTypeGrade.add(null);
+        //   });
+        // }
       }
     }
 
@@ -243,7 +256,7 @@ class _SemesterState extends State<Semester> {
 
   void addCourse() {
     setState(() {
-      listOfCoursesInSemester.add([semestNumString, null, null, null]);
+      listOfCoursesInSemester.add([semestNumString, null, null, null, null]);
     });
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
@@ -558,6 +571,7 @@ class _SemesterState extends State<Semester> {
                   listOfCoursesInSemester[index][1],
                   listOfCoursesInSemester[index][2],
                   listOfCoursesInSemester[index][3],
+                  listOfCoursesInSemester[index][4],
                   listOfCoursesInSemester[index],
                 );
               },
@@ -664,9 +678,12 @@ class Course extends StatefulWidget {
   String? semestNum;
   String? name;
   String? credite;
-  String? grade;
+  String? grade1;
+  String? grade2;
+
   List courseList;
-  Course(this.semestNum, this.name, this.credite, this.grade, this.courseList);
+  Course(this.semestNum, this.name, this.credite, this.grade1, this.grade2,
+      this.courseList);
 
   @override
   State<Course> createState() => _CourseState();
@@ -710,8 +727,10 @@ class _CourseState extends State<Course> {
     //     '######################  $setValues  #################################');
   }
 
-  late String? selectedValue;
-  bool selectedValueIsNull = false;
+  late String? selectedValue1;
+  late String? selectedValue2;
+  bool selectedValueIs1Null = false;
+  bool selectedValueIs2Null = false;
   int index = 0;
   int? id;
   final List<String> items = [
@@ -729,7 +748,9 @@ class _CourseState extends State<Course> {
     if (setValues) {
       setState(() {
         index = listOfCoursesInSemester.indexOf(widget.courseList);
-        selectedValue = widget.grade;
+        selectedValue1 = widget.grade1;
+        selectedValue2 = widget.courseList[4];
+
         // selectedValue == null
         //     ? selectedValueIsNull = true
         //     : selectedValueIsNull = false;
@@ -772,7 +793,8 @@ class _CourseState extends State<Course> {
 
     setState(() {
       index = listOfCoursesInSemester.indexOf(widget.courseList);
-      selectedValue = widget.grade;
+      selectedValue1 = widget.grade1;
+      selectedValue2 = widget.grade2;
       if (widget.name == null) {
         _controller_Name = TextEditingController();
       } else {
@@ -789,7 +811,8 @@ class _CourseState extends State<Course> {
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
     var idBox = box.toMap().keys.firstWhere(
-        (k) => eq(box.toMap()[k], [sNum, name, credit, selectedValue]),
+        (k) => eq(box.toMap()[k],
+            [sNum, name, credit, selectedValue1, selectedValue2]),
         orElse: () => null);
     setState(() {
       id = idBox;
@@ -840,7 +863,7 @@ class _CourseState extends State<Course> {
         return '';
       }
     } else if ((credit.isEmpty || credit.trim().isEmpty) &&
-        selectedValue != null) {
+        (selectedValue1 != null || selectedValue2 != null)) {
       return '';
     }
     // }
@@ -856,7 +879,8 @@ class _CourseState extends State<Course> {
       if (name.isEmpty || name.trim().isEmpty) {
         return '';
       }
-    } else if ((name.isEmpty || name.trim().isEmpty) && selectedValue != null) {
+    } else if ((name.isEmpty || name.trim().isEmpty) &&
+        (selectedValue1 != null || selectedValue2 != null)) {
       return '';
     }
     // }
@@ -870,20 +894,32 @@ class _CourseState extends State<Course> {
     // if (pressed) {
     if ((name.isNotEmpty && name.trim().isNotEmpty) ||
         (credit.isNotEmpty && credit.trim().isNotEmpty)) {
-      if (selectedValue == null) {
+      if (selectedValue1 == null) {
         setState(() {
-          selectedValueIsNull = true;
+          selectedValueIs1Null = true;
           // print('############# red ###############');
         });
       } else {
         setState(() {
-          selectedValueIsNull = false;
+          selectedValueIs1Null = false;
+          // print('############# white ###############');
+        });
+      }
+      if (selectedValue2 == null) {
+        setState(() {
+          selectedValueIs2Null = true;
+          // print('############# red ###############');
+        });
+      } else {
+        setState(() {
+          selectedValueIs2Null = false;
           // print('############# white ###############');
         });
       }
     } else {
       setState(() {
-        selectedValueIsNull = false;
+        selectedValueIs1Null = false;
+        selectedValueIs2Null = false;
         // print('############# white ###############');
       });
     }
@@ -913,7 +949,7 @@ class _CourseState extends State<Course> {
             widget.name,
           ),
           child: Course(widget.semestNum, widget.name, widget.credite,
-              widget.grade, widget.courseList),
+              widget.grade1, widget.grade2, widget.courseList),
         );
       }, duration: Duration(milliseconds: 400));
       var id = box.toMap().keys.firstWhere(
@@ -955,26 +991,38 @@ class _CourseState extends State<Course> {
     _focusCredite.dispose();
   }
 
+  bool val = true;
   void collectDate() {
     bool save = Provider.of<MyData>(context, listen: false).savaData;
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
-
+    setState(() {
+      selectedValue2 = widget.courseList[4];
+    });
     if (valideName &&
         valideCredit &&
-        selectedValue != null &&
+        selectedValue1 != null &&
         save &&
         !pressDelete) {
       List? alreadyExistValue = box.get(id);
       if (alreadyExistValue != null) {
         // list is already exist
-        box.put(id, [sNum, name, credit, selectedValue]);
+        if (val) {
+          box.put(id, [sNum, name, credit, selectedValue1, selectedValue2]);
+        } else {
+          box.put(id, [sNum, name, credit, selectedValue1, null]);
+        }
       } else {
         // a  new list
-        box.add([sNum, name, credit, selectedValue]);
+        if (val) {
+          box.add([sNum, name, credit, selectedValue1, selectedValue2]);
+        } else {
+          box.add([sNum, name, credit, selectedValue1, null]);
+        }
         var idBox = box.toMap().keys.firstWhere(
-            (k) => eq(box.toMap()[k], [sNum, name, credit, selectedValue]),
+            (k) => eq(box.toMap()[k],
+                [sNum, name, credit, selectedValue1, selectedValue2]),
             orElse: () => null);
 
         setState(() {
@@ -986,23 +1034,23 @@ class _CourseState extends State<Course> {
     }
   }
 
-  void theStateOfCourse() {
-    if (_errorName == null) {
-      Provider.of<MyData>(context, listen: false).stateOfName(true);
-    } else {
-      Provider.of<MyData>(context, listen: false).stateOfName(false);
-    }
-    if (_errorCredit == null) {
-      Provider.of<MyData>(context, listen: false).stateOfCredit(true);
-    } else {
-      Provider.of<MyData>(context, listen: false).stateOfCredit(false);
-    }
-    if (selectedValue != null) {
-      Provider.of<MyData>(context, listen: false).stateOfGrade(true);
-    } else {
-      Provider.of<MyData>(context, listen: false).stateOfGrade(false);
-    }
-  }
+  // void theStateOfCourse() {
+  //   if (_errorName == null) {
+  //     Provider.of<MyData>(context, listen: false).stateOfName(true);
+  //   } else {
+  //     Provider.of<MyData>(context, listen: false).stateOfName(false);
+  //   }
+  //   if (_errorCredit == null) {
+  //     Provider.of<MyData>(context, listen: false).stateOfCredit(true);
+  //   } else {
+  //     Provider.of<MyData>(context, listen: false).stateOfCredit(false);
+  //   }
+  //   if (selectedValue1 != null) {
+  //     Provider.of<MyData>(context, listen: false).stateOfGrade(true);
+  //   } else {
+  //     Provider.of<MyData>(context, listen: false).stateOfGrade(false);
+  //   }
+  // }
 
   // void findSecondTryCourse() {
   //   if (_controller_Name.text.endsWith('*')) {
@@ -1016,14 +1064,13 @@ class _CourseState extends State<Course> {
   //   }
   // }
 
-  bool val = true;
   @override
   Widget build(BuildContext context) {
     if (mounted) {
       test();
       errorGrade();
       validationMethod();
-      theStateOfCourse;
+      // theStateOfCourse;
       // if (!pressDelete) {
       collectDate();
       // findSecondTryCourse();
@@ -1074,11 +1121,15 @@ class _CourseState extends State<Course> {
                       Provider.of<MyData>(context, listen: false).change(true);
                       setState(() {
                         widget.courseList[1] = value;
-
-                        listOfCoursesInSemester[index][1] = value;
+                        if (value.isNotEmpty) {
+                          listOfCoursesInSemester[index][1] = value;
+                        } else {
+                          listOfCoursesInSemester[index][1] = null;
+                        }
                         errorGrade();
-                        selectedValueIsNull;
-                        theStateOfCourse();
+                        selectedValueIs1Null;
+                        selectedValueIs2Null;
+                        // theStateOfCourse();
                         collectDate();
                       });
                     },
@@ -1116,8 +1167,12 @@ class _CourseState extends State<Course> {
                   Provider.of<MyData>(context, listen: false).change(true);
                   setState(() {
                     widget.courseList[2] = value;
-                    listOfCoursesInSemester[index][2] = value;
-                    theStateOfCourse();
+                    if (value.isNotEmpty) {
+                      listOfCoursesInSemester[index][2] = value;
+                    } else {
+                      listOfCoursesInSemester[index][2] = null;
+                    }
+                    // theStateOfCourse();
                     collectDate();
                   });
                 },
@@ -1163,7 +1218,7 @@ class _CourseState extends State<Course> {
                                     color: Colors.transparent,
                                     border: Border(
                                         bottom: BorderSide(
-                                            color: selectedValueIsNull
+                                            color: selectedValueIs1Null
                                                 ? Color(0xffce2029)
                                                 : Colors.white,
                                             width: 1)),
@@ -1171,7 +1226,7 @@ class _CourseState extends State<Course> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      selectedValue == null
+                                      selectedValue1 == null
                                           ? Text(
                                               '1 st',
                                               style: TextStyle(
@@ -1179,7 +1234,7 @@ class _CourseState extends State<Course> {
                                                   fontSize: 18),
                                             )
                                           : Text(
-                                              '$selectedValue',
+                                              '$selectedValue1',
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 color: Color(0xff4562a7),
@@ -1213,13 +1268,13 @@ class _CourseState extends State<Course> {
                                           ),
                                         ))
                                     .toList(),
-                                value: selectedValue,
+                                value: selectedValue1,
                                 onChanged: (value) {
                                   setState(() {
                                     Provider.of<MyData>(context, listen: false)
                                         .change(true);
-                                    selectedValue = value as String;
-                                    widget.courseList[3] = selectedValue;
+                                    selectedValue1 = value as String;
+                                    widget.courseList[3] = selectedValue1;
                                     listOfCoursesInSemester[index][3] = value;
                                     // print('################# courseList ######################');
                                     // print(courseList);
@@ -1228,7 +1283,7 @@ class _CourseState extends State<Course> {
                                     // print(widget.semestCourse[index]);
 
                                     errorGrade();
-                                    theStateOfCourse();
+                                    // theStateOfCourse();
                                     // Provider.of<MyData>(context, listen: false)
                                     //     .changeSaveData(true);
 
@@ -1283,7 +1338,7 @@ class _CourseState extends State<Course> {
                                     color: Colors.transparent,
                                     border: Border(
                                         bottom: BorderSide(
-                                            color: selectedValueIsNull
+                                            color: selectedValueIs2Null
                                                 ? Color(0xffce2029)
                                                 : Colors.white,
                                             width: 1)),
@@ -1291,7 +1346,7 @@ class _CourseState extends State<Course> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      selectedValue == null
+                                      selectedValue2 == null
                                           ? Text(
                                               '2 sd',
                                               style: TextStyle(
@@ -1299,7 +1354,7 @@ class _CourseState extends State<Course> {
                                                   fontSize: 18),
                                             )
                                           : Text(
-                                              '$selectedValue',
+                                              '$selectedValue2',
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 color: Color(0xff4562a7),
@@ -1333,14 +1388,14 @@ class _CourseState extends State<Course> {
                                           ),
                                         ))
                                     .toList(),
-                                value: selectedValue,
+                                value: selectedValue2,
                                 onChanged: (value) {
                                   setState(() {
                                     Provider.of<MyData>(context, listen: false)
                                         .change(true);
-                                    selectedValue = value as String;
-                                    widget.courseList[3] = selectedValue;
-                                    listOfCoursesInSemester[index][3] = value;
+                                    selectedValue2 = value as String;
+                                    widget.courseList[4] = selectedValue2;
+                                    listOfCoursesInSemester[index][4] = value;
                                     // print('################# courseList ######################');
                                     // print(courseList);
                                     // print(
@@ -1348,7 +1403,7 @@ class _CourseState extends State<Course> {
                                     // print(widget.semestCourse[index]);
 
                                     errorGrade();
-                                    theStateOfCourse();
+                                    // theStateOfCourse();
                                     // Provider.of<MyData>(context, listen: false)
                                     //     .changeSaveData(true);
 
@@ -1401,7 +1456,7 @@ class _CourseState extends State<Course> {
                                 color: Colors.transparent,
                                 border: Border(
                                     bottom: BorderSide(
-                                        color: selectedValueIsNull
+                                        color: selectedValueIs1Null
                                             ? Color(0xffce2029)
                                             : Colors.white,
                                         width: 1)),
@@ -1409,14 +1464,14 @@ class _CourseState extends State<Course> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  selectedValue == null
+                                  selectedValue1 == null
                                       ? Text(
                                           'Grade',
                                           style: TextStyle(
                                               color: Colors.grey, fontSize: 18),
                                         )
                                       : Text(
-                                          '$selectedValue',
+                                          '$selectedValue1',
                                           style: TextStyle(
                                             fontSize: 18,
                                             color: Color(0xff4562a7),
@@ -1457,13 +1512,13 @@ class _CourseState extends State<Course> {
                                       ),
                                     ))
                                 .toList(),
-                            value: selectedValue,
+                            value: selectedValue1,
                             onChanged: (value) {
                               setState(() {
                                 Provider.of<MyData>(context, listen: false)
                                     .change(true);
-                                selectedValue = value as String;
-                                widget.courseList[3] = selectedValue;
+                                selectedValue1 = value as String;
+                                widget.courseList[3] = selectedValue1;
                                 listOfCoursesInSemester[index][3] = value;
                                 // print('################# courseList ######################');
                                 // print(courseList);
@@ -1472,7 +1527,7 @@ class _CourseState extends State<Course> {
                                 // print(widget.semestCourse[index]);
 
                                 errorGrade();
-                                theStateOfCourse();
+                                // theStateOfCourse();
                                 // Provider.of<MyData>(context, listen: false)
                                 //     .changeSaveData(true);
 
@@ -1524,6 +1579,39 @@ class _CourseState extends State<Course> {
                     onChanged: (bool? value) {
                       setState(() {
                         val = value!;
+                        if (val == false) {
+                          setState(() {
+                            selectedValue2 = null;
+                            widget.courseList[4] = null;
+                            listOfCoursesInSemester[index][4] = null;
+                            var name = _controller_Name.text;
+                            var credit = _controller_Credit.text;
+                            String? sNum = widget.courseList[0];
+                            if (id != null) {
+                              box.put(id,
+                                  [sNum, name, credit, selectedValue1, null]);
+                            }
+                          });
+                        } else {
+                          setState(() {
+                            widget.courseList[4] = selectedValue2;
+                            listOfCoursesInSemester[index][4] = selectedValue2;
+                            var name = _controller_Name.text;
+                            var credit = _controller_Credit.text;
+                            String? sNum = widget.courseList[0];
+                            if (id != null) {
+                              box.put(id, [
+                                sNum,
+                                name,
+                                credit,
+                                selectedValue1,
+                                selectedValue2
+                              ]);
+                            }
+                          });
+                        }
+                        print('###########################');
+                        print(box.toMap());
                       });
                     },
                   ),
