@@ -155,7 +155,10 @@ class _SemesterState extends State<Semester> {
   void findErrors() {
     for (List course in listOfCoursesInSemester) {
       // not empty course
-      if (!(course[1] == null && course[2] == null && course[3] == null)) {
+      if (!(course[1] == null &&
+          course[2] == null &&
+          course[3] == null &&
+          course[4] == null)) {
         //name validation
         if (course[1] == null ||
             course[1].isEmpty ||
@@ -206,17 +209,19 @@ class _SemesterState extends State<Semester> {
             errorTypeGrade.add(null);
           });
         }
-        // if (course[4] == null ||
-        //     course[4].isEmpty ||
-        //     course[4].trim().isEmpty) {
-        //   setState(() {
-        //     errorTypeGrade.add(1);
-        //   });
-        // } else {
-        //   setState(() {
-        //     errorTypeGrade.add(null);
-        //   });
-        // }
+
+        if ((course[4] == null ||
+                course[4].isEmpty ||
+                course[4].trim().isEmpty) &&
+            course[5] == 'two') {
+          setState(() {
+            errorTypeGrade.add(1);
+          });
+        } else {
+          setState(() {
+            errorTypeGrade.add(null);
+          });
+        }
       }
     }
 
