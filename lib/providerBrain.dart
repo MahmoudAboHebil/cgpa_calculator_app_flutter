@@ -8,8 +8,14 @@ class MyData extends ChangeNotifier {
   bool savaData = true;
   //setTheValuesOFTextFiled
   bool setValues = true;
+  bool delete = false;
   void change(bool value) {
     isChanged = value;
+    notifyListeners();
+  }
+
+  void changeDelete(bool value) {
+    delete = value;
     notifyListeners();
   }
 
