@@ -758,7 +758,7 @@ class _CourseState extends State<Course> {
     // }
     print('###################### test ##########################');
     print(box.toMap());
-    print(listOfCoursesInSemester);
+    // print(listOfCoursesInSemester);
     if (setValues) {
       setState(() {
         index = listOfCoursesInSemester.indexOf(widget.courseList);
@@ -933,8 +933,14 @@ class _CourseState extends State<Course> {
       }
     } else {
       setState(() {
-        selectedValueIs1Null = false;
-        selectedValueIs2Null = false;
+        if (selectedValue1 != null && selectedValue2 == null) {
+          selectedValueIs2Null = true;
+        } else if (selectedValue2 != null && selectedValue1 == null) {
+          selectedValueIs1Null = true;
+        } else {
+          selectedValueIs1Null = false;
+          selectedValueIs2Null = false;
+        }
         // print('############# white ###############');
       });
     }
