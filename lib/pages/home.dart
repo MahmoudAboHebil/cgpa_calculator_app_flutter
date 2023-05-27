@@ -18,8 +18,9 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
 // ToDo: validation message  (done)
 
-// ToDo: add second try course ( need to save option in database & put its validation when press the calc button)
+// ToDo: add second try course ( need to save option in database & put its validation when press the calc button done)
 // ToDo: there is a bug in arrangement elment when delete course   (done)
+
 // ToDo: finish the semester design
 // ToDo: there is a problem when scrolling
 
@@ -1094,13 +1095,245 @@ class _CourseState extends State<Course> {
 
   @override
   Widget gradeContainer() {
-    if (val) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
+    return Row(
+      children: [
+        val
+            ? Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    },
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton2(
+                        onMenuStateChange: (value) {
+                          errorGrade();
+                        },
+                        customButton: Container(
+                          width: 45,
+                          height: 31,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border(
+                                bottom: BorderSide(
+                                    color: selectedValueIs1Null
+                                        ? Color(0xffce2029)
+                                        : Colors.white,
+                                    width: 1)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              selectedValue1 == null
+                                  ? Text(
+                                      '1 st',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 18),
+                                    )
+                                  : Text(
+                                      '$selectedValue1',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xff4562a7),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
+                        items: items
+                            .map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Center(
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: 45,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                          border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.white, width: 1),
+                                      )),
+                                      child: Text(
+                                        item,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xff4562a7),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        value: selectedValue1,
+                        onChanged: (value) {
+                          setState(() {
+                            Provider.of<MyData>(context, listen: false)
+                                .change(true);
+                            selectedValue1 = value as String;
+                            widget.courseList[3] = selectedValue1;
+                            listOfCoursesInSemester[index][3] = value;
+                            // print('################# courseList ######################');
+                            // print(courseList);
+                            // print(
+                            //     '################# semsestcourses ######################');
+                            // print(widget.semestCourse[index]);
+
+                            errorGrade();
+                            // theStateOfCourse();
+                            // Provider.of<MyData>(context, listen: false)
+                            //     .changeSaveData(true);
+
+                            collectDate();
+                          });
+                        },
+                        dropdownStyleData: DropdownStyleData(
+                          maxHeight: 200,
+                          width: 70,
+                          padding: null,
+                          elevation: 2,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)),
+                            color: Color(0xffb8c8d1),
+                            // boxShadow: [
+                            //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                            // ],
+                          ),
+                          offset: const Offset(20, 0),
+                          scrollbarTheme: ScrollbarThemeData(
+                            radius: const Radius.circular(40),
+                            thickness: MaterialStateProperty.all(0),
+                            thumbVisibility: MaterialStateProperty.all(false),
+                          ),
+                        ),
+                        // menuItemStyleData: const MenuItemStyleData(
+                        //   height: 40,
+                        //   padding: EdgeInsets.only(left: 14, right: 14),
+                        // ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    },
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton2(
+                        onMenuStateChange: (value) {
+                          errorGrade();
+                        },
+                        customButton: Container(
+                          width: 45,
+                          height: 31,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border(
+                                bottom: BorderSide(
+                                    color: selectedValueIs2Null
+                                        ? Color(0xffce2029)
+                                        : Colors.white,
+                                    width: 1)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              selectedValue2 == null
+                                  ? Text(
+                                      '2 sd',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 18),
+                                    )
+                                  : Text(
+                                      '$selectedValue2',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xff4562a7),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
+                        items: items
+                            .map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Center(
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: 45,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                          border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.white, width: 1),
+                                      )),
+                                      child: Text(
+                                        item,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xff4562a7),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        value: selectedValue2,
+                        onChanged: (value) {
+                          setState(() {
+                            Provider.of<MyData>(context, listen: false)
+                                .change(true);
+                            selectedValue2 = value as String;
+                            widget.courseList[4] = selectedValue2;
+                            listOfCoursesInSemester[index][4] = value;
+                            // print('################# courseList ######################');
+                            // print(courseList);
+                            // print(
+                            //     '################# semsestcourses ######################');
+                            // print(widget.semestCourse[index]);
+
+                            errorGrade();
+                            // theStateOfCourse();
+                            // Provider.of<MyData>(context, listen: false)
+                            //     .changeSaveData(true);
+
+                            collectDate();
+                          });
+                        },
+                        dropdownStyleData: DropdownStyleData(
+                          maxHeight: 200,
+                          width: 70,
+                          padding: null,
+                          elevation: 2,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)),
+                            color: Color(0xffb8c8d1),
+                            // boxShadow: [
+                            //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+                            // ],
+                          ),
+                          offset: const Offset(20, 0),
+                          scrollbarTheme: ScrollbarThemeData(
+                            radius: const Radius.circular(40),
+                            thickness: MaterialStateProperty.all(0),
+                            thumbVisibility: MaterialStateProperty.all(false),
+                          ),
+                        ),
+                        // menuItemStyleData: const MenuItemStyleData(
+                        //   height: 40,
+                        //   padding: EdgeInsets.only(left: 14, right: 14),
+                        // ),
+                      ),
+                    ),
+                  )
+                ],
+              )
+            : GestureDetector(
                 onTap: () {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
@@ -1110,8 +1343,7 @@ class _CourseState extends State<Course> {
                       errorGrade();
                     },
                     customButton: Container(
-                      width: 45,
-                      height: 31,
+                      width: 95,
                       decoration: BoxDecoration(
                         color: Colors.transparent,
                         border: Border(
@@ -1126,7 +1358,7 @@ class _CourseState extends State<Course> {
                         children: [
                           selectedValue1 == null
                               ? Text(
-                                  '1 st',
+                                  'Grade',
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 18),
                                 )
@@ -1137,6 +1369,14 @@ class _CourseState extends State<Course> {
                                     color: Color(0xff4562a7),
                                   ),
                                 ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 0),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 30,
+                              color: Color(0xff4562a7),
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -1214,372 +1454,70 @@ class _CourseState extends State<Course> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 5,
-              ),
-              GestureDetector(
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                },
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton2(
-                    onMenuStateChange: (value) {
-                      errorGrade();
-                    },
-                    customButton: Container(
-                      width: 45,
-                      height: 31,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border(
-                            bottom: BorderSide(
-                                color: selectedValueIs2Null
-                                    ? Color(0xffce2029)
-                                    : Colors.white,
-                                width: 1)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          selectedValue2 == null
-                              ? Text(
-                                  '2 sd',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 18),
-                                )
-                              : Text(
-                                  '$selectedValue2',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                        ],
-                      ),
-                    ),
-                    items: items
-                        .map((item) => DropdownMenuItem<String>(
-                              value: item,
-                              child: Center(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  width: 45,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                    bottom: BorderSide(
-                                        color: Colors.white, width: 1),
-                                  )),
-                                  child: Text(
-                                    item,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Color(0xff4562a7),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                    value: selectedValue2,
-                    onChanged: (value) {
-                      setState(() {
-                        Provider.of<MyData>(context, listen: false)
-                            .change(true);
-                        selectedValue2 = value as String;
-                        widget.courseList[4] = selectedValue2;
-                        listOfCoursesInSemester[index][4] = value;
-                        // print('################# courseList ######################');
-                        // print(courseList);
-                        // print(
-                        //     '################# semsestcourses ######################');
-                        // print(widget.semestCourse[index]);
-
-                        errorGrade();
-                        // theStateOfCourse();
-                        // Provider.of<MyData>(context, listen: false)
-                        //     .changeSaveData(true);
-
-                        collectDate();
-                      });
-                    },
-                    dropdownStyleData: DropdownStyleData(
-                      maxHeight: 200,
-                      width: 70,
-                      padding: null,
-                      elevation: 2,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10)),
-                        color: Color(0xffb8c8d1),
-                        // boxShadow: [
-                        //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                        // ],
-                      ),
-                      offset: const Offset(20, 0),
-                      scrollbarTheme: ScrollbarThemeData(
-                        radius: const Radius.circular(40),
-                        thickness: MaterialStateProperty.all(0),
-                        thumbVisibility: MaterialStateProperty.all(false),
-                      ),
-                    ),
-                    // menuItemStyleData: const MenuItemStyleData(
-                    //   height: 40,
-                    //   padding: EdgeInsets.only(left: 14, right: 14),
-                    // ),
-                  ),
-                ),
-              )
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 10),
-            // padding: EdgeInsets.only(bottom: 10),
-            width: 15,
-            height: 20,
-            alignment: Alignment.bottomRight,
-            child: Checkbox(
-              checkColor: Colors.white,
-              side: BorderSide(width: 2, color: Colors.green),
-              fillColor:
-                  MaterialStateColor.resolveWith((states) => Colors.green),
-              value: val,
-              shape: CircleBorder(),
-              onChanged: (bool? value) {
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              val = !val;
+              if (val == false) {
                 setState(() {
-                  val = value!;
-                  if (val == false) {
-                    setState(() {
-                      selectedValue2 = null;
-                      widget.courseList[4] = null;
-                      listOfCoursesInSemester[index][4] = null;
-                      widget.courseList[5] = 'one';
-                      listOfCoursesInSemester[index][5] = 'one';
-                      var name = _controller_Name.text;
-                      var credit = _controller_Credit.text;
-                      String? sNum = widget.courseList[0];
-                      if (id != null) {
-                        box.put(id,
-                            [sNum, name, credit, selectedValue1, null, 'one']);
-                      }
-                    });
-                  } else {
-                    setState(() {
-                      widget.courseList[4] = selectedValue2;
-                      listOfCoursesInSemester[index][4] = selectedValue2;
-
-                      widget.courseList[5] = 'two';
-                      listOfCoursesInSemester[index][5] = 'two';
-                      var name = _controller_Name.text;
-                      var credit = _controller_Credit.text;
-                      String? sNum = widget.courseList[0];
-                      if (id != null) {
-                        box.put(id, [
-                          sNum,
-                          name,
-                          credit,
-                          selectedValue1,
-                          selectedValue2,
-                          'two'
-                        ]);
-                      }
-                    });
+                  selectedValue2 = null;
+                  widget.courseList[4] = null;
+                  listOfCoursesInSemester[index][4] = null;
+                  widget.courseList[5] = 'one';
+                  listOfCoursesInSemester[index][5] = 'one';
+                  var name = _controller_Name.text;
+                  var credit = _controller_Credit.text;
+                  String? sNum = widget.courseList[0];
+                  if (id != null) {
+                    box.put(
+                        id, [sNum, name, credit, selectedValue1, null, 'one']);
                   }
-                  print('###########################');
-                  print(box.toMap());
                 });
-              },
-            ),
-          )
-        ],
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          GestureDetector(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton2(
-                onMenuStateChange: (value) {
-                  errorGrade();
-                },
-                customButton: Container(
-                  width: 95,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border(
-                        bottom: BorderSide(
-                            color: selectedValueIs1Null
-                                ? Color(0xffce2029)
-                                : Colors.white,
-                            width: 1)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      selectedValue1 == null
-                          ? Text(
-                              'Grade',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                            )
-                          : Text(
-                              '$selectedValue1',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xff4562a7),
-                              ),
-                            ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 0),
-                        child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 30,
-                          color: Color(0xff4562a7),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                items: items
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Center(
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: 45,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                bottom:
-                                    BorderSide(color: Colors.white, width: 1),
-                              )),
-                              child: Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xff4562a7),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValue1,
-                onChanged: (value) {
-                  setState(() {
-                    Provider.of<MyData>(context, listen: false).change(true);
-                    selectedValue1 = value as String;
-                    widget.courseList[3] = selectedValue1;
-                    listOfCoursesInSemester[index][3] = value;
-                    // print('################# courseList ######################');
-                    // print(courseList);
-                    // print(
-                    //     '################# semsestcourses ######################');
-                    // print(widget.semestCourse[index]);
+              } else {
+                setState(() {
+                  widget.courseList[4] = selectedValue2;
+                  listOfCoursesInSemester[index][4] = selectedValue2;
 
-                    errorGrade();
-                    // theStateOfCourse();
-                    // Provider.of<MyData>(context, listen: false)
-                    //     .changeSaveData(true);
-
-                    collectDate();
-                  });
-                },
-                dropdownStyleData: DropdownStyleData(
-                  maxHeight: 200,
-                  width: 70,
-                  padding: null,
-                  elevation: 2,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                    color: Color(0xffb8c8d1),
-                    // boxShadow: [
-                    //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                    // ],
-                  ),
-                  offset: const Offset(20, 0),
-                  scrollbarTheme: ScrollbarThemeData(
-                    radius: const Radius.circular(40),
-                    thickness: MaterialStateProperty.all(0),
-                    thumbVisibility: MaterialStateProperty.all(false),
-                  ),
-                ),
-                // menuItemStyleData: const MenuItemStyleData(
-                //   height: 40,
-                //   padding: EdgeInsets.only(left: 14, right: 14),
-                // ),
-              ),
+                  widget.courseList[5] = 'two';
+                  listOfCoursesInSemester[index][5] = 'two';
+                  var name = _controller_Name.text;
+                  var credit = _controller_Credit.text;
+                  String? sNum = widget.courseList[0];
+                  if (id != null) {
+                    box.put(id, [
+                      sNum,
+                      name,
+                      credit,
+                      selectedValue1,
+                      selectedValue2,
+                      'two'
+                    ]);
+                  }
+                });
+              }
+              print('###########################');
+              print(box.toMap());
+            });
+          },
+          child: AbsorbPointer(
+            child: Container(
+              margin: EdgeInsets.only(left: 5),
+              height: 18,
+              width: 15,
+              child: val
+                  ? Icon(
+                      Icons.check_box,
+                      color: Colors.green,
+                    )
+                  : Icon(
+                      Icons.check_box_outline_blank,
+                      color: Colors.green,
+                    ),
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(left: 10),
-            // padding: EdgeInsets.only(bottom: 10),
-            width: 15,
-            height: 20,
-            alignment: Alignment.bottomRight,
-            child: Checkbox(
-              checkColor: Colors.white,
-              side: BorderSide(width: 2, color: Colors.green),
-              fillColor:
-                  MaterialStateColor.resolveWith((states) => Colors.green),
-              value: val,
-              shape: CircleBorder(),
-              onChanged: (bool? value) {
-                setState(() {
-                  val = value!;
-                  if (val == false) {
-                    setState(() {
-                      selectedValue2 = null;
-                      widget.courseList[4] = null;
-                      listOfCoursesInSemester[index][4] = null;
-                      widget.courseList[5] = 'one';
-                      listOfCoursesInSemester[index][5] = 'one';
-                      var name = _controller_Name.text;
-                      var credit = _controller_Credit.text;
-                      String? sNum = widget.courseList[0];
-                      if (id != null) {
-                        box.put(id,
-                            [sNum, name, credit, selectedValue1, null, 'one']);
-                      }
-                    });
-                  } else {
-                    setState(() {
-                      widget.courseList[4] = selectedValue2;
-                      listOfCoursesInSemester[index][4] = selectedValue2;
-
-                      widget.courseList[5] = 'two';
-                      listOfCoursesInSemester[index][5] = 'two';
-                      var name = _controller_Name.text;
-                      var credit = _controller_Credit.text;
-                      String? sNum = widget.courseList[0];
-                      if (id != null) {
-                        box.put(id, [
-                          sNum,
-                          name,
-                          credit,
-                          selectedValue1,
-                          selectedValue2,
-                          'two'
-                        ]);
-                      }
-                    });
-                  }
-                  print('###########################');
-                  print(box.toMap());
-                });
-              },
-            ),
-          )
-        ],
-      );
-    }
+        )
+      ],
+    );
   }
 
   Widget build(BuildContext context) {
