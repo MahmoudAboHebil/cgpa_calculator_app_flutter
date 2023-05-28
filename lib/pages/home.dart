@@ -7,6 +7,7 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // ToDo: the data entry removed when click the deleteCourse button  (done)
 // ToDo: there is a problem sometimes when clicking the addCourse button  (done)
@@ -1501,18 +1502,34 @@ class _CourseState extends State<Course> {
           },
           child: AbsorbPointer(
             child: Container(
-              margin: EdgeInsets.only(left: 5),
+              margin: EdgeInsets.only(left: 8, top: 5),
               height: 18,
-              width: 15,
-              child: val
-                  ? Icon(
-                      Icons.check_box,
-                      color: Colors.green,
-                    )
-                  : Icon(
-                      Icons.check_box_outline_blank,
-                      color: Colors.green,
-                    ),
+              width: 18,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.all(Radius.circular(100)),
+                border: Border.all(color: Colors.grey, width: 2),
+              ),
+              child: Container(
+                  height: 10,
+                  width: 10,
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: val ? Colors.green : Colors.transparent,
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                  )),
+
+              // val ?
+              // Icon(
+              //         Icons.check_box,
+              //         color: Colors.green,
+              //       )
+              //     : Icon(
+              //         Icons.check_box_outline_blank,
+              //         color: Colors.green,
+              //       ),
             ),
           ),
         )
