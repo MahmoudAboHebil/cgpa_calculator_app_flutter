@@ -18,12 +18,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ToDo: the validation design need to fix  (done)
 // ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
 // ToDo: validation message  (done)
-
 // ToDo: add second try course ( need to save option in database & put its validation when press the calc button done)
-// ToDo: there is a bug in arrangement elment when delete course   (done)
+// ToDo: there is a bug in arrangement element when delete course   (done)
 
 // ToDo: finish the semester design
-// ToDo: there is a problem when scrolling
+// ToDo: there is a problem when scrolling (done but you need to disappear the waving at end and start of scrolling)
 
 var box = Hive.box('courses177');
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
@@ -86,11 +85,21 @@ class _HomePageState extends State<HomePage> {
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
             backgroundColor: Color(0xffb8c8d1),
-            body: ListView(
-              shrinkWrap: true,
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AppBarHome(),
-                Semester(1),
+                Flexible(
+                    child: Stack(
+                  children: [
+                    ListView(
+                      shrinkWrap: true,
+                      children: [
+                        AppBarHome(),
+                        Semester(1),
+                      ],
+                    )
+                  ],
+                ))
               ],
             ),
           ),
@@ -587,6 +596,7 @@ class _SemesterState extends State<Semester> {
               },
               initialItemCount: listOfCoursesInSemester.length,
               shrinkWrap: true,
+              physics: ScrollPhysics(),
               key: _keyOfCourse,
             ),
             Row(
