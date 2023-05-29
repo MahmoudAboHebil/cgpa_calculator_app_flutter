@@ -20,9 +20,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ToDo: validation message  (done)
 // ToDo: add second try course ( need to save option in database & put its validation when press the calc button done)
 // ToDo: there is a bug in arrangement element when delete course   (done)
-
-// ToDo: finish the semester design
 // ToDo: there is a problem when scrolling (done )
+
+// ToDo: build the calc-CGP method
+// ToDo: finish the semester design
+// ToDo: build the the the green question button
 
 var box = Hive.box('courses177');
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
@@ -53,7 +55,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getCurrentUser();
-    print(box.toMap());
+    // print(box.toMap());
   }
 
   void getCurrentUser() async {
@@ -69,17 +71,6 @@ class _HomePageState extends State<HomePage> {
       print(e);
     }
   }
-
-  final List<String> items = [
-    'Item1',
-    'Item2',
-    'Item3',
-    'Item4',
-    'Item5',
-    'Item6',
-    'Item7',
-    'Item8',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +123,26 @@ class Semester extends StatefulWidget {
 class _SemesterState extends State<Semester> {
   late String semestNumString;
   bool val = true;
+  void calcCGP(int semseter) {
+    List allCoursesInSemst = [];
+    Map map = box.toMap();
+    if (map.isNotEmpty) {
+      for (final mapEntry in map.entries) {
+        var key = mapEntry.key;
+        var value = mapEntry.value;
+        if (value[0] == semseter.toString()) {
+          setState(() {
+            allCoursesInSemst.add(value);
+          });
+        }
+      }
+    } else {
+      print('################## Empty #################');
+    }
+    print('################## semester #################');
+    print(allCoursesInSemst);
+  }
+
   void getData() async {
     setState(() {
       listOfCoursesInSemester.clear();
@@ -656,6 +667,8 @@ class _SemesterState extends State<Semester> {
                                 .changeSaveData(true);
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
+                            print(box.toMap());
+                            calcCGP(widget.semesterNum);
                           } else {
                             message();
                           }
@@ -765,28 +778,32 @@ class _CourseState extends State<Course> {
   int index = 0;
   int? id;
   final List<String> items = [
-    'A+',
-    'b+',
-    'c+',
-    'd+',
-    'e+',
-    'f+',
-    'g',
-    'k+',
+    'A',
+    'A-',
+    'B+',
+    'B',
+    'B-',
+    'C+',
+    'C',
+    'C-',
+    'D+',
+    'D',
+    'F',
+    'S',
+    'U'
   ];
   void test() {
     bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-    bool isDelete = Provider.of<MyData>(context, listen: false).delete;
-    print('p############### $isDelete ##############');
-    print(widget.grade2);
-    // if (isDelete) {
+    // print('p############### $isDelete ##############');
+    // print(widget.grade2);
+    // // if (isDelete) {
     setState(() {
       val = widget.courseList[5] == 'one' ? false : true;
     });
     // }
-    print('###################### test ##########################');
-    print(box.toMap());
-    // print(listOfCoursesInSemester);
+    // print('###################### test ##########################');
+    // print(box.toMap());
+    // // print(listOfCoursesInSemester);
     if (setValues) {
       setState(() {
         index = listOfCoursesInSemester.indexOf(widget.courseList);
@@ -975,11 +992,9 @@ class _CourseState extends State<Course> {
     // }
   }
 
-  bool pressDelete = false;
   void deleteCourse() {
     Provider.of<MyData>(context, listen: false).changeSaveData(false);
     setState(() {
-      pressDelete = true;
       // delete = true;
       // List deletedCourse = [
       //   widget.semestCourse,
@@ -1013,6 +1028,7 @@ class _CourseState extends State<Course> {
         });
       }
     });
+    Provider.of<MyData>(context, listen: false).change(true);
     // Future.delayed(Duration(milliseconds: 600), () {
     //   setState(() {
     //     pressDelete = false;
@@ -1043,6 +1059,7 @@ class _CourseState extends State<Course> {
   late bool val;
   void collectDate() {
     bool save = Provider.of<MyData>(context, listen: false).savaData;
+    bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
@@ -1050,11 +1067,8 @@ class _CourseState extends State<Course> {
     setState(() {
       selectedValue2 = widget.courseList[4];
     });
-    if (valideName &&
-        valideCredit &&
-        selectedValue1 != null &&
-        save &&
-        !pressDelete) {
+
+    if (valideName && valideCredit && selectedValue1 != null && !pressDelete) {
       List? alreadyExistValue = box.get(id);
       if (alreadyExistValue != null) {
         // list is already exist
@@ -1080,8 +1094,8 @@ class _CourseState extends State<Course> {
           id = idBox;
         });
       }
-      print('################## save :$save ############################');
-      print(box.toMap());
+      // print('################## save :$save ############################');
+      // print(box.toMap());
     }
   }
 
@@ -1517,8 +1531,8 @@ class _CourseState extends State<Course> {
                   }
                 });
               }
-              print('###########################');
-              print(box.toMap());
+              // print('###########################');
+              // print(box.toMap());
             });
           },
           child: AbsorbPointer(
@@ -1590,13 +1604,15 @@ class _CourseState extends State<Course> {
                     setState(() {
                       FocusManager.instance.primaryFocus?.unfocus();
 
-                      // Provider.of<MyData>(context, listen: false)
-                      //     .changeDelete(true);
-                      //
-                      pressDelete = true;
                       Provider.of<MyData>(context, listen: false)
                           .changeDelete(true);
+
+                      // Provider.of<MyData>(context, listen: false)
+                      //     .changeDelete(true);
                       deleteCourse();
+                      Future.delayed(Duration(milliseconds: 500), () {
+                        _provider.changeDelete(false);
+                      });
                     });
                   },
                   child: Icon(
