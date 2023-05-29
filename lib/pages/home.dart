@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +24,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ToDo: there is a bug in arrangement element when delete course   (done)
 // ToDo: there is a problem when scrolling (done )
 
-// ToDo: build the calc-CGP method
+// ToDo: build the calc-CGP method (done-but there is no construction to calc the second grade)
 // ToDo: finish the semester design
 // ToDo: build the the the green question button
 
@@ -123,8 +125,19 @@ class Semester extends StatefulWidget {
 class _SemesterState extends State<Semester> {
   late String semestNumString;
   bool val = true;
+  double GPA = 0.0;
+  int earnCredit = 0;
+  int totalCredit = 0;
   void calcCGP(int semseter) {
     List allCoursesInSemst = [];
+    // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    setState(() {
+      GPA = 0.0;
+      earnCredit = 0;
+      totalCredit = 0;
+    });
     Map map = box.toMap();
     if (map.isNotEmpty) {
       for (final mapEntry in map.entries) {
@@ -136,11 +149,76 @@ class _SemesterState extends State<Semester> {
           });
         }
       }
+      for (var value in allCoursesInSemst) {
+        String grade1 = value[3];
+
+        int credit = int.parse(value[2]);
+        double pointOfGrade = 0.0;
+        double pointOfCourse = 0.0;
+        setState(() {
+          if (grade1 == 'A') {
+            pointOfGrade = 4.00;
+          } else if (grade1 == 'A-') {
+            pointOfGrade = 3.67;
+          } else if (grade1 == 'B+') {
+            pointOfGrade = 3.33;
+          } else if (grade1 == 'B') {
+            pointOfGrade = 3.00;
+          } else if (grade1 == 'B-') {
+            pointOfGrade = 2.67;
+          } else if (grade1 == 'C+') {
+            pointOfGrade = 2.33;
+          } else if (grade1 == 'C') {
+            pointOfGrade = 2.00;
+          } else if (grade1 == 'C-') {
+            pointOfGrade = 1.67;
+          } else if (grade1 == 'D+') {
+            pointOfGrade = 1.33;
+          } else if (grade1 == 'D') {
+            pointOfGrade = 1.00;
+          } else if (grade1 == 'F') {
+            pointOfGrade = 0.00;
+          } else if (grade1 == 'S') {
+            pointOfGrade = -1.00;
+          } else {
+            pointOfGrade = -2.00;
+          }
+        });
+        setState(() {
+          if (pointOfGrade >= 0.00) {
+            // not s/u course
+            totalCredit_without_SU = totalCredit_without_SU + credit;
+            totalCredit = totalCredit + credit;
+            pointOfCourse = pointOfGrade * credit;
+            totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+          } else {
+            // s/u course
+            totalCredit = totalCredit + credit;
+          }
+
+          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+            //  passed course
+            earnCredit = earnCredit + credit;
+          }
+        });
+      }
+      setState(() {
+        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+          GPA = 0.0;
+        } else {
+          GPA = (totalPointsOfSemest / totalCredit_without_SU);
+        }
+      });
+      print('################## semester #################');
+      print(box.toMap());
+      print('GPA  : $GPA');
+      print('totalPointsOfSemest  : $totalPointsOfSemest');
+      print('totalCredit_without_SU  : $totalCredit_without_SU');
+      print('totalCredit  : $totalCredit');
+      print('earnCredit  : $earnCredit');
     } else {
       print('################## Empty #################');
     }
-    print('################## semester #################');
-    print(allCoursesInSemst);
   }
 
   void getData() async {
@@ -483,7 +561,7 @@ class _SemesterState extends State<Semester> {
                   Column(
                     children: [
                       Text(
-                        'GPA 2.57',
+                        'GPA',
                         style: TextStyle(
                           color: Color(0xff004d60),
                           fontSize: 18,
@@ -493,7 +571,7 @@ class _SemesterState extends State<Semester> {
                         height: 5,
                       ),
                       Text(
-                        '2.57',
+                        '${GPA.toStringAsFixed(3)}',
                         style: TextStyle(
                           color: Color(0xff4562a7),
                           fontSize: 18,
@@ -514,7 +592,7 @@ class _SemesterState extends State<Semester> {
                         height: 5,
                       ),
                       Text(
-                        '333',
+                        '$earnCredit / $totalCredit',
                         style: TextStyle(
                           color: Color(0xff4562a7),
                           fontSize: 18,
@@ -668,7 +746,9 @@ class _SemesterState extends State<Semester> {
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
                             print(box.toMap());
-                            calcCGP(widget.semesterNum);
+                            Future.delayed(Duration(milliseconds: 500), () {
+                              calcCGP(widget.semesterNum);
+                            });
                           } else {
                             message();
                           }
@@ -680,10 +760,10 @@ class _SemesterState extends State<Semester> {
                             errorTypeCredit.clear();
                             errorTypeName.clear();
                           });
-                          Future.delayed(Duration(milliseconds: 600), () {
-                            Provider.of<MyData>(context, listen: false)
-                                .changeSaveData(false);
-                          });
+                          // Future.delayed(Duration(milliseconds: 600), () {
+                          //   Provider.of<MyData>(context, listen: false)
+                          //       .changeSaveData(false);
+                          // });
                         },
                         child: Container(
                           alignment: Alignment.center,
@@ -743,11 +823,8 @@ class _CourseState extends State<Course> {
     // print("Focus Name: ${_focusName.hasFocus.toString()}");
 
     if (_focusName.hasFocus) {
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
-      Provider.of<MyData>(context, listen: false).changeSaveData(false);
-
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
@@ -759,10 +836,8 @@ class _CourseState extends State<Course> {
     // print("Focus Credite: ${_focusCredite.hasFocus.toString()}");
 
     if (_focusCredite.hasFocus) {
-      Provider.of<MyData>(context, listen: false).changeSaveData(true);
       Provider.of<MyData>(context, listen: false).changeSetValues(false);
     } else {
-      Provider.of<MyData>(context, listen: false).changeSaveData(false);
       Provider.of<MyData>(context, listen: false).changeSetValues(true);
     }
 
@@ -1068,7 +1143,11 @@ class _CourseState extends State<Course> {
       selectedValue2 = widget.courseList[4];
     });
 
-    if (valideName && valideCredit && selectedValue1 != null && !pressDelete) {
+    if (valideName &&
+        valideCredit &&
+        selectedValue1 != null &&
+        !pressDelete &&
+        save) {
       List? alreadyExistValue = box.get(id);
       if (alreadyExistValue != null) {
         // list is already exist
@@ -1606,6 +1685,8 @@ class _CourseState extends State<Course> {
 
                       Provider.of<MyData>(context, listen: false)
                           .changeDelete(true);
+                      Provider.of<MyData>(context, listen: false)
+                          .changeSaveData(false);
 
                       // Provider.of<MyData>(context, listen: false)
                       //     .changeDelete(true);
