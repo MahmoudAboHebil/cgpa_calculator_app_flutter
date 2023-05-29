@@ -22,12 +22,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ToDo: there is a bug in arrangement element when delete course   (done)
 
 // ToDo: finish the semester design
-// ToDo: there is a problem when scrolling (done but you need to disappear the waving at end and start of scrolling)
+// ToDo: there is a problem when scrolling (done )
 
 var box = Hive.box('courses177');
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 List listOfCoursesInSemester = [];
+
+class MyBehavior extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
+}
 
 class HomePage extends StatefulWidget {
   @override
@@ -91,12 +99,15 @@ class _HomePageState extends State<HomePage> {
                 Flexible(
                     child: Stack(
                   children: [
-                    ListView(
-                      shrinkWrap: true,
-                      children: [
-                        AppBarHome(),
-                        Semester(1),
-                      ],
+                    ScrollConfiguration(
+                      behavior: MyBehavior(),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          AppBarHome(),
+                          Semester(1),
+                        ],
+                      ),
                     )
                   ],
                 ))
