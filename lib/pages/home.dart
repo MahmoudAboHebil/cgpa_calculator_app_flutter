@@ -23,8 +23,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ToDo: add second try course ( need to save option in database & put its validation when press the calc button done)
 // ToDo: there is a bug in arrangement element when delete course   (done)
 // ToDo: there is a problem when scrolling (done )
+// ToDo: build the calc-GPA method (done)
 
-// ToDo: build the calc-CGP method (done-but there is no construction to calc the second grade)
+// ToDo: build the calc-CGPA method (done-but there is no construction to calc the second grade ,there is a bug when add grade input first)
 // ToDo: finish the semester design
 // ToDo: build the the the green question button
 
@@ -74,9 +75,96 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  double CGPA = 0.0;
+  int earnCredit = 0;
+  int totalCredit = 0;
+  void calcCGPA() {
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    setState(() {
+      CGPA = 0.0;
+      earnCredit = 0;
+      totalCredit = 0;
+    });
+    Map map = box.toMap();
+    if (map.isNotEmpty) {
+      for (final mapEntry in map.entries) {
+        var key = mapEntry.key;
+        var value = mapEntry.value;
+        String grade1 = value[3];
+        int credit = int.parse(value[2]);
+        double pointOfGrade = 0.0;
+        double pointOfCourse = 0.0;
+        setState(() {
+          if (grade1 == 'A') {
+            pointOfGrade = 4.00;
+          } else if (grade1 == 'A-') {
+            pointOfGrade = 3.67;
+          } else if (grade1 == 'B+') {
+            pointOfGrade = 3.33;
+          } else if (grade1 == 'B') {
+            pointOfGrade = 3.00;
+          } else if (grade1 == 'B-') {
+            pointOfGrade = 2.67;
+          } else if (grade1 == 'C+') {
+            pointOfGrade = 2.33;
+          } else if (grade1 == 'C') {
+            pointOfGrade = 2.00;
+          } else if (grade1 == 'C-') {
+            pointOfGrade = 1.67;
+          } else if (grade1 == 'D+') {
+            pointOfGrade = 1.33;
+          } else if (grade1 == 'D') {
+            pointOfGrade = 1.00;
+          } else if (grade1 == 'F') {
+            pointOfGrade = 0.00;
+          } else if (grade1 == 'S') {
+            pointOfGrade = -1.00;
+          } else {
+            pointOfGrade = -2.00;
+          }
+        });
+        setState(() {
+          if (pointOfGrade >= 0.00) {
+            // not s/u course
+            totalCredit_without_SU = totalCredit_without_SU + credit;
+            totalCredit = totalCredit + credit;
+            pointOfCourse = pointOfGrade * credit;
+            totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+          } else {
+            // s/u course
+            totalCredit = totalCredit + credit;
+          }
+
+          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+            //  passed course
+            earnCredit = earnCredit + credit;
+          }
+        });
+      }
+      setState(() {
+        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+          CGPA = 0.0;
+        } else {
+          CGPA = (totalPointsOfSemest / totalCredit_without_SU);
+        }
+      });
+      // print('################## semester #################');
+      // print(box.toMap());
+      // print('GPA  : $GPA');
+      // print('totalPointsOfSemest  : $totalPointsOfSemest');
+      // print('totalCredit_without_SU  : $totalCredit_without_SU');
+      // print('totalCredit  : $totalCredit');
+      // print('earnCredit  : $earnCredit');
+    } else {
+      print('################## Empty #################');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // getData();
+    calcCGPA();
     Provider.of<MyData>(context).isChanged;
 
     return Container(
@@ -97,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                       child: ListView(
                         shrinkWrap: true,
                         children: [
-                          AppBarHome(),
+                          AppBarHome(CGPA, earnCredit, totalCredit),
                           Semester(1),
                         ],
                       ),
@@ -1802,6 +1890,12 @@ class _CourseState extends State<Course> {
 }
 
 class AppBarHome extends StatelessWidget {
+  double cgpa;
+  int earnCredit;
+  int totalCredit;
+
+  AppBarHome(this.cgpa, this.earnCredit, this.totalCredit);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1889,7 +1983,7 @@ class AppBarHome extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.only(left: 20),
                               child: Text(
-                                '2.75',
+                                '${cgpa.toStringAsFixed(3)}',
                                 style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 20,
@@ -1927,7 +2021,7 @@ class AppBarHome extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          '185',
+                          '$earnCredit / $totalCredit',
                           style: TextStyle(
                             color: Color(0xff004d60),
                             fontSize: 20,
