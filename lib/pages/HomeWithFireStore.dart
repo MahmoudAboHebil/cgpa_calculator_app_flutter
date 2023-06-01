@@ -7,7 +7,7 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 
-// [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+// [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 List listOfCoursesInSemester = [];
 
