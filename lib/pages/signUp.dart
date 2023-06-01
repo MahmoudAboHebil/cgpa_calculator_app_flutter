@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:cgp_calculator/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home.dart';
+import 'homeWithHive.dart';
 
 class SignUpPage extends StatefulWidget {
   @override

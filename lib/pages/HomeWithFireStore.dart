@@ -1,35 +1,12 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// ToDo: the data entry removed when click the deleteCourse button  (done)
-// ToDo: there is a problem sometimes when clicking the addCourse button  (done)
-// ToDo: name disappear when get long  (done)
-// ToDo: save data in DataBase automatic without press any button  ( -i need that to update the id- done)
-// ToDo: there is a problem when save a data in dataBase in same time there some  validation errors (done)
-// ToDo: must do not call calc button function if there any errors about  validation (done)
-// ToDo: the validation design need to fix  (done)
-// ToDo: the validation need to be more handel like the course must be not repeated in one semester (will be problem when dealing by one year CGPA ,so no need)
-// ToDo: validation message  (done)
-// ToDo: add second try course ( need to save option in database & put its validation when press the calc button done)
-// ToDo: there is a bug in arrangement element when delete course   (done)
-// ToDo: there is a problem when scrolling (done )
-// ToDo: build the calc-GPA method (done)
-
-// ToDo: build the calc-CGPA method (done-but there is no construction to calc the second grade ,there is a bug when add grade input first)
-// ToDo: finish the semester design
-// ToDo: build the the the green question button
-
-var box = Hive.box('courses177');
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
 List listOfCoursesInSemester = [];
@@ -78,95 +55,11 @@ class _HomePageState extends State<HomePage> {
   double CGPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
-  void calcCGPA() {
-    int totalCredit_without_SU = 0;
-    double totalPointsOfSemest = 0.0;
-    setState(() {
-      CGPA = 0.0;
-      earnCredit = 0;
-      totalCredit = 0;
-    });
-    Map map = box.toMap();
-    if (map.isNotEmpty) {
-      for (final mapEntry in map.entries) {
-        var key = mapEntry.key;
-        var value = mapEntry.value;
-        String grade1 = value[3];
-        int credit = int.parse(value[2]);
-        double pointOfGrade = 0.0;
-        double pointOfCourse = 0.0;
-        setState(() {
-          if (grade1 == 'A') {
-            pointOfGrade = 4.00;
-          } else if (grade1 == 'A-') {
-            pointOfGrade = 3.67;
-          } else if (grade1 == 'B+') {
-            pointOfGrade = 3.33;
-          } else if (grade1 == 'B') {
-            pointOfGrade = 3.00;
-          } else if (grade1 == 'B-') {
-            pointOfGrade = 2.67;
-          } else if (grade1 == 'C+') {
-            pointOfGrade = 2.33;
-          } else if (grade1 == 'C') {
-            pointOfGrade = 2.00;
-          } else if (grade1 == 'C-') {
-            pointOfGrade = 1.67;
-          } else if (grade1 == 'D+') {
-            pointOfGrade = 1.33;
-          } else if (grade1 == 'D') {
-            pointOfGrade = 1.00;
-          } else if (grade1 == 'F') {
-            pointOfGrade = 0.00;
-          } else if (grade1 == 'S') {
-            pointOfGrade = -1.00;
-          } else {
-            pointOfGrade = -2.00;
-          }
-        });
-        setState(() {
-          if (pointOfGrade >= 0.00) {
-            // not s/u course
-            totalCredit_without_SU = totalCredit_without_SU + credit;
-            totalCredit = totalCredit + credit;
-            pointOfCourse = pointOfGrade * credit;
-            totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-          } else {
-            // s/u course
-            totalCredit = totalCredit + credit;
-          }
-
-          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
-            //  passed course
-            earnCredit = earnCredit + credit;
-          }
-        });
-      }
-      setState(() {
-        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
-          CGPA = 0.0;
-        } else {
-          CGPA = (totalPointsOfSemest / totalCredit_without_SU);
-        }
-      });
-      // print('################## semester #################');
-      // print(box.toMap());
-      // print('GPA  : $GPA');
-      // print('totalPointsOfSemest  : $totalPointsOfSemest');
-      // print('totalCredit_without_SU  : $totalCredit_without_SU');
-      // print('totalCredit  : $totalCredit');
-      // print('earnCredit  : $earnCredit');
-    } else {
-      print('################## Empty #################');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     // getData();
-    calcCGPA();
     Provider.of<MyData>(context).isChanged;
-
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -216,126 +109,6 @@ class _SemesterState extends State<Semester> {
   double GPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
-  void calcCGP(int semseter) {
-    List allCoursesInSemst = [];
-    // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-    int totalCredit_without_SU = 0;
-    double totalPointsOfSemest = 0.0;
-    setState(() {
-      GPA = 0.0;
-      earnCredit = 0;
-      totalCredit = 0;
-    });
-    Map map = box.toMap();
-    if (map.isNotEmpty) {
-      for (final mapEntry in map.entries) {
-        var key = mapEntry.key;
-        var value = mapEntry.value;
-        if (value[0] == semseter.toString()) {
-          setState(() {
-            allCoursesInSemst.add(value);
-          });
-        }
-      }
-      for (var value in allCoursesInSemst) {
-        String grade1 = value[3];
-
-        int credit = int.parse(value[2]);
-        double pointOfGrade = 0.0;
-        double pointOfCourse = 0.0;
-        setState(() {
-          if (grade1 == 'A') {
-            pointOfGrade = 4.00;
-          } else if (grade1 == 'A-') {
-            pointOfGrade = 3.67;
-          } else if (grade1 == 'B+') {
-            pointOfGrade = 3.33;
-          } else if (grade1 == 'B') {
-            pointOfGrade = 3.00;
-          } else if (grade1 == 'B-') {
-            pointOfGrade = 2.67;
-          } else if (grade1 == 'C+') {
-            pointOfGrade = 2.33;
-          } else if (grade1 == 'C') {
-            pointOfGrade = 2.00;
-          } else if (grade1 == 'C-') {
-            pointOfGrade = 1.67;
-          } else if (grade1 == 'D+') {
-            pointOfGrade = 1.33;
-          } else if (grade1 == 'D') {
-            pointOfGrade = 1.00;
-          } else if (grade1 == 'F') {
-            pointOfGrade = 0.00;
-          } else if (grade1 == 'S') {
-            pointOfGrade = -1.00;
-          } else {
-            pointOfGrade = -2.00;
-          }
-        });
-        setState(() {
-          if (pointOfGrade >= 0.00) {
-            // not s/u course
-            totalCredit_without_SU = totalCredit_without_SU + credit;
-            totalCredit = totalCredit + credit;
-            pointOfCourse = pointOfGrade * credit;
-            totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-          } else {
-            // s/u course
-            totalCredit = totalCredit + credit;
-          }
-
-          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
-            //  passed course
-            earnCredit = earnCredit + credit;
-          }
-        });
-      }
-      setState(() {
-        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
-          GPA = 0.0;
-        } else {
-          GPA = (totalPointsOfSemest / totalCredit_without_SU);
-        }
-      });
-      print('################## semester #################');
-      print(box.toMap());
-      print('GPA  : $GPA');
-      print('totalPointsOfSemest  : $totalPointsOfSemest');
-      print('totalCredit_without_SU  : $totalCredit_without_SU');
-      print('totalCredit  : $totalCredit');
-      print('earnCredit  : $earnCredit');
-    } else {
-      print('################## Empty #################');
-    }
-  }
-
-  void getData() async {
-    setState(() {
-      listOfCoursesInSemester.clear();
-    });
-    bool t = box.isEmpty;
-    if (t && val) {
-      // emtyBox
-      setState(() {
-        listOfCoursesInSemester
-            .add([semestNumString, null, null, null, null, 'one']);
-      });
-      setState(() {
-        val = false;
-      });
-    } else {
-      Map map = box.toMap();
-
-      for (final mapEntry in map.entries) {
-        var key = mapEntry.key;
-        var value = mapEntry.value;
-        setState(() {
-          listOfCoursesInSemester.add(value);
-          listOfCoursesInSemester = listOfCoursesInSemester.toSet().toList();
-        });
-      }
-    }
-  }
 
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
@@ -477,7 +250,6 @@ class _SemesterState extends State<Semester> {
     setState(() {
       semestNumString = widget.semesterNum.toString();
     });
-    getData();
     // print('################### map #####################');
     // print(box.toMap());
   }
@@ -833,10 +605,6 @@ class _SemesterState extends State<Semester> {
                                 .changeSaveData(true);
                             Provider.of<MyData>(context, listen: false)
                                 .change(false);
-                            print(box.toMap());
-                            Future.delayed(Duration(milliseconds: 500), () {
-                              calcCGP(widget.semesterNum);
-                            });
                           } else {
                             message();
                           }
@@ -1033,13 +801,6 @@ class _CourseState extends State<Course> {
     var credit = _controller_Credit.text;
     String? sNum = widget.courseList[0];
     String option = widget.courseList[5];
-    var idBox = box.toMap().keys.firstWhere(
-        (k) => eq(box.toMap()[k],
-            [sNum, name, credit, selectedValue1, selectedValue2, option]),
-        orElse: () => null);
-    setState(() {
-      id = idBox;
-    });
     validationMethod();
   }
 
@@ -1179,17 +940,6 @@ class _CourseState extends State<Course> {
               widget.grade1, widget.grade2, widget.option, widget.courseList),
         );
       }, duration: Duration(milliseconds: 400));
-      var id = box.toMap().keys.firstWhere(
-          (k) => eq(box.toMap()[k], deletedCourse),
-          orElse: () => null);
-      print('################# id delete: $id ############################');
-      if (id != null) {
-        // print('################# id delete: $id ############################');
-        box.delete(id);
-        setState(() {
-          id == null;
-        });
-      }
     });
     Provider.of<MyData>(context, listen: false).change(true);
     // Future.delayed(Duration(milliseconds: 600), () {
@@ -1236,31 +986,6 @@ class _CourseState extends State<Course> {
         selectedValue1 != null &&
         !pressDelete &&
         save) {
-      List? alreadyExistValue = box.get(id);
-      if (alreadyExistValue != null) {
-        // list is already exist
-        if (val) {
-          box.put(
-              id, [sNum, name, credit, selectedValue1, selectedValue2, 'two']);
-        } else {
-          box.put(id, [sNum, name, credit, selectedValue1, null, 'one']);
-        }
-      } else {
-        // a  new list
-        if (val) {
-          box.add([sNum, name, credit, selectedValue1, selectedValue2, 'two']);
-        } else {
-          box.add([sNum, name, credit, selectedValue1, null, 'one']);
-        }
-        var idBox = box.toMap().keys.firstWhere(
-            (k) => eq(box.toMap()[k],
-                [sNum, name, credit, selectedValue1, selectedValue2, option]),
-            orElse: () => null);
-
-        setState(() {
-          id = idBox;
-        });
-      }
       // print('################## save :$save ############################');
       // print(box.toMap());
     }
@@ -1671,10 +1396,6 @@ class _CourseState extends State<Course> {
                   var name = _controller_Name.text;
                   var credit = _controller_Credit.text;
                   String? sNum = widget.courseList[0];
-                  if (id != null) {
-                    box.put(
-                        id, [sNum, name, credit, selectedValue1, null, 'one']);
-                  }
                 });
               } else {
                 setState(() {
@@ -1686,16 +1407,6 @@ class _CourseState extends State<Course> {
                   var name = _controller_Name.text;
                   var credit = _controller_Credit.text;
                   String? sNum = widget.courseList[0];
-                  if (id != null) {
-                    box.put(id, [
-                      sNum,
-                      name,
-                      credit,
-                      selectedValue1,
-                      selectedValue2,
-                      'two'
-                    ]);
-                  }
                 });
               }
               // print('###########################');

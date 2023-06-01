@@ -2,16 +2,16 @@ import 'package:cgp_calculator/test.dart';
 import 'package:flutter/material.dart';
 import 'pages/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'pages/home.dart';
 import 'package:provider/provider.dart';
 import 'providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'pages/HomeWithFireStore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Hive.initFlutter();
-  await Hive.openBox('courses177');
+  await Hive.openBox('courses00');
   runApp(const MyApp());
 }
 
