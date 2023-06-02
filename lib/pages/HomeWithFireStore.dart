@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final CollectionReference _courses =
+      FirebaseFirestore.instance.collection('Courses');
+
   final _auth = FirebaseAuth.instance;
   User? loggedInUser;
   List allCourse = [];
@@ -67,26 +71,25 @@ class _HomePageState extends State<HomePage> {
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
             backgroundColor: Color(0xffb8c8d1),
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Flexible(
-                    child: Stack(
-                  children: [
-                    ScrollConfiguration(
-                      behavior: MyBehavior(),
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          AppBarHome(CGPA, earnCredit, totalCredit),
-                          Semester(1),
-                        ],
-                      ),
-                    )
-                  ],
-                ))
-              ],
-            ),
+            body: StreamBuilder(
+                stream: _courses.snapshots(),
+                builder:
+                    (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                  if (streamSnapshot.hasData) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ListView(
+                          shrinkWrap: true,
+                          children: [
+                            Semester(1),
+                          ],
+                        )
+                      ],
+                    );
+                  }
+                  return Center(child: Text('No Data'));
+                }),
           ),
         ),
       ),
@@ -104,6 +107,9 @@ class Semester extends StatefulWidget {
 }
 
 class _SemesterState extends State<Semester> {
+  final CollectionReference _courses =
+      FirebaseFirestore.instance.collection('Courses');
+
   late String semestNumString;
   bool val = true;
   double GPA = 0.0;
@@ -124,6 +130,7 @@ class _SemesterState extends State<Semester> {
   String? emptyField;
   String? creditMoreThanThree;
   String? creditEqZero;
+  var idcourse;
   void findErrors() {
     for (List course in listOfCoursesInSemester) {
       // not empty course
@@ -242,6 +249,8 @@ class _SemesterState extends State<Semester> {
         : listOfCoursesInSemester.length - 1;
     // print('################# insertIndex: $insertIndex ######################');
     _keyOfCourse.currentState!.insertItem(insertIndex);
+
+    // ToDo: set id
   }
 
   @override
@@ -545,14 +554,14 @@ class _SemesterState extends State<Semester> {
             AnimatedList(
               itemBuilder: (context, index, animation) {
                 return Course(
-                  listOfCoursesInSemester[index][0],
-                  listOfCoursesInSemester[index][1],
-                  listOfCoursesInSemester[index][2],
-                  listOfCoursesInSemester[index][3],
-                  listOfCoursesInSemester[index][4],
-                  listOfCoursesInSemester[index][5],
-                  listOfCoursesInSemester[index],
-                );
+                    listOfCoursesInSemester[index][0],
+                    listOfCoursesInSemester[index][1],
+                    listOfCoursesInSemester[index][2],
+                    listOfCoursesInSemester[index][3],
+                    listOfCoursesInSemester[index][4],
+                    listOfCoursesInSemester[index][5],
+                    listOfCoursesInSemester[index],
+                    idcourse);
               },
               initialItemCount: listOfCoursesInSemester.length,
               shrinkWrap: true,
@@ -662,8 +671,9 @@ class Course extends StatefulWidget {
   String? grade2;
   String option;
   List courseList;
+  var id;
   Course(this.semestNum, this.name, this.credite, this.grade1, this.grade2,
-      this.option, this.courseList);
+      this.option, this.courseList, this.id);
 
   @override
   State<Course> createState() => _CourseState();
@@ -779,6 +789,7 @@ class _CourseState extends State<Course> {
     super.initState();
     _focusName.addListener(_onFocusNameChange);
     _focusCredite.addListener(_onFocusCrediteChange);
+    // ToDo: get Id
 
     setState(() {
       index = listOfCoursesInSemester.indexOf(widget.courseList);
@@ -936,17 +947,22 @@ class _CourseState extends State<Course> {
           key: ValueKey(
             widget.name,
           ),
-          child: Course(widget.semestNum, widget.name, widget.credite,
-              widget.grade1, widget.grade2, widget.option, widget.courseList),
+          child: Course(
+              widget.semestNum,
+              widget.name,
+              widget.credite,
+              widget.grade1,
+              widget.grade2,
+              widget.option,
+              widget.courseList,
+              widget.id),
         );
       }, duration: Duration(milliseconds: 400));
     });
+
+    // ToDo: delete with id
+
     Provider.of<MyData>(context, listen: false).change(true);
-    // Future.delayed(Duration(milliseconds: 600), () {
-    //   setState(() {
-    //     pressDelete = false;
-    //   });
-    // });
   }
 
   late MyData _provider;
@@ -986,40 +1002,9 @@ class _CourseState extends State<Course> {
         selectedValue1 != null &&
         !pressDelete &&
         save) {
-      // print('################## save :$save ############################');
-      // print(box.toMap());
+      // ToDo: save date or Update
     }
   }
-
-  // void theStateOfCourse() {
-  //   if (_errorName == null) {
-  //     Provider.of<MyData>(context, listen: false).stateOfName(true);
-  //   } else {
-  //     Provider.of<MyData>(context, listen: false).stateOfName(false);
-  //   }
-  //   if (_errorCredit == null) {
-  //     Provider.of<MyData>(context, listen: false).stateOfCredit(true);
-  //   } else {
-  //     Provider.of<MyData>(context, listen: false).stateOfCredit(false);
-  //   }
-  //   if (selectedValue1 != null) {
-  //     Provider.of<MyData>(context, listen: false).stateOfGrade(true);
-  //   } else {
-  //     Provider.of<MyData>(context, listen: false).stateOfGrade(false);
-  //   }
-  // }
-
-  // void findSecondTryCourse() {
-  //   if (_controller_Name.text.endsWith('*')) {
-  //     setState(() {
-  //       secondTry = true;
-  //     });
-  //   } else {
-  //     setState(() {
-  //       secondTry = false;
-  //     });
-  //   }
-  // }
 
   @override
   Widget gradeContainer() {
