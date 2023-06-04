@@ -9,8 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 
 // [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
-List listOfCoursesInSemester = [];
+// List listOfCoursesInSemester = [];
 
 class MyBehavior extends ScrollBehavior {
   @override
@@ -63,7 +62,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // getData();
-    Provider.of<MyData>(context).isChanged;
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -76,15 +74,17 @@ class _HomePageState extends State<HomePage> {
                 builder:
                     (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
                   if (streamSnapshot.hasData) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    return ListView(
+                      shrinkWrap: true,
                       children: [
-                        ListView(
-                          shrinkWrap: true,
-                          children: [
-                            Semester(1),
-                          ],
-                        )
+// [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+                        Semester(1, [
+                          ['1', null, null, null, null, 'one']
+                        ]),
+                        Semester(2, [
+                          ['2', null, null, null, null, 'one']
+                        ]),
                       ],
                     );
                   }
@@ -99,8 +99,8 @@ class _HomePageState extends State<HomePage> {
 
 class Semester extends StatefulWidget {
   int semesterNum;
-
-  Semester(this.semesterNum);
+  List semestCourses;
+  Semester(this.semesterNum, this.semestCourses);
 
   @override
   State<Semester> createState() => _SemesterState();
@@ -109,13 +109,20 @@ class Semester extends StatefulWidget {
 class _SemesterState extends State<Semester> {
   final CollectionReference _courses =
       FirebaseFirestore.instance.collection('Courses');
+  GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
+  bool isChanged = false;
+  callback(value) {
+    setState(() {
+      isChanged = value;
+    });
+  }
 
   late String semestNumString;
   bool val = true;
   double GPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
-
+  List listOfCoursesInSemester = [];
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
 
@@ -257,7 +264,14 @@ class _SemesterState extends State<Semester> {
   void initState() {
     super.initState();
     setState(() {
+      listOfCoursesInSemester = widget.semestCourses;
       semestNumString = widget.semesterNum.toString();
+      if (listOfCoursesInSemester.isEmpty) {
+        setState(() {
+          listOfCoursesInSemester
+              .add([semestNumString, null, null, null, null, 'one']);
+        });
+      }
     });
     // print('################### map #####################');
     // print(box.toMap());
@@ -554,6 +568,10 @@ class _SemesterState extends State<Semester> {
             AnimatedList(
               itemBuilder: (context, index, animation) {
                 return Course(
+                    listOfCoursesInSemester,
+                    _keyOfCourse,
+                    isChanged,
+                    callback,
                     listOfCoursesInSemester[index][0],
                     listOfCoursesInSemester[index][1],
                     listOfCoursesInSemester[index][2],
@@ -569,7 +587,7 @@ class _SemesterState extends State<Semester> {
               key: _keyOfCourse,
             ),
             Row(
-              mainAxisAlignment: Provider.of<MyData>(context).isChanged
+              mainAxisAlignment: isChanged
                   ? MainAxisAlignment.spaceEvenly
                   : MainAxisAlignment.center,
               children: [
@@ -597,7 +615,7 @@ class _SemesterState extends State<Semester> {
                     ),
                   ),
                 ),
-                Provider.of<MyData>(context).isChanged
+                isChanged
                     ? GestureDetector(
                         onTap: () {
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -612,8 +630,9 @@ class _SemesterState extends State<Semester> {
                               creditMoreThanThree == null) {
                             Provider.of<MyData>(context, listen: false)
                                 .changeSaveData(true);
-                            Provider.of<MyData>(context, listen: false)
-                                .change(false);
+                            setState(() {
+                              isChanged = false;
+                            });
                           } else {
                             message();
                           }
@@ -664,6 +683,10 @@ class _SemesterState extends State<Semester> {
 }
 
 class Course extends StatefulWidget {
+  List semstCourses;
+  GlobalKey<AnimatedListState> _keyOfCourse;
+  bool isChanged;
+  Function callback;
   String? semestNum;
   String? name;
   String? credite;
@@ -672,8 +695,19 @@ class Course extends StatefulWidget {
   String option;
   List courseList;
   var id;
-  Course(this.semestNum, this.name, this.credite, this.grade1, this.grade2,
-      this.option, this.courseList, this.id);
+  Course(
+      this.semstCourses,
+      this._keyOfCourse,
+      this.isChanged,
+      this.callback,
+      this.semestNum,
+      this.name,
+      this.credite,
+      this.grade1,
+      this.grade2,
+      this.option,
+      this.courseList,
+      this.id);
 
   @override
   State<Course> createState() => _CourseState();
@@ -712,6 +746,7 @@ class _CourseState extends State<Course> {
     //     '######################  $setValues  #################################');
   }
 
+  List listOfCoursesInSemester = [];
   late String? selectedValue1;
   late String? selectedValue2;
   bool selectedValueIs1Null = false;
@@ -787,6 +822,11 @@ class _CourseState extends State<Course> {
   @override
   void initState() {
     super.initState();
+    if (mounted) {
+      setState(() {
+        listOfCoursesInSemester = widget.semstCourses;
+      });
+    }
     _focusName.addListener(_onFocusNameChange);
     _focusCredite.addListener(_onFocusCrediteChange);
     // ToDo: get Id
@@ -941,13 +981,17 @@ class _CourseState extends State<Course> {
       List deletedCourse = listOfCoursesInSemester.removeAt(index);
       // print('################## deleted course###############################');
       // print(deletedCourse);
-      _keyOfCourse.currentState!.removeItem(index, (context, animation) {
+      widget._keyOfCourse.currentState!.removeItem(index, (context, animation) {
         return SizeTransition(
           sizeFactor: animation,
           key: ValueKey(
             widget.name,
           ),
           child: Course(
+              listOfCoursesInSemester,
+              widget._keyOfCourse,
+              widget.isChanged,
+              widget.callback,
               widget.semestNum,
               widget.name,
               widget.credite,
@@ -962,7 +1006,10 @@ class _CourseState extends State<Course> {
 
     // ToDo: delete with id
 
-    Provider.of<MyData>(context, listen: false).change(true);
+    setState(() {
+      widget.isChanged = true;
+      widget.callback(true);
+    });
   }
 
   late MyData _provider;
@@ -1080,8 +1127,8 @@ class _CourseState extends State<Course> {
                         value: selectedValue1,
                         onChanged: (value) {
                           setState(() {
-                            Provider.of<MyData>(context, listen: false)
-                                .change(true);
+                            widget.isChanged = true;
+                            widget.callback(true);
                             selectedValue1 = value as String;
                             widget.courseList[3] = selectedValue1;
                             listOfCoursesInSemester[index][3] = value;
@@ -1197,8 +1244,8 @@ class _CourseState extends State<Course> {
                         value: selectedValue2,
                         onChanged: (value) {
                           setState(() {
-                            Provider.of<MyData>(context, listen: false)
-                                .change(true);
+                            widget.isChanged = true;
+                            widget.callback(true);
                             selectedValue2 = value as String;
                             widget.courseList[4] = selectedValue2;
                             listOfCoursesInSemester[index][4] = value;
@@ -1320,8 +1367,9 @@ class _CourseState extends State<Course> {
                     value: selectedValue1,
                     onChanged: (value) {
                       setState(() {
-                        Provider.of<MyData>(context, listen: false)
-                            .change(true);
+                        widget.isChanged = true;
+                        widget.callback(true);
+
                         selectedValue1 = value as String;
                         widget.courseList[3] = selectedValue1;
                         listOfCoursesInSemester[index][3] = value;
@@ -1499,8 +1547,10 @@ class _CourseState extends State<Course> {
                       color: Color(0xff004d60),
                     ),
                     onChanged: (value) {
-                      Provider.of<MyData>(context, listen: false).change(true);
                       setState(() {
+                        widget.isChanged = true;
+                        widget.callback(true);
+
                         widget.courseList[1] = value;
                         if (value.isNotEmpty) {
                           listOfCoursesInSemester[index][1] = value;
@@ -1545,8 +1595,9 @@ class _CourseState extends State<Course> {
                 focusNode: _focusCredite,
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
-                  Provider.of<MyData>(context, listen: false).change(true);
                   setState(() {
+                    widget.isChanged = true;
+                    widget.callback(true);
                     widget.courseList[2] = value;
                     if (value.isNotEmpty) {
                       listOfCoursesInSemester[index][2] = value;
