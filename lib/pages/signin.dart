@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'homeWithHive.dart';
+import 'HomeWithFireStore.dart';
 
 class Siginin extends StatefulWidget {
   @override

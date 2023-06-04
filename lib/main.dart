@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
             textSelectionTheme: TextSelectionThemeData(
                 selectionColor: Colors.transparent,
                 selectionHandleColor: Colors.transparent)),
-        home: HomePage(),
+        home: WelcomePage(),
       ),
     );
   }

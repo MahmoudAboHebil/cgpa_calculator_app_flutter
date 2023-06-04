@@ -58,6 +58,25 @@ class _HomePageState extends State<HomePage> {
   double CGPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
+  List getSemesterCourses(
+      String num, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+    List courses = [];
+    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+      final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+      if (course['semsterNum'] == num) {
+        courses.add([
+          course['semsterNum'],
+          course['courseName'],
+          course['credit'],
+          course['grade1'],
+          course['grade2'],
+          course['type'],
+        ]);
+      }
+    }
+
+    return courses;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,21 +93,29 @@ class _HomePageState extends State<HomePage> {
                 builder:
                     (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
                   if (streamSnapshot.hasData) {
-                    return ListView(
+                    int maxSemest = 0;
+                    List<int> list = [];
+                    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+                      final DocumentSnapshot course =
+                          streamSnapshot.data!.docs[i];
+                      list.add(int.parse(course['semsterNum']));
+                    }
+                    maxSemest = list.max;
+                    return ListView.builder(
+                      itemCount: maxSemest,
                       shrinkWrap: true,
-                      children: [
-// [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-
-                        Semester(1, [
-                          ['1', null, null, null, null, 'one']
-                        ]),
-                        Semester(2, [
-                          ['2', null, null, null, null, 'one']
-                        ]),
-                      ],
+                      itemBuilder: (context, index) {
+                        return Semester(
+                            index + 1,
+                            getSemesterCourses(
+                                (index + 1).toString(), streamSnapshot));
+                      },
                     );
                   }
-                  return Center(child: Text('No Data'));
+
+                  return Semester(1, [
+                    ['1', null, null, null, null, 'one']
+                  ]);
                 }),
           ),
         ),
