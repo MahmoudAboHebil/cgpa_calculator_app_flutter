@@ -25,8 +25,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final CollectionReference _courses =
-      FirebaseFirestore.instance.collection('Courses');
+  CollectionReference? _courses;
+  // FirebaseFirestore.instance
+  //     .collection('UsersCourses')
+  //     .doc('init')
+  //     .collection('courses');
 
   final _auth = FirebaseAuth.instance;
   User? loggedInUser;
@@ -41,12 +44,41 @@ class _HomePageState extends State<HomePage> {
     // print(box.toMap());
   }
 
+  static Future<bool> checkExist(String docID) async {
+    bool exist = false;
+    try {
+      await FirebaseFirestore.instance
+          .doc("UsersCourses/$docID")
+          .get()
+          .then((doc) {
+        exist = doc.exists;
+      });
+      return exist;
+    } catch (e) {
+      // If any error
+      return false;
+    }
+  }
+
   void getCurrentUser() async {
     try {
       final user = await _auth.currentUser;
+
       if (user != null) {
+        bool exist = await checkExist('${user.email}');
+        print('##########   ############');
+        print(exist);
         setState(() {
           loggedInUser = user;
+
+          if (!exist) {
+            // ToDo: add first the User documents in dataBase
+          } else {
+            _courses = FirebaseFirestore.instance
+                .collection('UsersCourses')
+                .doc('${user.email}')
+                .collection('courses');
+          }
         });
         print(loggedInUser!.email);
       }
@@ -78,6 +110,42 @@ class _HomePageState extends State<HomePage> {
     return courses;
   }
 
+  Widget list() {
+    if (_courses == null) {
+      return Semester(1, [
+        ['1', null, null, null, null, 'one']
+      ]);
+    } else {
+      return StreamBuilder(
+          stream: _courses!.snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+            if (streamSnapshot.hasData) {
+              int maxSemest = 0;
+              List<int> list = [];
+              for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+                final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+                list.add(int.parse(course['semsterNum']));
+              }
+              maxSemest = list.max;
+              return ListView.builder(
+                itemCount: maxSemest,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Semester(
+                      index + 1,
+                      getSemesterCourses(
+                          (index + 1).toString(), streamSnapshot));
+                },
+              );
+            }
+
+            return Semester(1, [
+              ['1', null, null, null, null, 'one']
+            ]);
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // getData();
@@ -88,35 +156,7 @@ class _HomePageState extends State<HomePage> {
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
             backgroundColor: Color(0xffb8c8d1),
-            body: StreamBuilder(
-                stream: _courses.snapshots(),
-                builder:
-                    (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                  if (streamSnapshot.hasData) {
-                    int maxSemest = 0;
-                    List<int> list = [];
-                    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-                      final DocumentSnapshot course =
-                          streamSnapshot.data!.docs[i];
-                      list.add(int.parse(course['semsterNum']));
-                    }
-                    maxSemest = list.max;
-                    return ListView.builder(
-                      itemCount: maxSemest,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return Semester(
-                            index + 1,
-                            getSemesterCourses(
-                                (index + 1).toString(), streamSnapshot));
-                      },
-                    );
-                  }
-
-                  return Semester(1, [
-                    ['1', null, null, null, null, 'one']
-                  ]);
-                }),
+            body: list(),
           ),
         ),
       ),
