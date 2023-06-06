@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:cgp_calculator/providerBrain.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
-
+import 'package:uuid/uuid.dart';
 // [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 // List listOfCoursesInSemester = [];
 
@@ -135,6 +135,7 @@ class _HomePageState extends State<HomePage> {
           course['grade1'],
           course['grade2'],
           course['type'],
+          course['id'],
         ]);
       }
     }
@@ -145,9 +146,12 @@ class _HomePageState extends State<HomePage> {
   Widget list() {
     // bool exit =_courses.limit(1).
     if (_courses == null) {
-      return Semester(1, [
-        ['1', null, null, null, null, 'one']
-      ]);
+      return Semester(
+          1,
+          [
+            ['1', null, null, null, null, 'one', '']
+          ],
+          null);
     } else {
       return StreamBuilder(
           stream: _courses!.snapshots(),
@@ -167,14 +171,18 @@ class _HomePageState extends State<HomePage> {
                   return Semester(
                       index + 1,
                       getSemesterCourses(
-                          (index + 1).toString(), streamSnapshot));
+                          (index + 1).toString(), streamSnapshot),
+                      _courses);
                 },
               );
             }
 
-            return Semester(1, [
-              ['1', null, null, null, null, 'one']
-            ]);
+            return Semester(
+                1,
+                [
+                  ['1', null, null, null, null, 'one', '']
+                ],
+                null);
           });
     }
   }
@@ -200,15 +208,14 @@ class _HomePageState extends State<HomePage> {
 class Semester extends StatefulWidget {
   int semesterNum;
   List semestCourses;
-  Semester(this.semesterNum, this.semestCourses);
+  CollectionReference? collection;
+  Semester(this.semesterNum, this.semestCourses, this.collection);
 
   @override
   State<Semester> createState() => _SemesterState();
 }
 
 class _SemesterState extends State<Semester> {
-  final CollectionReference _courses =
-      FirebaseFirestore.instance.collection('Courses');
   GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
   bool isChanged = false;
   callback(value) {
@@ -237,7 +244,6 @@ class _SemesterState extends State<Semester> {
   String? emptyField;
   String? creditMoreThanThree;
   String? creditEqZero;
-  var idcourse;
   void findErrors() {
     for (List course in listOfCoursesInSemester) {
       // not empty course
@@ -346,10 +352,28 @@ class _SemesterState extends State<Semester> {
     }
   }
 
-  void addCourse() {
+  void addEmptyCourseInDB(var uniqueId) async {
+    await widget.collection!.doc(uniqueId).set({
+      'id': uniqueId,
+      'courseName': null,
+      'credit': null,
+      'grade1': null,
+      'grade2': null,
+      'semsterNum': '${widget.semesterNum}',
+      'type': 'one',
+    });
+    print('#################################');
+    print(uniqueId);
+  }
+
+  void addCourse() async {
+    var uuid = Uuid();
+    var uniqueId = uuid.v1();
+
+    addEmptyCourseInDB(uniqueId);
     setState(() {
       listOfCoursesInSemester
-          .add([semestNumString, null, null, null, null, 'one']);
+          .add([semestNumString, null, null, null, null, 'one', uniqueId]);
     });
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
@@ -360,6 +384,8 @@ class _SemesterState extends State<Semester> {
     // ToDo: set id
   }
 
+  var uuid = Uuid();
+
   @override
   void initState() {
     super.initState();
@@ -367,9 +393,11 @@ class _SemesterState extends State<Semester> {
       listOfCoursesInSemester = widget.semestCourses;
       semestNumString = widget.semesterNum.toString();
       if (listOfCoursesInSemester.isEmpty) {
+        var uniqueId = uuid.v1();
+        addEmptyCourseInDB(uniqueId);
         setState(() {
           listOfCoursesInSemester
-              .add([semestNumString, null, null, null, null, 'one']);
+              .add([semestNumString, null, null, null, null, 'one', uniqueId]);
         });
       }
     });
@@ -493,107 +521,164 @@ class _SemesterState extends State<Semester> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 30),
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              // height: 50,
-              margin: EdgeInsets.only(left: 25, bottom: 10, right: 10),
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: Colors.white54, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                      blurRadius: 1,
-                      color: Colors.grey,
-                      spreadRadius: 0.1,
-                      blurStyle: BlurStyle.outer)
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        'Semester',
-                        style: TextStyle(
-                            color: Color(0xff004d60),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        '$semestNumString',
-                        style: TextStyle(
-                          color: Color(0xff4562a7),
-                          fontSize: 18,
-                        ),
-                      )
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        'GPA',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 18,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        '${GPA.toStringAsFixed(3)}',
-                        style: TextStyle(
-                          color: Color(0xff4562a7),
-                          fontSize: 18,
-                        ),
-                      )
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        'Earn credits',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 18,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        '$earnCredit / $totalCredit',
-                        style: TextStyle(
-                          color: Color(0xff4562a7),
-                          fontSize: 18,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 30),
+          child: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Stack(
-                  clipBehavior: Clip.none,
+                Container(
+                  alignment: Alignment.centerLeft,
+                  // height: 50,
+                  margin: EdgeInsets.only(left: 25, bottom: 10, right: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.white54, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 1,
+                          color: Colors.grey,
+                          spreadRadius: 0.1,
+                          blurStyle: BlurStyle.outer)
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Semester',
+                            style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '$semestNumString',
+                            style: TextStyle(
+                              color: Color(0xff4562a7),
+                              fontSize: 18,
+                            ),
+                          )
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'GPA',
+                            style: TextStyle(
+                              color: Color(0xff004d60),
+                              fontSize: 18,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${GPA.toStringAsFixed(3)}',
+                            style: TextStyle(
+                              color: Color(0xff4562a7),
+                              fontSize: 18,
+                            ),
+                          )
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Earn credits',
+                            style: TextStyle(
+                              color: Color(0xff004d60),
+                              fontSize: 18,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '$earnCredit / $totalCredit',
+                            style: TextStyle(
+                              color: Color(0xff4562a7),
+                              fontSize: 18,
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(left: 25),
+                          alignment: Alignment.center,
+                          // height: 50,
+                          // width: 100,
+                          decoration: BoxDecoration(
+                              color: Color(0xffeaf1ed),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 15),
+                            child: Text(
+                              'Course Name',
+                              style: TextStyle(
+                                color: Color(0xff004d60),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: -10,
+                          top: 12,
+                          child: Icon(
+                            Icons.not_listed_location_outlined,
+                            color: Colors.green,
+                            size: 28,
+                          ),
+                        )
+                      ],
+                    ),
                     Container(
-                      margin: EdgeInsets.only(left: 25),
+                      alignment: Alignment.center,
+                      // height: 50,
+                      // width: 100,
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                          color: Color(0xffeaf1ed),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: Colors.white, width: 2)),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                        child: Text(
+                          'Credit',
+                          style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
                       alignment: Alignment.center,
                       // height: 50,
                       // width: 100,
@@ -605,7 +690,7 @@ class _SemesterState extends State<Semester> {
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                         child: Text(
-                          'Course Name',
+                          'Course Grade',
                           style: TextStyle(
                             color: Color(0xff004d60),
                             fontSize: 15,
@@ -613,171 +698,124 @@ class _SemesterState extends State<Semester> {
                         ),
                       ),
                     ),
-                    Positioned(
-                      left: -10,
-                      top: 12,
-                      child: Icon(
-                        Icons.not_listed_location_outlined,
-                        color: Colors.green,
-                        size: 28,
-                      ),
-                    )
                   ],
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  // height: 50,
-                  // width: 100,
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'Credit',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  // height: 50,
-                  // width: 100,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'Course Grade',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            AnimatedList(
-              itemBuilder: (context, index, animation) {
-                return Course(
-                    listOfCoursesInSemester,
-                    _keyOfCourse,
-                    isChanged,
-                    callback,
-                    listOfCoursesInSemester[index][0],
-                    listOfCoursesInSemester[index][1],
-                    listOfCoursesInSemester[index][2],
-                    listOfCoursesInSemester[index][3],
-                    listOfCoursesInSemester[index][4],
-                    listOfCoursesInSemester[index][5],
-                    listOfCoursesInSemester[index],
-                    idcourse);
-              },
-              initialItemCount: listOfCoursesInSemester.length,
-              shrinkWrap: true,
-              physics: ScrollPhysics(),
-              key: _keyOfCourse,
-            ),
-            Row(
-              mainAxisAlignment: isChanged
-                  ? MainAxisAlignment.spaceEvenly
-                  : MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    addCourse();
+                AnimatedList(
+                  itemBuilder: (context, index, animation) {
+                    return Course(
+                        listOfCoursesInSemester,
+                        _keyOfCourse,
+                        isChanged,
+                        callback,
+                        listOfCoursesInSemester[index][0],
+                        listOfCoursesInSemester[index][1],
+                        listOfCoursesInSemester[index][2],
+                        listOfCoursesInSemester[index][3],
+                        listOfCoursesInSemester[index][4],
+                        listOfCoursesInSemester[index][5],
+                        listOfCoursesInSemester[index],
+                        listOfCoursesInSemester[index][6],
+                        widget.collection);
                   },
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: Color(0xffeaf1ed),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white, width: 2)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      child: Text(
-                        'Add Course',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
+                  initialItemCount: listOfCoursesInSemester.length,
+                  shrinkWrap: true,
+                  physics: ScrollPhysics(),
+                  key: _keyOfCourse,
                 ),
-                isChanged
-                    ? GestureDetector(
-                        onTap: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          findErrors();
-                          print(listOfCoursesInSemester);
-                          print(emptyField);
-                          print(creditEqZero);
-                          print(creditMoreThanThree);
-
-                          if (emptyField == null &&
-                              creditEqZero == null &&
-                              creditMoreThanThree == null) {
-                            Provider.of<MyData>(context, listen: false)
-                                .changeSaveData(true);
-                            setState(() {
-                              isChanged = false;
-                            });
-                          } else {
-                            message();
-                          }
-                          setState(() {
-                            emptyField = null;
-                            creditMoreThanThree = null;
-                            creditEqZero = null;
-                            errorTypeGrade.clear();
-                            errorTypeCredit.clear();
-                            errorTypeName.clear();
-                          });
-                          // Future.delayed(Duration(milliseconds: 600), () {
-                          //   Provider.of<MyData>(context, listen: false)
-                          //       .changeSaveData(false);
-                          // });
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: Color(0xff4562a7),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            child: Text(
-                              'Calc GPA',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                              ),
+                Row(
+                  mainAxisAlignment: isChanged
+                      ? MainAxisAlignment.spaceEvenly
+                      : MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        addCourse();
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Color(0xffeaf1ed),
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                            border: Border.all(color: Colors.white, width: 2)),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
+                          child: Text(
+                            'Add Course',
+                            style: TextStyle(
+                              color: Color(0xff004d60),
+                              fontSize: 15,
                             ),
                           ),
                         ),
-                      )
-                    : SizedBox(
-                        width: 0,
                       ),
+                    ),
+                    isChanged
+                        ? GestureDetector(
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              findErrors();
+                              print(listOfCoursesInSemester);
+                              print(emptyField);
+                              print(creditEqZero);
+                              print(creditMoreThanThree);
+
+                              if (emptyField == null &&
+                                  creditEqZero == null &&
+                                  creditMoreThanThree == null) {
+                                Provider.of<MyData>(context, listen: false)
+                                    .changeSaveData(true);
+                                setState(() {
+                                  isChanged = false;
+                                });
+                              } else {
+                                message();
+                              }
+                              setState(() {
+                                emptyField = null;
+                                creditMoreThanThree = null;
+                                creditEqZero = null;
+                                errorTypeGrade.clear();
+                                errorTypeCredit.clear();
+                                errorTypeName.clear();
+                              });
+                              // Future.delayed(Duration(milliseconds: 600), () {
+                              //   Provider.of<MyData>(context, listen: false)
+                              //       .changeSaveData(false);
+                              // });
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: Color(0xff4562a7),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  border: Border.all(
+                                      color: Colors.white, width: 2)),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 15),
+                                child: Text(
+                                  'Calc GPA',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            width: 0,
+                          ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -794,7 +832,9 @@ class Course extends StatefulWidget {
   String? grade2;
   String option;
   List courseList;
-  var id;
+  String id;
+  CollectionReference? collection;
+
   Course(
       this.semstCourses,
       this._keyOfCourse,
@@ -807,7 +847,8 @@ class Course extends StatefulWidget {
       this.grade2,
       this.option,
       this.courseList,
-      this.id);
+      this.id,
+      this.collection);
 
   @override
   State<Course> createState() => _CourseState();
@@ -1067,8 +1108,11 @@ class _CourseState extends State<Course> {
     // }
   }
 
-  void deleteCourse() {
+  void deleteCourse() async {
+    // ToDo: delete with id
     Provider.of<MyData>(context, listen: false).changeSaveData(false);
+    await widget.collection!.doc(widget.id).delete();
+
     setState(() {
       // delete = true;
       // List deletedCourse = [
@@ -1077,6 +1121,7 @@ class _CourseState extends State<Course> {
       //   widget.credite,
       //   widget.grade
       // ];
+
       int index = listOfCoursesInSemester.indexOf(widget.courseList);
       List deletedCourse = listOfCoursesInSemester.removeAt(index);
       // print('################## deleted course###############################');
@@ -1099,12 +1144,11 @@ class _CourseState extends State<Course> {
               widget.grade2,
               widget.option,
               widget.courseList,
-              widget.id),
+              widget.id,
+              widget.collection),
         );
       }, duration: Duration(milliseconds: 400));
     });
-
-    // ToDo: delete with id
 
     setState(() {
       widget.isChanged = true;
@@ -1133,6 +1177,19 @@ class _CourseState extends State<Course> {
   }
 
   late bool val;
+  void updateData(var semestnum, var name, var credit, var grade1, var grade2,
+      var type) async {
+    await widget.collection!.doc(widget.id).set({
+      'id': widget.id,
+      'courseName': name,
+      'credit': credit,
+      'grade1': grade1,
+      'grade2': grade2,
+      'semsterNum': '$semestnum',
+      'type': '$type',
+    });
+  }
+
   void collectDate() {
     bool save = Provider.of<MyData>(context, listen: false).savaData;
     bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
@@ -1149,7 +1206,12 @@ class _CourseState extends State<Course> {
         selectedValue1 != null &&
         !pressDelete &&
         save) {
-      // ToDo: save date or Update
+      print('############### update ##################');
+      if (val) {
+        updateData(sNum, name, credit, selectedValue1, selectedValue2, 'two');
+      } else {
+        updateData(sNum, name, credit, selectedValue1, null, 'one');
+      }
     }
   }
 
