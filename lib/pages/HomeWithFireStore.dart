@@ -60,6 +60,34 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void setNewUser(User user) async {
+    await FirebaseFirestore.instance
+        .collection('UsersCourses')
+        .doc('${user.email}')
+        .set({'email': '${user.email}'});
+
+    await FirebaseFirestore.instance
+        .collection('UsersCourses')
+        .doc('${user.email}')
+        .collection('courses')
+        .doc('init')
+        .set({
+      'courseName': 'test',
+      'credit': '3',
+      'grade1': 'A',
+      'grade2': '',
+      'semsterNum': '1',
+      'type': 'one'
+    });
+    setState(() {
+      _courses = FirebaseFirestore.instance
+          .collection('UsersCourses')
+          .doc('${user.email}')
+          .collection('courses');
+    });
+  }
+
+  bool vale = true;
   void getCurrentUser() async {
     try {
       final user = await _auth.currentUser;
@@ -72,14 +100,18 @@ class _HomePageState extends State<HomePage> {
           loggedInUser = user;
 
           if (!exist) {
-            // ToDo: add first the User documents in dataBase
+            // ToDo: add first the User documents in dataBase (done)
+            setNewUser(user);
           } else {
             _courses = FirebaseFirestore.instance
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
           }
+
+          // isCoursesIsEmpty(user);
         });
+
         print(loggedInUser!.email);
       }
     } catch (e) {
@@ -95,7 +127,7 @@ class _HomePageState extends State<HomePage> {
     List courses = [];
     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
       final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-      if (course['semsterNum'] == num) {
+      if (course['semsterNum'] == num && course.id != 'init') {
         courses.add([
           course['semsterNum'],
           course['courseName'],
@@ -111,6 +143,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget list() {
+    // bool exit =_courses.limit(1).
     if (_courses == null) {
       return Semester(1, [
         ['1', null, null, null, null, 'one']
