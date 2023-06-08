@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -8,8 +9,12 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:uuid/uuid.dart';
-// [[semesterNum,,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-// List listOfCoursesInSemester = [];
+
+// [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
+
+// ToDo: add semester button
+// ToDo: build GPA semester method
+// ToDo: build CGPA semester method
 
 class MyBehavior extends ScrollBehavior {
   @override
@@ -19,6 +24,8 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
+User? loggedInUser;
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
@@ -26,13 +33,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   CollectionReference? _courses;
+  CollectionReference? _userDocs;
+
   // FirebaseFirestore.instance
   //     .collection('UsersCourses')
   //     .doc('init')
   //     .collection('courses');
 
   final _auth = FirebaseAuth.instance;
-  User? loggedInUser;
   List allCourse = [];
   List<String> Ids = [];
   int numbersOfSemester = 0;
@@ -41,6 +49,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getCurrentUser();
+    getDocs();
+    if (mounted) {
+      // setState(() {
+      //   theContent = list();
+      // });
+    }
     // print(box.toMap());
   }
 
@@ -119,6 +133,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  int lengthOfDocuments = 0;
+  Future getDocs() async {
+    // setState(() {
+    //   lengthOfDocuments = 0;
+    // });
+    if (_courses != null) {
+      await _courses!.get().then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          setState(() {
+            lengthOfDocuments++;
+          });
+        });
+      });
+      // print(
+      //     '################   $lengthOfDocuments ###############################');
+    }
+  }
+
   double CGPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
@@ -143,38 +175,65 @@ class _HomePageState extends State<HomePage> {
     return courses;
   }
 
+  int maxSemester = 0;
   Widget list() {
+    getDocs();
     // bool exit =_courses.limit(1).
+    // print('######################$lengthOfDocuments');
+
     if (_courses == null) {
       return Semester(
           1,
           [
             ['1', null, null, null, null, 'one', '']
           ],
+          null,
           null);
-    } else {
+    }
+
+    // else if (lengthOfDocuments == 0) {
+    //   // print('######################$lengthOfDocuments');
+    //   return Container();
+    // }
+
+    else {
       return StreamBuilder(
           stream: _courses!.snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
             if (streamSnapshot.hasData) {
-              int maxSemest = 0;
               List<int> list = [];
+              List<int> semesters = [];
               for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
                 final DocumentSnapshot course = streamSnapshot.data!.docs[i];
                 list.add(int.parse(course['semsterNum']));
               }
-              maxSemest = list.max;
-              return ListView.builder(
-                itemCount: maxSemest,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Semester(
-                      index + 1,
-                      getSemesterCourses(
-                          (index + 1).toString(), streamSnapshot),
-                      _courses);
-                },
-              );
+              maxSemester = list.max;
+              semesters = list.toSet().toList();
+              // print('############$semesters###############');
+              return NotificationListener<UserScrollNotification>(
+                  child: ListView.builder(
+                    itemCount: semesters.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return Semester(
+                          index + 1,
+                          getSemesterCourses(
+                              (index + 1).toString(), streamSnapshot),
+                          _courses,
+                          streamSnapshot);
+                    },
+                  ),
+                  onNotification: (notification) {
+                    ScrollDirection direction = notification.direction;
+                    setState(() {
+                      if (direction == ScrollDirection.reverse) {
+                        _visible = false;
+                      } else if (direction == ScrollDirection.forward) {
+                        _visible = true;
+                      }
+                    });
+                    return true;
+                  });
             }
 
             return Semester(
@@ -182,23 +241,78 @@ class _HomePageState extends State<HomePage> {
                 [
                   ['1', null, null, null, null, 'one', '']
                 ],
+                null,
                 null);
           });
     }
   }
 
+  late Widget theContent;
+
+  void addEmptySemestInDB(var uniqueId) async {
+    await _courses!.doc(uniqueId).set({
+      'id': uniqueId,
+      'courseName': null,
+      'credit': null,
+      'grade1': null,
+      'grade2': null,
+      'semsterNum': '${maxSemester + 1}',
+      'type': 'one',
+    });
+    print('#################################');
+    print(uniqueId);
+  }
+
+  // void addInitCourseInDB() async {
+  //   await FirebaseFirestore.instance
+  //       .collection('UsersCourses')
+  //       .doc('${loggedInUser!.email}')
+  //       .collection('courses')
+  //       .doc('init')
+  //       .set({
+  //     'courseName': 'test',
+  //     'credit': '3',
+  //     'grade1': 'A',
+  //     'grade2': '',
+  //     'semsterNum': '1',
+  //     'type': 'one'
+  //   });
+  // }
+
+  bool _visible = true;
+
   @override
   Widget build(BuildContext context) {
-    // getData();
+    // getDocs();
+    if (mounted) {
+      setState(() {});
+    }
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
-            backgroundColor: Color(0xffb8c8d1),
-            body: list(),
-          ),
+              backgroundColor: Color(0xffb8c8d1),
+              body: list(),
+              floatingActionButton: Visibility(
+                visible: _visible,
+                child: FloatingActionButton(
+                  backgroundColor: Color(0xff4562a7),
+                  onPressed: () async {
+                    var uuid = Uuid();
+                    var uniqueId = uuid.v1();
+
+                    setState(() {
+                      addEmptySemestInDB(uniqueId);
+                    });
+                  },
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                ),
+              )),
         ),
       ),
     );
@@ -209,7 +323,9 @@ class Semester extends StatefulWidget {
   int semesterNum;
   List semestCourses;
   CollectionReference? collection;
-  Semester(this.semesterNum, this.semestCourses, this.collection);
+  AsyncSnapshot<QuerySnapshot>? streamSnapshot;
+  Semester(this.semesterNum, this.semestCourses, this.collection,
+      this.streamSnapshot);
 
   @override
   State<Semester> createState() => _SemesterState();
@@ -531,91 +647,126 @@ class _SemesterState extends State<Semester> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  // height: 50,
-                  margin: EdgeInsets.only(left: 25, bottom: 10, right: 10),
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white54, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 1,
-                          color: Colors.grey,
-                          spreadRadius: 0.1,
-                          blurStyle: BlurStyle.outer)
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            'Semester',
-                            style: TextStyle(
-                                color: Color(0xff004d60),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '$semestNumString',
-                            style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 18,
-                            ),
-                          )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          listOfCoursesInSemester.clear();
+                        });
+                        print('############delete semester ################');
+                        print(widget.streamSnapshot!.data!.docs.length);
+                        for (int i = 0;
+                            i < widget.streamSnapshot!.data!.docs.length;
+                            i++) {
+                          final DocumentSnapshot course =
+                              widget.streamSnapshot!.data!.docs[i];
+                          if (course['semsterNum'] ==
+                              widget.semesterNum.toString()) {
+                            String id = course.id;
+                            widget.collection!.doc(id).delete();
+                          }
+                        }
+                        await FirebaseFirestore.instance
+                            .collection('UsersCourses')
+                            .doc('${loggedInUser!.email}')
+                            .collection('courses');
+                      },
+                      child: Icon(
+                        Icons.delete_forever,
+                        color: Color(0xffce2029),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      // height: 50,
+                      width: 360,
+                      margin: EdgeInsets.only(left: 5, bottom: 10, right: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white54, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 1,
+                              color: Colors.grey,
+                              spreadRadius: 0.1,
+                              blurStyle: BlurStyle.outer)
                         ],
                       ),
-                      Column(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'GPA',
-                            style: TextStyle(
-                              color: Color(0xff004d60),
-                              fontSize: 18,
-                            ),
+                          Column(
+                            children: [
+                              Text(
+                                'Semester',
+                                style: TextStyle(
+                                    color: Color(0xff004d60),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                '$semestNumString',
+                                style: TextStyle(
+                                  color: Color(0xff4562a7),
+                                  fontSize: 18,
+                                ),
+                              )
+                            ],
                           ),
-                          SizedBox(
-                            height: 5,
+                          Column(
+                            children: [
+                              Text(
+                                'GPA',
+                                style: TextStyle(
+                                  color: Color(0xff004d60),
+                                  fontSize: 18,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                '${GPA.toStringAsFixed(3)}',
+                                style: TextStyle(
+                                  color: Color(0xff4562a7),
+                                  fontSize: 18,
+                                ),
+                              )
+                            ],
                           ),
-                          Text(
-                            '${GPA.toStringAsFixed(3)}',
-                            style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 18,
-                            ),
-                          )
+                          Column(
+                            children: [
+                              Text(
+                                'Earn credits',
+                                style: TextStyle(
+                                  color: Color(0xff004d60),
+                                  fontSize: 18,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                '$earnCredit / $totalCredit',
+                                style: TextStyle(
+                                  color: Color(0xff4562a7),
+                                  fontSize: 18,
+                                ),
+                              )
+                            ],
+                          ),
                         ],
                       ),
-                      Column(
-                        children: [
-                          Text(
-                            'Earn credits',
-                            style: TextStyle(
-                              color: Color(0xff004d60),
-                              fontSize: 18,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '$earnCredit / $totalCredit',
-                            style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 18,
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -700,28 +851,38 @@ class _SemesterState extends State<Semester> {
                     ),
                   ],
                 ),
-                AnimatedList(
-                  itemBuilder: (context, index, animation) {
-                    return Course(
-                        listOfCoursesInSemester,
-                        _keyOfCourse,
-                        isChanged,
-                        callback,
-                        listOfCoursesInSemester[index][0],
-                        listOfCoursesInSemester[index][1],
-                        listOfCoursesInSemester[index][2],
-                        listOfCoursesInSemester[index][3],
-                        listOfCoursesInSemester[index][4],
-                        listOfCoursesInSemester[index][5],
-                        listOfCoursesInSemester[index],
-                        listOfCoursesInSemester[index][6],
-                        widget.collection);
-                  },
-                  initialItemCount: listOfCoursesInSemester.length,
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  key: _keyOfCourse,
-                ),
+                listOfCoursesInSemester.isNotEmpty
+                    ? AnimatedList(
+                        itemBuilder: (context, index, animation) {
+                          return Course(
+                              listOfCoursesInSemester,
+                              _keyOfCourse,
+                              isChanged,
+                              callback,
+                              listOfCoursesInSemester[index][0],
+                              listOfCoursesInSemester[index][1],
+                              listOfCoursesInSemester[index][2],
+                              listOfCoursesInSemester[index][3],
+                              listOfCoursesInSemester[index][4],
+                              listOfCoursesInSemester[index][5],
+                              listOfCoursesInSemester[index],
+                              listOfCoursesInSemester[index][6],
+                              widget.collection);
+                        },
+                        initialItemCount: listOfCoursesInSemester.length,
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        key: _keyOfCourse,
+                      )
+                    : AnimatedList(
+                        itemBuilder: (context, index, animation) {
+                          return Container();
+                        },
+                        initialItemCount: listOfCoursesInSemester.length,
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        key: _keyOfCourse,
+                      ),
                 Row(
                   mainAxisAlignment: isChanged
                       ? MainAxisAlignment.spaceEvenly
