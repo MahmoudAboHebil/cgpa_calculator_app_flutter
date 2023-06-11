@@ -11,8 +11,10 @@ import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:uuid/uuid.dart';
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
-// ToDo: there is error in save database
-// ToDo: add semester button
+// ToDo: add semester button (done)
+// ToDo: there is error  when delete all semesters (done)
+
+// ToDo: organize the code
 // ToDo: build GPA semester method
 // ToDo: build CGPA semester method
 
@@ -806,6 +808,20 @@ class _SemesterState extends State<Semester> {
     // widget.streamSnapshot.
   }
 
+  void addEmptySemestInDB(var uniqueId) async {
+    await widget.collection!.doc(uniqueId).set({
+      'id': uniqueId,
+      'courseName': null,
+      'credit': null,
+      'grade1': null,
+      'grade2': null,
+      'semestId': 1,
+      'type': 'one',
+    });
+    print('#################################');
+    print(uniqueId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -823,6 +839,19 @@ class _SemesterState extends State<Semester> {
                   children: [
                     GestureDetector(
                       onTap: () async {
+                        List<int> list = [];
+                        List<int> semestKeys = [];
+                        int maxSemester = 0;
+                        for (int i = 0;
+                            i < widget.streamSnapshot!.data!.docs.length;
+                            i++) {
+                          final DocumentSnapshot course =
+                              widget.streamSnapshot!.data!.docs[i];
+                          list.add(course['semestId']);
+                        }
+                        maxSemester = list.max;
+                        semestKeys = list.toSet().toList();
+
                         for (int i = 0;
                             i < widget.streamSnapshot!.data!.docs.length;
                             i++) {
@@ -867,6 +896,23 @@ class _SemesterState extends State<Semester> {
                                 ),
                           );
                         });
+
+                        if (semestKeys.length == 1) {
+                          var uuid = Uuid();
+                          var uniqueId = uuid.v1();
+                          setState(() {
+                            addEmptySemestInDB(uniqueId);
+                          });
+                          setState(() {
+                            allSemestData.add([
+                              1,
+                              [
+                                [1, null, null, null, null, 'one', uniqueId]
+                              ]
+                            ]);
+                          });
+                          widget.AniKey.currentState!.insertItem(0);
+                        }
                       },
                       child: Icon(
                         Icons.delete_forever,
