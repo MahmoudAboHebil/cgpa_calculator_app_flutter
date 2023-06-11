@@ -231,7 +231,7 @@ class _HomePageState extends State<HomePage> {
   //   });
   // }
   List semestKeys = [];
-
+  bool flag = true;
   Widget content(AsyncSnapshot<QuerySnapshot> streamSnapshot) {
     List<int> list = [];
     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
@@ -240,11 +240,23 @@ class _HomePageState extends State<HomePage> {
     }
     maxSemester = list.max;
     semestKeys = list.toSet().toList();
-    for (int i = 0; i < semestKeys.length; i++) {
-      allSemestData.add(
-          [semestKeys[i], getSemesterCourses(semestKeys[i], streamSnapshot)]);
+    if (flag) {
+      for (int i = 0; i < semestKeys.length; i++) {
+        if (allSemestData.length < semestKeys.length) {
+          allSemestData.add([
+            semestKeys[i],
+            getSemesterCourses(semestKeys[i], streamSnapshot)
+          ]);
+        }
+      }
+      flag = false;
     }
 
+    // print(allSemestData);
+    // print(allSemestData.length);
+    // // print(semestKeys);
+    //
+    // print(allSemestData.length);
     return NotificationListener<UserScrollNotification>(
         child: AnimatedList(
           initialItemCount: allSemestData.length,
@@ -628,6 +640,7 @@ class _SemesterState extends State<Semester> {
       listOfCoursesInSemester = widget.semestCourses;
 
       if (listOfCoursesInSemester.isEmpty) {
+        print('################# # here  #####################');
         var uniqueId = uuid.v1();
         addEmptyCourseInDB(uniqueId);
         setState(() {
@@ -819,10 +832,23 @@ class _SemesterState extends State<Semester> {
                           }
                         }
 
+                        var uuid = Uuid();
+                        var uniqueId = uuid.v1();
+
                         setState(() {
                           allSemestData.removeAt(widget.semesterIndex - 1);
+                          delete = true;
+                          listOfCoursesInSemester.clear();
+                          listOfCoursesInSemester.add([
+                            widget.semesterId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            'one',
+                            uniqueId
+                          ]);
                         });
-
                         widget.AniKey.currentState!.removeItem(
                             widget.semesterIndex - 1, (context, animation) {
                           return SlideTransition(
@@ -1568,7 +1594,10 @@ class _CourseState extends State<Course> {
       // print('pressDeleteCourse: $pressDeleteCourse');
       // print('save: $save');
 
-      // print('############### update ##################');
+      print('############### courseList ##################');
+      print(widget.courseList);
+      print('############### semestId ##################');
+      print(widget.semestId);
       if (val) {
         updateData(
             semestId, name, credit, selectedValue1, selectedValue2, 'two');
