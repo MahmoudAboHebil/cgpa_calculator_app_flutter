@@ -408,13 +408,15 @@ class _HomePageState extends State<HomePage> {
                       allSemestData.add([
                         maxSemester + 1,
                         [
-                          maxSemester + 1,
-                          null,
-                          null,
-                          null,
-                          null,
-                          'one',
-                          uniqueId
+                          [
+                            maxSemester + 1,
+                            null,
+                            null,
+                            null,
+                            null,
+                            'one',
+                            uniqueId
+                          ]
                         ]
                       ]);
                     });
@@ -461,7 +463,7 @@ class _SemesterState extends State<Semester> {
     });
   }
 
-  // late String semestNumString;
+  // late String `semestNu`mString;
   bool val = true;
   double GPA = 0.0;
   int earnCredit = 0;
