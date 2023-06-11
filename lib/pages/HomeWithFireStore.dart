@@ -9,9 +9,9 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:uuid/uuid.dart';
-
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
+// ToDo: there is error in save database
 // ToDo: add semester button
 // ToDo: build GPA semester method
 // ToDo: build CGPA semester method
@@ -26,15 +26,19 @@ class MyBehavior extends ScrollBehavior {
 
 User? loggedInUser;
 
+// GlobalKey<FirebaseAnimatedListState> _semestKey=GlobalKey<FirebaseAnimatedListState>();
+Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
+List allSemestData = [];
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  CollectionReference? _courses;
-  CollectionReference? _userDocs;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  CollectionReference? _courses;
   // FirebaseFirestore.instance
   //     .collection('UsersCourses')
   //     .doc('init')
@@ -45,18 +49,8 @@ class _HomePageState extends State<HomePage> {
   List<String> Ids = [];
   int numbersOfSemester = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
-    getDocs();
-    if (mounted) {
-      // setState(() {
-      //   theContent = list();
-      // });
-    }
-    // print(box.toMap());
-  }
+  Stream stream = Stream.empty();
+  List currentMessageList = [];
 
   static Future<bool> checkExist(String docID) async {
     bool exist = false;
@@ -90,7 +84,7 @@ class _HomePageState extends State<HomePage> {
       'credit': '3',
       'grade1': 'A',
       'grade2': '',
-      'semsterNum': '1',
+      'semestId': 1,
       'type': 'one'
     });
     setState(() {
@@ -121,6 +115,14 @@ class _HomePageState extends State<HomePage> {
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
+            // setData();
+            // setState(() {
+            //   allSemestData;
+            // });
+            // print('#######################################');
+            // Future.delayed(Duration(milliseconds: 100), () {
+            //   print(allSemestData);
+            // });
           }
 
           // isCoursesIsEmpty(user);
@@ -134,34 +136,41 @@ class _HomePageState extends State<HomePage> {
   }
 
   int lengthOfDocuments = 0;
+  List keySemesters = [];
   Future getDocs() async {
-    // setState(() {
-    //   lengthOfDocuments = 0;
-    // });
+    setState(() {
+      lengthOfDocuments = 0;
+      keySemesters = [];
+    });
     if (_courses != null) {
       await _courses!.get().then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
           setState(() {
+            keySemesters.add(doc['semestId']);
             lengthOfDocuments++;
           });
         });
       });
       // print(
       //     '################   $lengthOfDocuments ###############################');
+      setState(() {
+        keySemesters = keySemesters.toSet().toList();
+      });
     }
   }
 
   double CGPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
+  List allsemesters = [];
   List getSemesterCourses(
-      String num, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+      int num, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
     List courses = [];
     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
       final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-      if (course['semsterNum'] == num && course.id != 'init') {
+      if (course['semestId'] == num && course.id != 'init') {
         courses.add([
-          course['semsterNum'],
+          course['semestId'],
           course['courseName'],
           course['credit'],
           course['grade1'],
@@ -176,19 +185,108 @@ class _HomePageState extends State<HomePage> {
   }
 
   int maxSemester = 0;
+  // void setData() async {
+  //   List<int> listOdAllIds = [];
+  //
+  //   //[ [id,[[]]]  ,[],...]
+  //   await _courses!.get().then((QuerySnapshot querySnapshot) {
+  //     querySnapshot.docs.forEach((doc) {
+  //       setState(() {
+  //         listOdAllIds.add(doc['semestId']);
+  //       });
+  //     });
+  //   });
+  //
+  //   // store all couerses with id;
+  //
+  //   List allData=[];
+  //   for(int i=0;i< listOdAllIds.length;i++){
+  //     allData=[listOdAllIds[i],[]]
+  //   }
+  //   await _courses!.get().then((QuerySnapshot querySnapshot) {
+  //     querySnapshot.docs.forEach((doc) {
+  //       if(doc['semestId']==listOdAllIds[0]){
+  //
+  //       }
+  //       if(doc['semestId']==listOdAllIds[1]){
+  //
+  //       }
+  //     });
+  //   });
+  //
+  //   // [
+  //   //   doc['semestId'],
+  //   //   [
+  //   //     doc['semestId'],
+  //   //     doc['courseName'],
+  //   //     doc['credit'],
+  //   //     doc['grade1'],
+  //   //     doc['grade2'],
+  //   //     doc['type'],
+  //   //     doc['id']
+  //   //   ]
+  //   // ]
+  //   setState(() {
+  //     allSemestData;
+  //   });
+  // }
+  List semestKeys = [];
+
+  Widget content(AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+    List<int> list = [];
+    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+      final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+      list.add(course['semestId']);
+    }
+    maxSemester = list.max;
+    semestKeys = list.toSet().toList();
+    for (int i = 0; i < semestKeys.length; i++) {
+      allSemestData.add(
+          [semestKeys[i], getSemesterCourses(semestKeys[i], streamSnapshot)]);
+    }
+
+    return NotificationListener<UserScrollNotification>(
+        child: AnimatedList(
+          initialItemCount: allSemestData.length,
+          key: _listKey,
+          itemBuilder: (context, index, animation) {
+            return Semester(allSemestData[index][0], index + 1,
+                allSemestData[index][1], _courses, streamSnapshot, _listKey
+                // key: GlobalKey(),
+                );
+          },
+        ),
+        onNotification: (notification) {
+          ScrollDirection direction = notification.direction;
+          setState(() {
+            if (direction == ScrollDirection.reverse) {
+              _visible = false;
+            } else if (direction == ScrollDirection.forward) {
+              _visible = true;
+            }
+          });
+          return true;
+        });
+  }
+
   Widget list() {
     getDocs();
     // bool exit =_courses.limit(1).
     // print('######################$lengthOfDocuments');
 
     if (_courses == null) {
+      // Semester(this.semesterId,this.semesterIndex, this.semestCourses, this.collection,
+      //     this.streamSnapshot);
+
       return Semester(
           1,
+          1,
           [
-            ['1', null, null, null, null, 'one', '']
+            [1, null, null, null, null, 'one', '']
           ],
           null,
-          null);
+          null,
+          _listKey);
     }
 
     // else if (lengthOfDocuments == 0) {
@@ -201,50 +299,27 @@ class _HomePageState extends State<HomePage> {
           stream: _courses!.snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
             if (streamSnapshot.hasData) {
-              List<int> list = [];
-              List<int> semesters = [];
-              for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-                final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-                list.add(int.parse(course['semsterNum']));
-              }
-              maxSemester = list.max;
-              semesters = list.toSet().toList();
-              // print('############$semesters###############');
-              return NotificationListener<UserScrollNotification>(
-                  child: ListView.builder(
-                    itemCount: semesters.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Semester(
-                          index + 1,
-                          getSemesterCourses(
-                              (index + 1).toString(), streamSnapshot),
-                          _courses,
-                          streamSnapshot);
-                    },
-                  ),
-                  onNotification: (notification) {
-                    ScrollDirection direction = notification.direction;
-                    setState(() {
-                      if (direction == ScrollDirection.reverse) {
-                        _visible = false;
-                      } else if (direction == ScrollDirection.forward) {
-                        _visible = true;
-                      }
-                    });
-                    return true;
-                  });
+              return content(streamSnapshot);
             }
 
             return Semester(
                 1,
+                1,
                 [
-                  ['1', null, null, null, null, 'one', '']
+                  [1, null, null, null, null, 'one', '']
                 ],
                 null,
-                null);
+                null,
+                _listKey);
           });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+    getDocs();
   }
 
   late Widget theContent;
@@ -256,7 +331,7 @@ class _HomePageState extends State<HomePage> {
       'credit': null,
       'grade1': null,
       'grade2': null,
-      'semsterNum': '${maxSemester + 1}',
+      'semestId': maxSemester + 1,
       'type': 'one',
     });
     print('#################################');
@@ -283,9 +358,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // getDocs();
+    getDocs();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        allSemestData;
+        // print(allSemestData);
+        // list();
+      });
     }
     return Container(
       color: Color(0xffb8c8d1),
@@ -302,10 +381,33 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () async {
                     var uuid = Uuid();
                     var uniqueId = uuid.v1();
-
                     setState(() {
                       addEmptySemestInDB(uniqueId);
                     });
+                    int insertIndex = keySemesters.isEmpty
+                        ? keySemesters.length
+                        : keySemesters.length - 1;
+                    print(insertIndex);
+                    print(allsemesters);
+                    print(allsemesters.length);
+
+                    _listKey.currentState!.insertItem(insertIndex);
+                    setState(() {
+                      allSemestData.add([
+                        maxSemester + 1,
+                        [
+                          maxSemester + 1,
+                          null,
+                          null,
+                          null,
+                          null,
+                          'one',
+                          uniqueId
+                        ]
+                      ]);
+                    });
+
+                    // _semestKey.currentState
                   },
                   child: Icon(
                     Icons.add,
@@ -319,20 +421,27 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+bool pressDeleteSemest = false;
+
 class Semester extends StatefulWidget {
-  int semesterNum;
+  int semesterIndex;
+  int semesterId;
   List semestCourses;
   CollectionReference? collection;
   AsyncSnapshot<QuerySnapshot>? streamSnapshot;
-  Semester(this.semesterNum, this.semestCourses, this.collection,
-      this.streamSnapshot);
+  GlobalKey<AnimatedListState> AniKey;
+  Semester(this.semesterId, this.semesterIndex, this.semestCourses,
+      this.collection, this.streamSnapshot, this.AniKey,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<Semester> createState() => _SemesterState();
 }
 
 class _SemesterState extends State<Semester> {
-  GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey();
+  GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey<AnimatedListState>();
+  // final courseKey = GlobalKey<_CourseState>();
   bool isChanged = false;
   callback(value) {
     setState(() {
@@ -340,7 +449,7 @@ class _SemesterState extends State<Semester> {
     });
   }
 
-  late String semestNumString;
+  // late String semestNumString;
   bool val = true;
   double GPA = 0.0;
   int earnCredit = 0;
@@ -475,7 +584,7 @@ class _SemesterState extends State<Semester> {
       'credit': null,
       'grade1': null,
       'grade2': null,
-      'semsterNum': '${widget.semesterNum}',
+      'semestId': widget.semesterId,
       'type': 'one',
     });
     print('#################################');
@@ -489,33 +598,48 @@ class _SemesterState extends State<Semester> {
     addEmptyCourseInDB(uniqueId);
     setState(() {
       listOfCoursesInSemester
-          .add([semestNumString, null, null, null, null, 'one', uniqueId]);
+          .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
+
+      _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
+        var uuid = Uuid();
+        var uniqueId = uuid.v1();
+        return GlobalObjectKey<_CourseState>(uniqueId);
+      });
     });
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
         : listOfCoursesInSemester.length - 1;
     // print('################# insertIndex: $insertIndex ######################');
     _keyOfCourse.currentState!.insertItem(insertIndex);
-
+    print(
+        '####################semsetId:${widget.semesterId}############################');
     // ToDo: set id
   }
 
   var uuid = Uuid();
+
+  bool delete = false;
+  late List<GlobalObjectKey<_CourseState>> _courseKeys;
 
   @override
   void initState() {
     super.initState();
     setState(() {
       listOfCoursesInSemester = widget.semestCourses;
-      semestNumString = widget.semesterNum.toString();
+
       if (listOfCoursesInSemester.isEmpty) {
         var uniqueId = uuid.v1();
         addEmptyCourseInDB(uniqueId);
         setState(() {
-          listOfCoursesInSemester
-              .add([semestNumString, null, null, null, null, 'one', uniqueId]);
+          listOfCoursesInSemester.add(
+              [widget.semesterId, null, null, null, null, 'one', uniqueId]);
         });
       }
+      _courseKeys = List.generate(widget.semestCourses.length, (index) {
+        var uuid = Uuid();
+        var uniqueId = uuid.v1();
+        return GlobalObjectKey<_CourseState>(uniqueId);
+      });
     });
     // print('################### map #####################');
     // print(box.toMap());
@@ -635,6 +759,38 @@ class _SemesterState extends State<Semester> {
     ));
   }
 
+  // void shift(int index, int toIndex) async {
+  //   for (int i = 0; i < widget.streamSnapshot!.data!.docs.length; i++) {
+  //     final DocumentSnapshot course = widget.streamSnapshot!.data!.docs[i];
+  //     if (course['semsterNum'] == index.toString()) {
+  //       print('#######${course['semsterNum']} to  $toIndex');
+  //
+  //       String id = course.id;
+  //       widget.collection!.doc(id).update({'semsterNum': toIndex.toString()});
+  //     }
+  //   }
+  //
+  //   // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
+  //
+  //   // for(int i=0;i<listOfCoursesInSemester.length;i++){
+  //   //   await widget.collection!.doc(listOfCoursesInSemester[6]).set({
+  //   //     'id': listOfCoursesInSemester[6],
+  //   //     'courseName': listOfCoursesInSemester[1],
+  //   //     'credit': listOfCoursesInSemester[2],
+  //   //     'grade1':  listOfCoursesInSemester[3],
+  //   //     'grade2':  listOfCoursesInSemester[4],
+  //   //     'semsterNum': '$toIndex',
+  //   //     'type':  listOfCoursesInSemester[5],
+  //   //   });
+  //   // }
+  // }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // widget.streamSnapshot.
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -652,26 +808,37 @@ class _SemesterState extends State<Semester> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        setState(() {
-                          listOfCoursesInSemester.clear();
-                        });
-                        print('############delete semester ################');
-                        print(widget.streamSnapshot!.data!.docs.length);
                         for (int i = 0;
                             i < widget.streamSnapshot!.data!.docs.length;
                             i++) {
                           final DocumentSnapshot course =
                               widget.streamSnapshot!.data!.docs[i];
-                          if (course['semsterNum'] ==
-                              widget.semesterNum.toString()) {
+                          if (course['semestId'] == widget.semesterId) {
                             String id = course.id;
                             widget.collection!.doc(id).delete();
                           }
                         }
-                        await FirebaseFirestore.instance
-                            .collection('UsersCourses')
-                            .doc('${loggedInUser!.email}')
-                            .collection('courses');
+
+                        setState(() {
+                          allSemestData.removeAt(widget.semesterIndex - 1);
+                        });
+
+                        widget.AniKey.currentState!.removeItem(
+                            widget.semesterIndex - 1, (context, animation) {
+                          return SlideTransition(
+                            position: animation.drive(_offset),
+                            key: UniqueKey(),
+                            child: Semester(
+                                widget.semesterId,
+                                widget.semesterIndex,
+                                widget.semestCourses,
+                                widget.collection,
+                                widget.streamSnapshot,
+                                widget.AniKey
+                                // key: GlobalKey(),
+                                ),
+                          );
+                        });
                       },
                       child: Icon(
                         Icons.delete_forever,
@@ -713,7 +880,7 @@ class _SemesterState extends State<Semester> {
                                 height: 5,
                               ),
                               Text(
-                                '$semestNumString',
+                                '${widget.semesterIndex}',
                                 style: TextStyle(
                                   color: Color(0xff4562a7),
                                   fontSize: 18,
@@ -854,20 +1021,29 @@ class _SemesterState extends State<Semester> {
                 listOfCoursesInSemester.isNotEmpty
                     ? AnimatedList(
                         itemBuilder: (context, index, animation) {
+                          // _courseKeys = List.generate(
+                          //     listOfCoursesInSemester.length, (index) {
+                          //   var uuid = Uuid();
+                          //   var uniqueId = uuid.v1();
+                          //   return GlobalObjectKey<_CourseState>(uniqueId);
+                          // });
+
                           return Course(
-                              listOfCoursesInSemester,
-                              _keyOfCourse,
-                              isChanged,
-                              callback,
-                              listOfCoursesInSemester[index][0],
-                              listOfCoursesInSemester[index][1],
-                              listOfCoursesInSemester[index][2],
-                              listOfCoursesInSemester[index][3],
-                              listOfCoursesInSemester[index][4],
-                              listOfCoursesInSemester[index][5],
-                              listOfCoursesInSemester[index],
-                              listOfCoursesInSemester[index][6],
-                              widget.collection);
+                            listOfCoursesInSemester,
+                            _keyOfCourse,
+                            isChanged,
+                            callback,
+                            listOfCoursesInSemester[index][0],
+                            listOfCoursesInSemester[index][1],
+                            listOfCoursesInSemester[index][2],
+                            listOfCoursesInSemester[index][3],
+                            listOfCoursesInSemester[index][4],
+                            listOfCoursesInSemester[index][5],
+                            listOfCoursesInSemester[index],
+                            listOfCoursesInSemester[index][6],
+                            widget.collection,
+                            key: _courseKeys[index],
+                          );
                         },
                         initialItemCount: listOfCoursesInSemester.length,
                         shrinkWrap: true,
@@ -916,17 +1092,25 @@ class _SemesterState extends State<Semester> {
                         ? GestureDetector(
                             onTap: () {
                               FocusManager.instance.primaryFocus?.unfocus();
+
                               findErrors();
                               print(listOfCoursesInSemester);
                               print(emptyField);
                               print(creditEqZero);
                               print(creditMoreThanThree);
-
+                              Provider.of<MyData>(context, listen: false)
+                                  .changeSaveData(true);
                               if (emptyField == null &&
                                   creditEqZero == null &&
                                   creditMoreThanThree == null) {
                                 Provider.of<MyData>(context, listen: false)
                                     .changeSaveData(true);
+                                for (int i = 0;
+                                    i < listOfCoursesInSemester.length;
+                                    i++) {
+                                  _courseKeys[i].currentState!.collectDate();
+                                }
+                                // courseKey.currentState!.c
                                 setState(() {
                                   isChanged = false;
                                 });
@@ -941,6 +1125,9 @@ class _SemesterState extends State<Semester> {
                                 errorTypeCredit.clear();
                                 errorTypeName.clear();
                               });
+                              Provider.of<MyData>(context, listen: false)
+                                  .changeSaveData(false);
+
                               // Future.delayed(Duration(milliseconds: 600), () {
                               //   Provider.of<MyData>(context, listen: false)
                               //       .changeSaveData(false);
@@ -982,11 +1169,14 @@ class _SemesterState extends State<Semester> {
 }
 
 class Course extends StatefulWidget {
+  // const Course({Key? key}) : super(key: key);
+
   List semstCourses;
   GlobalKey<AnimatedListState> _keyOfCourse;
   bool isChanged;
   Function callback;
-  String? semestNum;
+
+  int? semestId;
   String? name;
   String? credite;
   String? grade1;
@@ -1001,7 +1191,7 @@ class Course extends StatefulWidget {
       this._keyOfCourse,
       this.isChanged,
       this.callback,
-      this.semestNum,
+      this.semestId,
       this.name,
       this.credite,
       this.grade1,
@@ -1009,7 +1199,9 @@ class Course extends StatefulWidget {
       this.option,
       this.courseList,
       this.id,
-      this.collection);
+      this.collection,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<Course> createState() => _CourseState();
@@ -1150,10 +1342,10 @@ class _CourseState extends State<Course> {
       }
     });
 
-    var name = _controller_Name.text;
-    var credit = _controller_Credit.text;
-    String? sNum = widget.courseList[0];
-    String option = widget.courseList[5];
+    // var name = _controller_Name.text;
+    // var credit = _controller_Credit.text;
+    // String? sNum = widget.courseList[0];
+    // String option = widget.courseList[5];
     validationMethod();
   }
 
@@ -1269,51 +1461,56 @@ class _CourseState extends State<Course> {
     // }
   }
 
+  bool pressDeleteCourse = false;
   void deleteCourse() async {
     // ToDo: delete with id
+    setState(() {
+      pressDeleteCourse = true;
+    });
     Provider.of<MyData>(context, listen: false).changeSaveData(false);
     await widget.collection!.doc(widget.id).delete();
 
-    setState(() {
-      // delete = true;
-      // List deletedCourse = [
-      //   widget.semestCourse,
-      //   widget.name,
-      //   widget.credite,
-      //   widget.grade
-      // ];
+    // setState(() {
+    // delete = true;
+    // List deletedCourse = [
+    //   widget.semestCourse,
+    //   widget.name,
+    //   widget.credite,
+    //   widget.grade
+    // ];
 
-      int index = listOfCoursesInSemester.indexOf(widget.courseList);
-      List deletedCourse = listOfCoursesInSemester.removeAt(index);
-      // print('################## deleted course###############################');
-      // print(deletedCourse);
-      widget._keyOfCourse.currentState!.removeItem(index, (context, animation) {
-        return SizeTransition(
-          sizeFactor: animation,
-          key: ValueKey(
+    int index = listOfCoursesInSemester.indexOf(widget.courseList);
+    List deletedCourse = listOfCoursesInSemester.removeAt(index);
+    // print('################## deleted course###############################');
+    // print(deletedCourse);
+    widget._keyOfCourse.currentState!.removeItem(index, (context, animation) {
+      return SizeTransition(
+        sizeFactor: animation,
+        key: ValueKey(
+          widget.name,
+        ),
+        child: Course(
+            listOfCoursesInSemester,
+            widget._keyOfCourse,
+            widget.isChanged,
+            widget.callback,
+            widget.semestId,
             widget.name,
-          ),
-          child: Course(
-              listOfCoursesInSemester,
-              widget._keyOfCourse,
-              widget.isChanged,
-              widget.callback,
-              widget.semestNum,
-              widget.name,
-              widget.credite,
-              widget.grade1,
-              widget.grade2,
-              widget.option,
-              widget.courseList,
-              widget.id,
-              widget.collection),
-        );
-      }, duration: Duration(milliseconds: 400));
-    });
+            widget.credite,
+            widget.grade1,
+            widget.grade2,
+            widget.option,
+            widget.courseList,
+            widget.id,
+            widget.collection),
+      );
+    }, duration: Duration(milliseconds: 400));
+    // });
 
     setState(() {
       widget.isChanged = true;
       widget.callback(true);
+      pressDeleteCourse = false;
     });
   }
 
@@ -1338,7 +1535,7 @@ class _CourseState extends State<Course> {
   }
 
   late bool val;
-  void updateData(var semestnum, var name, var credit, var grade1, var grade2,
+  void updateData(var semestId, var name, var credit, var grade1, var grade2,
       var type) async {
     await widget.collection!.doc(widget.id).set({
       'id': widget.id,
@@ -1346,17 +1543,18 @@ class _CourseState extends State<Course> {
       'credit': credit,
       'grade1': grade1,
       'grade2': grade2,
-      'semsterNum': '$semestnum',
+      'semestId': semestId,
       'type': '$type',
     });
   }
 
   void collectDate() {
     bool save = Provider.of<MyData>(context, listen: false).savaData;
-    bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
+    // print(sav)
+    // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
     var name = _controller_Name.text;
     var credit = _controller_Credit.text;
-    String? sNum = widget.courseList[0];
+    int? semestId = widget.courseList[0];
     String option = widget.courseList[5];
     setState(() {
       selectedValue2 = widget.courseList[4];
@@ -1365,13 +1563,17 @@ class _CourseState extends State<Course> {
     if (valideName &&
         valideCredit &&
         selectedValue1 != null &&
-        !pressDelete &&
-        save) {
-      print('############### update ##################');
+        !pressDeleteCourse) {
+      // print('pressDeleteSemest: $pressDeleteSemest');
+      // print('pressDeleteCourse: $pressDeleteCourse');
+      // print('save: $save');
+
+      // print('############### update ##################');
       if (val) {
-        updateData(sNum, name, credit, selectedValue1, selectedValue2, 'two');
+        updateData(
+            semestId, name, credit, selectedValue1, selectedValue2, 'two');
       } else {
-        updateData(sNum, name, credit, selectedValue1, null, 'one');
+        updateData(semestId, name, credit, selectedValue1, null, 'one');
       }
     }
   }
@@ -1466,7 +1668,7 @@ class _CourseState extends State<Course> {
                             // Provider.of<MyData>(context, listen: false)
                             //     .changeSaveData(true);
 
-                            collectDate();
+                            // collectDate();
                           });
                         },
                         dropdownStyleData: DropdownStyleData(
@@ -1583,7 +1785,7 @@ class _CourseState extends State<Course> {
                             // Provider.of<MyData>(context, listen: false)
                             //     .changeSaveData(true);
 
-                            collectDate();
+                            // collectDate();
                           });
                         },
                         dropdownStyleData: DropdownStyleData(
@@ -1707,7 +1909,7 @@ class _CourseState extends State<Course> {
                         // Provider.of<MyData>(context, listen: false)
                         //     .changeSaveData(true);
 
-                        collectDate();
+                        // collectDate();
                       });
                     },
                     dropdownStyleData: DropdownStyleData(
@@ -1818,7 +2020,7 @@ class _CourseState extends State<Course> {
       //   gradeContainer();
       // });
 
-      collectDate();
+      // collectDate();
       // findSecondTryCourse();
       // }
     }
@@ -1884,7 +2086,7 @@ class _CourseState extends State<Course> {
                         selectedValueIs1Null;
                         selectedValueIs2Null;
                         // theStateOfCourse();
-                        collectDate();
+                        // collectDate();
                       });
                     },
                     decoration: InputDecoration(
@@ -1928,7 +2130,7 @@ class _CourseState extends State<Course> {
                       listOfCoursesInSemester[index][2] = null;
                     }
                     // theStateOfCourse();
-                    collectDate();
+                    // collectDate();
                   });
                 },
                 style: TextStyle(
