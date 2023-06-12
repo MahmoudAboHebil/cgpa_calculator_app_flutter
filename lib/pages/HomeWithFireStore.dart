@@ -13,9 +13,8 @@ import 'package:uuid/uuid.dart';
 
 // ToDo: add semester button (done)
 // ToDo: there is error  when delete all semesters (done)
+// ToDo: build GPA semester method  (done)
 
-// ToDo: organize the code
-// ToDo: build GPA semester method
 // ToDo: build CGPA semester method
 
 class MyBehavior extends ScrollBehavior {
@@ -293,10 +292,10 @@ class _HomePageState extends State<HomePage> {
       //     this.streamSnapshot);
 
       return Semester(
-          1,
+          888888,
           1,
           [
-            [1, null, null, null, null, 'one', '']
+            [888888, null, null, null, null, 'one', '']
           ],
           null,
           null,
@@ -317,10 +316,10 @@ class _HomePageState extends State<HomePage> {
             }
 
             return Semester(
-                1,
+                888888,
                 1,
                 [
-                  [1, null, null, null, null, 'one', '']
+                  [888888, null, null, null, null, 'one', '']
                 ],
                 null,
                 null,
@@ -440,8 +439,9 @@ class _HomePageState extends State<HomePage> {
 bool pressDeleteSemest = false;
 
 class Semester extends StatefulWidget {
-  int semesterIndex;
   int semesterId;
+  int semesterIndex;
+
   List semestCourses;
   CollectionReference? collection;
   AsyncSnapshot<QuerySnapshot>? streamSnapshot;
@@ -470,6 +470,123 @@ class _SemesterState extends State<Semester> {
   double GPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
+  List allCoursesInSemst = [];
+  void calcGPA() {
+    // List allCoursesInSemstd = [];
+    // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    setState(() {
+      GPA = 0.0;
+      earnCredit = 0;
+      totalCredit = 0;
+    });
+
+    // for (int i = 0; i < widget.streamSnapshot!.data!.docs.length; i++) {
+    //   final DocumentSnapshot course = widget.streamSnapshot!.data!.docs[i];
+    //   if (course['semestId'] == widget.semesterId &&
+    //       course.id != 'init' &&
+    //       course['credit'] != null &&
+    //       course['grade1'] != null) {
+    //     setState(() {
+    //       allCoursesInSemstd.add([
+    //         course['semestId'],
+    //         course['courseName'],
+    //         course['credit'],
+    //         course['grade1'],
+    //         course['grade2'],
+    //         course['type'],
+    //         course['id'],
+    //       ]);
+    //     });
+    //   }
+    // }
+    // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+    List allCoursesInSemstd = [];
+    setState(() {
+      for (List list in listOfCoursesInSemester) {
+        if (list[1] != null && list[2] != null && list[3] != null) {
+          allCoursesInSemstd.add(list);
+        }
+      }
+    });
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (allCoursesInSemstd.isNotEmpty) {
+        for (var value in allCoursesInSemstd) {
+          String grade1 = value[3];
+          // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+          int credit = int.parse(value[2]);
+          double pointOfGrade = 0.0;
+          double pointOfCourse = 0.0;
+          setState(() {
+            if (grade1 == 'A') {
+              pointOfGrade = 4.00;
+            } else if (grade1 == 'A-') {
+              pointOfGrade = 3.67;
+            } else if (grade1 == 'B+') {
+              pointOfGrade = 3.33;
+            } else if (grade1 == 'B') {
+              pointOfGrade = 3.00;
+            } else if (grade1 == 'B-') {
+              pointOfGrade = 2.67;
+            } else if (grade1 == 'C+') {
+              pointOfGrade = 2.33;
+            } else if (grade1 == 'C') {
+              pointOfGrade = 2.00;
+            } else if (grade1 == 'C-') {
+              pointOfGrade = 1.67;
+            } else if (grade1 == 'D+') {
+              pointOfGrade = 1.33;
+            } else if (grade1 == 'D') {
+              pointOfGrade = 1.00;
+            } else if (grade1 == 'F') {
+              pointOfGrade = 0.00;
+            } else if (grade1 == 'S') {
+              pointOfGrade = -1.00;
+            } else {
+              pointOfGrade = -2.00;
+            }
+          });
+          setState(() {
+            if (pointOfGrade >= 0.00) {
+              // not s/u course
+              totalCredit_without_SU = totalCredit_without_SU + credit;
+              totalCredit = totalCredit + credit;
+              pointOfCourse = pointOfGrade * credit;
+              totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+            } else {
+              // s/u course
+              totalCredit = totalCredit + credit;
+            }
+
+            if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+              //  passed course
+              earnCredit = earnCredit + credit;
+            }
+          });
+        }
+        setState(() {
+          if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+            GPA = 0.0;
+          } else {
+            GPA = (totalPointsOfSemest / totalCredit_without_SU);
+          }
+        });
+        print('################## semester #################');
+        print(allCoursesInSemst);
+        print('GPA  : $GPA');
+        print('totalPointsOfSemest  : $totalPointsOfSemest');
+        print('totalCredit_without_SU  : $totalCredit_without_SU');
+        print('totalCredit  : $totalCredit');
+        print('earnCredit  : $earnCredit');
+      } else {
+        print('################## Empty #################');
+      }
+    });
+  }
+
   List listOfCoursesInSemester = [];
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
@@ -658,6 +775,9 @@ class _SemesterState extends State<Semester> {
         return GlobalObjectKey<_CourseState>(uniqueId);
       });
     });
+    if (widget.semesterId != 888888) {
+      calcGPA();
+    }
     // print('################### map #####################');
     // print(box.toMap());
   }
@@ -1172,19 +1292,16 @@ class _SemesterState extends State<Semester> {
                               print(emptyField);
                               print(creditEqZero);
                               print(creditMoreThanThree);
-                              Provider.of<MyData>(context, listen: false)
-                                  .changeSaveData(true);
                               if (emptyField == null &&
                                   creditEqZero == null &&
                                   creditMoreThanThree == null) {
-                                Provider.of<MyData>(context, listen: false)
-                                    .changeSaveData(true);
                                 for (int i = 0;
                                     i < listOfCoursesInSemester.length;
                                     i++) {
                                   _courseKeys[i].currentState!.collectDate();
                                 }
                                 // courseKey.currentState!.c
+                                calcGPA();
                                 setState(() {
                                   isChanged = false;
                                 });
@@ -1199,8 +1316,6 @@ class _SemesterState extends State<Semester> {
                                 errorTypeCredit.clear();
                                 errorTypeName.clear();
                               });
-                              Provider.of<MyData>(context, listen: false)
-                                  .changeSaveData(false);
 
                               // Future.delayed(Duration(milliseconds: 600), () {
                               //   Provider.of<MyData>(context, listen: false)
@@ -1541,7 +1656,6 @@ class _CourseState extends State<Course> {
     setState(() {
       pressDeleteCourse = true;
     });
-    Provider.of<MyData>(context, listen: false).changeSaveData(false);
     await widget.collection!.doc(widget.id).delete();
 
     // setState(() {
@@ -1623,7 +1737,6 @@ class _CourseState extends State<Course> {
   }
 
   void collectDate() {
-    bool save = Provider.of<MyData>(context, listen: false).savaData;
     // print(sav)
     // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
     var name = _controller_Name.text;
@@ -2117,17 +2230,9 @@ class _CourseState extends State<Course> {
                     setState(() {
                       FocusManager.instance.primaryFocus?.unfocus();
 
-                      Provider.of<MyData>(context, listen: false)
-                          .changeDelete(true);
-                      Provider.of<MyData>(context, listen: false)
-                          .changeSaveData(false);
-
                       // Provider.of<MyData>(context, listen: false)
                       //     .changeDelete(true);
                       deleteCourse();
-                      Future.delayed(Duration(milliseconds: 500), () {
-                        _provider.changeDelete(false);
-                      });
                     });
                   },
                   child: Icon(
