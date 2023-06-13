@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'HomeWithFireStore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Siginin extends StatefulWidget {
   @override
@@ -13,16 +14,56 @@ class Siginin extends StatefulWidget {
 
 class _SigininState extends State<Siginin> {
   final _auth = FirebaseAuth.instance;
-  final _controller1 = TextEditingController();
-  final _controller2 = TextEditingController();
+  TextEditingController _controller1 = TextEditingController();
+  TextEditingController _controller2 = TextEditingController();
   String email = '';
   String password = '';
   bool remember = true;
   bool pressed = false;
 
+  void setDataCheckUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (remember) {
+      String? em = prefs.getString('email');
+      String? pas = prefs.getString('password');
+      if (em != null && pas != null) {
+        _controller1 = TextEditingController(text: em);
+        _controller2 = TextEditingController(text: pas);
+        print(remember);
+        print(_controller1.text);
+        print(_controller2.text);
+      }
+    }
+  }
+
+  void setRememberMy(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (remember) {
+      prefs.setString('email', email);
+      prefs.setString('password', password);
+    }
+  }
+
+  void setRememberMyCheck() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? check = prefs.getBool('check');
+    if (check == null) {
+      prefs.setBool('check', true);
+      setState(() {
+        remember = true;
+      });
+    } else {
+      setState(() {
+        remember = check;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    setRememberMyCheck();
+    setDataCheckUser();
   }
 
   String? get _errorText1 {
@@ -183,9 +224,13 @@ class _SigininState extends State<Siginin> {
                             children: [
                               Switch(
                                   value: remember,
-                                  onChanged: (value) {
+                                  onChanged: (value) async {
+                                    SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+
                                     setState(() {
                                       remember = value;
+                                      prefs.setBool('check', value);
                                     });
                                   },
                                   activeColor: Color(0xff4562a7),
@@ -246,6 +291,7 @@ class _SigininState extends State<Siginin> {
                                       await _auth.signInWithEmailAndPassword(
                                           email: email, password: password);
                                   if (user != null) {
+                                    setRememberMy(email, password);
                                     Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(

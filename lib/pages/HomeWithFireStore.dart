@@ -30,6 +30,7 @@ User? loggedInUser;
 // GlobalKey<FirebaseAnimatedListState> _semestKey=GlobalKey<FirebaseAnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 List allSemestData = [];
+bool signOut = false;
 
 class HomePage extends StatefulWidget {
   @override
@@ -235,10 +236,12 @@ class _HomePageState extends State<HomePage> {
           physics: ScrollPhysics(),
           key: _listKey,
           itemBuilder: (context, index, animation) {
-            return Semester(allSemestData[index][0], index + 1,
-                allSemestData[index][1], _courses, streamSnapshot, _listKey
-                // key: GlobalKey(),
-                );
+            return allSemestData.isNotEmpty
+                ? Semester(allSemestData[index][0], index + 1,
+                    allSemestData[index][1], _courses, streamSnapshot, _listKey
+                    // key: GlobalKey(),
+                    )
+                : Container();
           },
         ),
         onNotification: (notification) {
@@ -303,6 +306,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      signOut = false;
+    });
     getCurrentUser();
     getDocs();
   }
@@ -432,14 +438,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    getDocs();
-    // print(cgpaCourses[0][0][6]);
-    if (mounted) {
-      setState(() {
-        cgpaCourses;
-        allSemestData;
-        calcCGPA();
-      });
+    if (!signOut) {
+      getDocs();
+      // print(cgpaCourses[0][0][6]);
+      if (mounted) {
+        setState(() {
+          cgpaCourses;
+          allSemestData;
+          calcCGPA();
+        });
+      }
     }
     return Container(
       color: Color(0xffb8c8d1),
@@ -460,7 +468,7 @@ class _HomePageState extends State<HomePage> {
                           shrinkWrap: true,
                           children: [
                             AppBarHome(CGPA, earnCredit, totalCredit),
-                            list(),
+                            signOut ? Container() : list(),
                           ],
                         ),
                       )
@@ -1007,14 +1015,14 @@ class _SemesterState extends State<Semester> {
     // widget.streamSnapshot.
   }
 
-  void addEmptySemestInDB(var uniqueId) async {
+  void addEmptySemestInDB(var uniqueId, int semesterid) async {
     await widget.collection!.doc(uniqueId).set({
       'id': uniqueId,
       'courseName': null,
       'credit': null,
       'grade1': null,
       'grade2': null,
-      'semestId': 1,
+      'semestId': semesterid,
       'type': 'one',
     });
     print('#################################');
@@ -1076,18 +1084,46 @@ class _SemesterState extends State<Semester> {
                         uniqueId
                       ]);
                     });
+                    List<List> removedItem = [];
+                    int index = 0;
+                    int semesterId = 0;
+                    CollectionReference? collection;
+                    AsyncSnapshot<QuerySnapshot>? snap;
+                    GlobalKey<AnimatedListState> keyl = widget.AniKey;
+                    setState(() {
+                      index = widget.semesterIndex - 1;
+                      semesterId = widget.semesterId;
+                      collection = widget.collection;
+                      snap = widget.streamSnapshot;
+                      keyl = widget.AniKey;
+                      List v = [];
+                      v = allSemestData.removeAt(index);
+                      removedItem = v[1];
+                      delete = true;
+                      // listOfCoursesInSemester.clear();
+                      // listOfCoursesInSemester.add([
+                      //   widget.semesterId,
+                      //   null,
+                      //   null,
+                      //   null,
+                      //   null,
+                      //   'one',
+                      //   uniqueId
+                      // ]);
+                    });
+
                     widget.AniKey.currentState!.removeItem(
                         widget.semesterIndex - 1, (context, animation) {
+                      // Semester(this.semesterId, this.semesterIndex, this.semestCourses,
+                      //     this.collection, this.streamSnapshot, this.AniKey,
+                      //     {Key? key})
+                      //     : super(key: key);
+
                       return SlideTransition(
                         position: animation.drive(_offset),
-                        key: UniqueKey(),
-                        child: Semester(
-                            widget.semesterId,
-                            widget.semesterIndex,
-                            widget.semestCourses,
-                            widget.collection,
-                            widget.streamSnapshot,
-                            widget.AniKey
+                        // key: UniqueKey(),
+                        child: Semester(semesterId, index + 1, removedItem,
+                            collection, snap, keyl
                             // key: GlobalKey(),
                             ),
                       );
@@ -1097,7 +1133,7 @@ class _SemesterState extends State<Semester> {
                       var uuid = Uuid();
                       var uniqueId = uuid.v1();
                       setState(() {
-                        addEmptySemestInDB(uniqueId);
+                        addEmptySemestInDB(uniqueId, 0);
                       });
                       setState(() {
                         allSemestData.add([
@@ -2405,12 +2441,21 @@ class _CourseState extends State<Course> {
   }
 }
 
-class AppBarHome extends StatelessWidget {
+class AppBarHome extends StatefulWidget {
   double cgpa;
   int earnCredit;
   int totalCredit;
 
   AppBarHome(this.cgpa, this.earnCredit, this.totalCredit);
+
+  @override
+  State<AppBarHome> createState() => _AppBarHomeState();
+}
+
+class _AppBarHomeState extends State<AppBarHome> {
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2431,10 +2476,24 @@ class AppBarHome extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Color(0xff4562a7),
-                    size: 30,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        signOut = true;
+                      });
+                      _signOut();
+                      Future.delayed(Duration(milliseconds: 200), () {
+                        allSemestData = [];
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      });
+                      // Navigator.pushNamedAndRemoveUntil(context, newRouteName, (route) => )
+                    },
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Color(0xff4562a7),
+                      size: 30,
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
@@ -2499,7 +2558,7 @@ class AppBarHome extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.only(left: 20),
                               child: Text(
-                                '${cgpa.toStringAsFixed(3)}',
+                                '${widget.cgpa.toStringAsFixed(3)}',
                                 style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 20,
@@ -2537,7 +2596,7 @@ class AppBarHome extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          '$earnCredit / $totalCredit',
+                          '${widget.earnCredit} / ${widget.totalCredit}',
                           style: TextStyle(
                             color: Color(0xff004d60),
                             fontSize: 20,
