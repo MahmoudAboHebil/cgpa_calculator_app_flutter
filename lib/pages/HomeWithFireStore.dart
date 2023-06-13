@@ -236,12 +236,10 @@ class _HomePageState extends State<HomePage> {
           physics: ScrollPhysics(),
           key: _listKey,
           itemBuilder: (context, index, animation) {
-            return allSemestData.isNotEmpty
-                ? Semester(allSemestData[index][0], index + 1,
-                    allSemestData[index][1], _courses, streamSnapshot, _listKey
-                    // key: GlobalKey(),
-                    )
-                : Container();
+            return Semester(allSemestData[index][0], index + 1,
+                allSemestData[index][1], _courses, streamSnapshot, _listKey
+                // key: GlobalKey(),
+                );
           },
         ),
         onNotification: (notification) {
@@ -846,14 +844,17 @@ class _SemesterState extends State<Semester> {
     super.initState();
     setState(() {
       listOfCoursesInSemester = widget.semestCourses;
-
       if (listOfCoursesInSemester.isEmpty) {
         print('################# # here  #####################');
         var uniqueId = uuid.v1();
         addEmptyCourseInDB(uniqueId);
+
         setState(() {
           listOfCoursesInSemester.add(
               [widget.semesterId, null, null, null, null, 'one', uniqueId]);
+          allSemestData = [
+            [1, listOfCoursesInSemester]
+          ];
         });
       }
       _courseKeys = List.generate(widget.semestCourses.length, (index) {
@@ -1043,63 +1044,43 @@ class _SemesterState extends State<Semester> {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    List<int> list = [];
-                    List<int> semestKeys = [];
-                    int maxSemester = 0;
-                    for (int i = 0;
-                        i < widget.streamSnapshot!.data!.docs.length;
-                        i++) {
-                      final DocumentSnapshot course =
-                          widget.streamSnapshot!.data!.docs[i];
-                      list.add(course['semestId']);
-                    }
-                    maxSemester = list.max;
-                    semestKeys = list.toSet().toList();
+                    // List<int> list = [];
+                    // List<int> semestKeys = [];
+                    print('############# before #############################');
+                    print(allSemestData);
+                    // for (int i = 0;
+                    //     i < widget.streamSnapshot!.data!.docs.length;
+                    //     i++) {
+                    //   final DocumentSnapshot course =
+                    //       widget.streamSnapshot!.data!.docs[i];
+                    //   setState(() {
+                    //     list.add(course['semestId']);
+                    //   });
+                    // }
+                    // semestKeys = list.toSet().toList();
 
                     for (int i = 0;
                         i < widget.streamSnapshot!.data!.docs.length;
                         i++) {
                       final DocumentSnapshot course =
                           widget.streamSnapshot!.data!.docs[i];
-                      if (course['semestId'] == widget.semesterId) {
-                        String id = course.id;
-                        widget.collection!.doc(id).delete();
+                      if (course.id != 'init') {
+                        if (course['semestId'] == widget.semesterId) {
+                          String id = course.id;
+                          widget.collection!.doc(id).delete();
+                        }
                       }
                     }
 
                     var uuid = Uuid();
                     var uniqueId = uuid.v1();
-
+                    List removedList = [];
                     setState(() {
-                      allSemestData.removeAt(widget.semesterIndex - 1);
-                      delete = true;
-                      // listOfCoursesInSemester.clear();
-                      listOfCoursesInSemester.add([
-                        widget.semesterId,
-                        null,
-                        null,
-                        null,
-                        null,
-                        'one',
-                        uniqueId
-                      ]);
-                    });
-                    List<List> removedItem = [];
-                    int index = 0;
-                    int semesterId = 0;
-                    CollectionReference? collection;
-                    AsyncSnapshot<QuerySnapshot>? snap;
-                    GlobalKey<AnimatedListState> keyl = widget.AniKey;
-                    setState(() {
-                      index = widget.semesterIndex - 1;
-                      semesterId = widget.semesterId;
-                      collection = widget.collection;
-                      snap = widget.streamSnapshot;
-                      keyl = widget.AniKey;
-                      List v = [];
-                      v = allSemestData.removeAt(index);
-                      removedItem = v[1];
-                      delete = true;
+                      List v = allSemestData.removeAt(widget.semesterIndex - 1);
+                      removedList = v[1];
+                      print(
+                          '############# after #############################');
+                      print(allSemestData);
                       // listOfCoursesInSemester.clear();
                       // listOfCoursesInSemester.add([
                       //   widget.semesterId,
@@ -1111,29 +1092,28 @@ class _SemesterState extends State<Semester> {
                       //   uniqueId
                       // ]);
                     });
-
                     widget.AniKey.currentState!.removeItem(
                         widget.semesterIndex - 1, (context, animation) {
-                      // Semester(this.semesterId, this.semesterIndex, this.semestCourses,
-                      //     this.collection, this.streamSnapshot, this.AniKey,
-                      //     {Key? key})
-                      //     : super(key: key);
-
                       return SlideTransition(
                         position: animation.drive(_offset),
-                        // key: UniqueKey(),
-                        child: Semester(semesterId, index + 1, removedItem,
-                            collection, snap, keyl
+                        key: ValueKey(removedList),
+                        child: Semester(
+                            widget.semesterId,
+                            widget.semesterIndex,
+                            removedList,
+                            widget.collection,
+                            widget.streamSnapshot,
+                            widget.AniKey
                             // key: GlobalKey(),
                             ),
                       );
                     });
 
-                    if (semestKeys.length == 1) {
+                    if (allSemestData.isEmpty) {
                       var uuid = Uuid();
                       var uniqueId = uuid.v1();
                       setState(() {
-                        addEmptySemestInDB(uniqueId, 0);
+                        addEmptySemestInDB(uniqueId, 1);
                       });
                       setState(() {
                         allSemestData.add([
@@ -1944,6 +1924,7 @@ class _CourseState extends State<Course> {
                                 ))
                             .toList(),
                         value: selectedValue1,
+                        key: ValueKey(selectedValue1),
                         onChanged: (value) {
                           setState(() {
                             widget.isChanged = true;
@@ -2061,6 +2042,7 @@ class _CourseState extends State<Course> {
                                 ))
                             .toList(),
                         value: selectedValue2,
+                        key: ValueKey(selectedValue2),
                         onChanged: (value) {
                           setState(() {
                             widget.isChanged = true;
@@ -2184,6 +2166,7 @@ class _CourseState extends State<Course> {
                             ))
                         .toList(),
                     value: selectedValue1,
+                    key: ValueKey(selectedValue1),
                     onChanged: (value) {
                       setState(() {
                         widget.isChanged = true;
@@ -2343,6 +2326,7 @@ class _CourseState extends State<Course> {
                   height: 18,
                   margin: EdgeInsets.only(top: 4, left: 10),
                   child: TextField(
+                    key: ValueKey(widget.name),
                     controller: _controller_Name,
                     textAlign: TextAlign.center,
                     autofocus: false,
@@ -2394,6 +2378,7 @@ class _CourseState extends State<Course> {
               height: 18,
               margin: EdgeInsets.only(bottom: 0.4),
               child: TextField(
+                key: ValueKey(widget.credite),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 controller: _controller_Credit,
                 textAlign: TextAlign.center,
