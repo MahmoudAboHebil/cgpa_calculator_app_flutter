@@ -40,6 +40,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  bool callCGPA = false;
+  callback(value) {
+    setState(() {
+      callCGPA = value;
+    });
+  }
+
   CollectionReference? _courses;
   // FirebaseFirestore.instance
   //     .collection('UsersCourses')
@@ -236,10 +243,20 @@ class _HomePageState extends State<HomePage> {
           physics: ScrollPhysics(),
           key: _listKey,
           itemBuilder: (context, index, animation) {
-            return Semester(allSemestData[index][0], index + 1,
-                allSemestData[index][1], _courses, streamSnapshot, _listKey
-                // key: GlobalKey(),
-                );
+            return SizeTransition(
+              sizeFactor: animation,
+              key: UniqueKey(),
+              child: Semester(
+                  allSemestData[index][0],
+                  index + 1,
+                  allSemestData[index][1],
+                  _courses,
+                  streamSnapshot,
+                  _listKey,
+                  callback
+                  // key: GlobalKey(),
+                  ),
+            );
           },
         ),
         onNotification: (notification) {
@@ -256,7 +273,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget list() {
-    getDocs();
     // bool exit =_courses.limit(1).
     // print('######################$lengthOfDocuments');
 
@@ -272,7 +288,8 @@ class _HomePageState extends State<HomePage> {
           ],
           null,
           null,
-          _listKey);
+          _listKey,
+          () {});
     }
 
     // else if (lengthOfDocuments == 0) {
@@ -296,7 +313,8 @@ class _HomePageState extends State<HomePage> {
                 ],
                 null,
                 null,
-                _listKey);
+                _listKey,
+                () {});
           });
     }
   }
@@ -309,6 +327,7 @@ class _HomePageState extends State<HomePage> {
     });
     getCurrentUser();
     getDocs();
+    calcCGPA();
   }
 
   late Widget theContent;
@@ -437,13 +456,15 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (!signOut) {
-      getDocs();
       // print(cgpaCourses[0][0][6]);
       if (mounted) {
         setState(() {
           cgpaCourses;
           allSemestData;
-          calcCGPA();
+          if (callCGPA) {
+            calcCGPA();
+            callCGPA = false;
+          }
         });
       }
     }
@@ -479,6 +500,7 @@ class _HomePageState extends State<HomePage> {
                 child: FloatingActionButton(
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
+                    getDocs();
                     var uuid = Uuid();
                     var uniqueId = uuid.v1();
                     setState(() {
@@ -491,7 +513,8 @@ class _HomePageState extends State<HomePage> {
                     print(allsemesters);
                     print(allsemesters.length);
 
-                    _listKey.currentState!.insertItem(insertIndex);
+                    _listKey.currentState!.insertItem(insertIndex,
+                        duration: Duration(milliseconds: 0));
                     setState(() {
                       allSemestData.add([
                         maxSemester + 1,
@@ -533,8 +556,9 @@ class Semester extends StatefulWidget {
   CollectionReference? collection;
   AsyncSnapshot<QuerySnapshot>? streamSnapshot;
   GlobalKey<AnimatedListState> AniKey;
+  Function callCgpa;
   Semester(this.semesterId, this.semesterIndex, this.semestCourses,
-      this.collection, this.streamSnapshot, this.AniKey,
+      this.collection, this.streamSnapshot, this.AniKey, this.callCgpa,
       {Key? key})
       : super(key: key);
 
@@ -1103,9 +1127,8 @@ class _SemesterState extends State<Semester> {
                             removedList,
                             widget.collection,
                             widget.streamSnapshot,
-                            widget.AniKey
-                            // key: GlobalKey(),
-                            ),
+                            widget.AniKey,
+                            widget.callCgpa),
                       );
                     });
 
@@ -1389,6 +1412,9 @@ class _SemesterState extends State<Semester> {
                             }
                             // courseKey.currentState!.c
                             calcGPA();
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              widget.callCgpa(true);
+                            });
                             setState(() {
                               isChanged = false;
                             });

@@ -1,11 +1,9 @@
-import 'package:cgp_calculator/test.dart';
 import 'package:flutter/material.dart';
-import 'pages/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'pages/HomeWithFireStore.dart';
+import 'pages/HomeGI.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +24,7 @@ class MyApp extends StatelessWidget {
             textSelectionTheme: TextSelectionThemeData(
                 selectionColor: Colors.transparent,
                 selectionHandleColor: Colors.transparent)),
-        home: WelcomePage(),
+        home: HomePageGI(),
       ),
     );
   }
