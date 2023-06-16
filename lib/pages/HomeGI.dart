@@ -22,11 +22,29 @@ class HomePageGI extends StatefulWidget {
 
 class _HomePageGIState extends State<HomePageGI> {
   bool _visible = true;
-
+  List allSemesters = [
+    // semester one
+    [
+      [1, null, null, null, null, 'one', '1'],
+      [1, null, null, null, null, 'one', '2']
+    ],
+    // semester two
+    [
+      [1, null, null, null, null, 'one', '3']
+    ],
+    // semester three
+    []
+  ];
   @override
   void initState() {
     super.initState();
   }
+
+  // callBackToUpdateAllSemestersList(List allSemest){
+  //   setState(() {
+  //     allSemesters=allSemest;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +65,22 @@ class _HomePageGIState extends State<HomePageGI> {
                         behavior: MyBehavior(),
                         child: ListView(
                           shrinkWrap: true,
-                          children: [SemesterGI([])],
+                          children: [
+                            AnimatedList(
+                              shrinkWrap: true,
+                              physics: ScrollPhysics(),
+                              initialItemCount: allSemesters.length,
+                              itemBuilder: (context, index, animation) {
+                                return SizeTransition(
+                                  sizeFactor: animation,
+                                  key: UniqueKey(),
+                                  child: SemesterGI(
+                                    allSemesters[index],
+                                  ),
+                                );
+                              },
+                            )
+                          ],
                         ),
                       )
                     ],
@@ -444,7 +477,9 @@ class _SemesterGIState extends State<SemesterGI> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  onTap: () async {},
+                  onTap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
                   child: Icon(
                     Icons.delete_forever,
                     color: Color(0xffce2029),
@@ -761,7 +796,6 @@ class _CourseState extends State<Course> {
   bool selectedValueIs2Null = false;
   bool valideName = true;
   bool valideCredit = true;
-  bool change = false;
   final List<String> items = [
     'A',
     'A-',
@@ -1380,9 +1414,11 @@ class _CourseState extends State<Course> {
               children: [
                 GestureDetector(
                   onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     setState(() {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      deleteCourse();
+                      Future.delayed(Duration(milliseconds: 100), () {
+                        deleteCourse();
+                      });
                     });
                   },
                   child: Icon(
@@ -1404,7 +1440,6 @@ class _CourseState extends State<Course> {
                     ),
                     onChanged: (value) {
                       setState(() {
-                        change = true;
                         errorGrade();
                         widget.courseList[1] = value;
                         name = value;
@@ -1451,7 +1486,6 @@ class _CourseState extends State<Course> {
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
                   setState(() {
-                    change = true;
                     credit = value;
                     if (value.isNotEmpty) {
                       widget.listCoursesInSemester[widget.index][2] = value;
