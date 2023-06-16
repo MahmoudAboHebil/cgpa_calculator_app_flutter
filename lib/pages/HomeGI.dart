@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
+// ToDo: you must learn how to use callBack to improve the calcCGPA button to show up automatic
 class MyBehavior extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(
@@ -745,6 +746,9 @@ class Course extends StatefulWidget {
 class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
+  FocusNode _focusName = FocusNode();
+  FocusNode _focusCredit = FocusNode();
+
   late String? selectedValue1;
   late String? selectedValue2;
   int semesterID = 0;
@@ -757,7 +761,7 @@ class _CourseState extends State<Course> {
   bool selectedValueIs2Null = false;
   bool valideName = true;
   bool valideCredit = true;
-
+  bool change = false;
   final List<String> items = [
     'A',
     'A-',
@@ -778,6 +782,9 @@ class _CourseState extends State<Course> {
   void initState() {
     super.initState();
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
+    _focusName.addListener(_onFocusNameChange);
+    _focusCredit.addListener(_onFocusCreditChange);
+
     setState(() {
       semesterID = widget.courseList[0];
       name = widget.courseList[1];
@@ -799,6 +806,36 @@ class _CourseState extends State<Course> {
       }
     });
     validationMethod();
+  }
+
+  void _onFocusNameChange() {
+    if (_focusName.hasFocus) {
+    } else {
+      String value = _controller_Name.text;
+      if (value.isNotEmpty) {
+        widget.listCoursesInSemester[widget.index][1] = value;
+      } else {
+        widget.listCoursesInSemester[widget.index][1] = null;
+      }
+      widget.CallBackUpdateList(widget.listCoursesInSemester);
+      widget.CallBackUpdateChange(true);
+    }
+    errorGrade();
+    validationMethod();
+  }
+
+  void _onFocusCreditChange() {
+    if (_focusCredit.hasFocus) {
+    } else {
+      String value = _controller_Credit.text;
+      if (value.isNotEmpty) {
+        widget.listCoursesInSemester[widget.index][2] = value;
+      } else {
+        widget.listCoursesInSemester[widget.index][2] = null;
+      }
+      widget.CallBackUpdateList(widget.listCoursesInSemester);
+      widget.CallBackUpdateChange(true);
+    }
   }
 
   String? get _errorCredit {
@@ -1320,6 +1357,10 @@ class _CourseState extends State<Course> {
     super.dispose();
     _controller_Name.dispose();
     _controller_Credit.dispose();
+    _focusName.removeListener(_onFocusNameChange);
+    _focusName.dispose();
+    _focusCredit.removeListener(_onFocusCreditChange);
+    _focusCredit.dispose();
   }
 
   @override
@@ -1356,24 +1397,26 @@ class _CourseState extends State<Course> {
                   child: TextField(
                     controller: _controller_Name,
                     textAlign: TextAlign.center,
-                    autofocus: false,
+                    focusNode: _focusName,
                     style: TextStyle(
                       fontSize: 18,
                       color: Color(0xff004d60),
                     ),
                     onChanged: (value) {
                       setState(() {
+                        change = true;
                         errorGrade();
                         widget.courseList[1] = value;
+                        name = value;
                         if (value.isNotEmpty) {
                           widget.listCoursesInSemester[widget.index][1] = value;
                         } else {
                           widget.listCoursesInSemester[widget.index][1] = null;
                         }
-                        widget.CallBackUpdateList(widget.listCoursesInSemester);
+                        // widget.CallBackUpdateList(widget.listCoursesInSemester);
                         selectedValueIs1Null;
                         selectedValueIs2Null;
-                        widget.CallBackUpdateChange(true);
+                        // widget.CallBackUpdateChange(true);
                       });
                     },
                     decoration: InputDecoration(
@@ -1403,18 +1446,21 @@ class _CourseState extends State<Course> {
               child: TextField(
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 controller: _controller_Credit,
+                focusNode: _focusCredit,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
                   setState(() {
+                    change = true;
+                    credit = value;
                     if (value.isNotEmpty) {
                       widget.listCoursesInSemester[widget.index][2] = value;
                     } else {
                       widget.listCoursesInSemester[widget.index][2] = null;
                     }
-                    widget.CallBackUpdateList(widget.listCoursesInSemester);
+                    // widget.CallBackUpdateList(widget.listCoursesInSemester);
                   });
-                  widget.CallBackUpdateChange(true);
+                  // widget.CallBackUpdateChange(true);
                 },
                 style: TextStyle(
                   fontSize: 18,
