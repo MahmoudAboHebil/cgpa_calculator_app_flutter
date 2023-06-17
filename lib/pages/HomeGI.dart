@@ -6,8 +6,11 @@ import 'package:uuid/uuid.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
-// ToDo:  the calcCPA button disappear when adding a new semester
+// ToDo:  improve the design of grade GI
 
+// ToDo:  final step add the Calculation ()
+
+// ToDo:  the calcCPA button disappear when adding a new semester (done)
 // ToDo: you must learn how to use callBack to improve the calcCGPA button to show up automatic
 class MyBehavior extends ScrollBehavior {
   @override
@@ -114,14 +117,14 @@ class _HomePageGIState extends State<HomePageGI> {
                               itemBuilder: (context, index, animation) {
                                 print(allSemesters.length);
                                 return SizeTransition(
-                                    sizeFactor: animation,
-                                    key: UniqueKey(),
-                                    child: SemesterGI(
-                                        allSemesters[index],
-                                        allSemesters[index][0][0],
-                                        index,
-                                        allSemesters,
-                                        callBackToUpdateAllSemestersList));
+                                  sizeFactor: animation,
+                                  key: UniqueKey(),
+                                  child: SemesterGI(
+                                      allSemesters[index],
+                                      allSemesters[index][0][0],
+                                      index,
+                                      _keySemester),
+                                );
                               },
                             )
                           ],
@@ -154,10 +157,9 @@ class SemesterGI extends StatefulWidget {
   List semesterCourses;
   String semesterId;
   int index;
-  List allSemesterss;
-  Function callBackallSemesterss;
-  SemesterGI(this.semesterCourses, this.semesterId, this.index,
-      this.allSemesterss, this.callBackallSemesterss,
+  GlobalKey<AnimatedListState> _allSemestersKey;
+  SemesterGI(
+      this.semesterCourses, this.semesterId, this.index, this._allSemestersKey,
       {Key? key})
       : super(key: key);
 
@@ -167,6 +169,7 @@ class SemesterGI extends StatefulWidget {
 
 class _SemesterGIState extends State<SemesterGI> {
   final _keyAniListCourses = GlobalKey<AnimatedListState>();
+  Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
   var uuid = Uuid();
 
   bool isChanged = false;
@@ -324,7 +327,7 @@ class _SemesterGIState extends State<SemesterGI> {
     }
   }
 
-  addCourse() {
+  void addCourse() {
     var uniqueId = uuid.v1();
 
     setState(() {
@@ -341,6 +344,20 @@ class _SemesterGIState extends State<SemesterGI> {
     _keyAniListCourses.currentState!
         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
     print('theListAfterAdd:${listOfCoursesInSemester}');
+  }
+
+  void deleteSemester() {
+    setState(() {
+      List deletedSemest = allSemesters.removeAt(widget.index);
+      widget._allSemestersKey.currentState!.removeItem(widget.index,
+          (context, animation) {
+        return SlideTransition(
+          position: animation.drive(_offset),
+          child: SemesterGI(deletedSemest, widget.semesterId, widget.index,
+              widget._allSemestersKey),
+        );
+      }, duration: Duration(milliseconds: 400q));
+    });
   }
 
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
@@ -533,6 +550,7 @@ class _SemesterGIState extends State<SemesterGI> {
                 GestureDetector(
                   onTap: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
+                    deleteSemester();
                   },
                   child: Icon(
                     Icons.delete_forever,
@@ -728,9 +746,8 @@ class _SemesterGIState extends State<SemesterGI> {
               key: _keyAniListCourses,
             ),
             Row(
-              mainAxisAlignment: isChanged
-                  ? MainAxisAlignment.spaceEvenly
-                  : MainAxisAlignment.center,
+              mainAxisAlignment:
+                  isChanged ? MainAxisAlignment.center : MainAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -739,6 +756,9 @@ class _SemesterGIState extends State<SemesterGI> {
                   },
                   child: Container(
                     alignment: Alignment.center,
+                    margin: isChanged
+                        ? EdgeInsets.only(right: 30)
+                        : EdgeInsets.only(right: 85),
                     decoration: BoxDecoration(
                         color: Color(0xffeaf1ed),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -786,6 +806,9 @@ class _SemesterGIState extends State<SemesterGI> {
                         },
                         child: Container(
                           alignment: Alignment.center,
+                          margin: isChanged
+                              ? EdgeInsets.all(0)
+                              : EdgeInsets.only(right: 20),
                           decoration: BoxDecoration(
                               color: Color(0xff4562a7),
                               borderRadius:
@@ -805,8 +828,22 @@ class _SemesterGIState extends State<SemesterGI> {
                           ),
                         ),
                       )
-                    : SizedBox(
-                        width: 0,
+                    : GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isChanged = true;
+                          });
+                        },
+                        child: AbsorbPointer(
+                          child: Container(
+                            margin: EdgeInsets.only(right: 18),
+                            child: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Color(0xff004d60),
+                              size: 26,
+                            ),
+                          ),
+                        ),
                       ),
               ],
             ),
