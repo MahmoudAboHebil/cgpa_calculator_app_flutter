@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
+// ToDo:  the calcCPA button disappear when adding a new semester
+
 // ToDo: you must learn how to use callBack to improve the calcCGPA button to show up automatic
 class MyBehavior extends ScrollBehavior {
   @override
@@ -15,36 +17,74 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
+List allSemesters = [
+  // // semester one
+  // [
+  //   ['1', null, null, null, null, 'one', '1'],
+  //   ['1', null, null, null, null, 'one', '2']
+  // ],
+  // // semester two
+  // [
+  //   ['2', null, null, null, null, 'one', '3']
+  // ],
+  // // semester three
+];
+
 class HomePageGI extends StatefulWidget {
   @override
   State<HomePageGI> createState() => _HomePageGIState();
 }
 
 class _HomePageGIState extends State<HomePageGI> {
+  final _keySemester = GlobalKey<AnimatedListState>();
+  var uuid = Uuid();
+
   bool _visible = true;
-  List allSemesters = [
-    // semester one
-    [
-      [1, null, null, null, null, 'one', '1'],
-      [1, null, null, null, null, 'one', '2']
-    ],
-    // semester two
-    [
-      [1, null, null, null, null, 'one', '3']
-    ],
-    // semester three
-    []
-  ];
+
   @override
   void initState() {
     super.initState();
+    if (allSemesters.isEmpty) {
+      setState(() {
+        String year = DateTime.now().year.toString();
+        String month = DateTime.now().month.toString();
+        String minute = DateTime.now().minute.toString();
+        String second = DateTime.now().second.toString();
+        String semestDateID = '$year-$month-$minute-$second';
+        var uniqueId = uuid.v1();
+        allSemesters.add([
+          [semestDateID, null, null, null, null, 'one', uniqueId]
+        ]);
+        print([semestDateID, null, null, null, null, 'one', uniqueId]);
+      });
+    }
   }
 
-  // callBackToUpdateAllSemestersList(List allSemest){
-  //   setState(() {
-  //     allSemesters=allSemest;
-  //   });
-  // }
+  callBackToUpdateAllSemestersList(List allSemest) {
+    setState(() {
+      allSemesters = allSemest;
+    });
+  }
+
+  void addSemester() {
+    setState(() {
+      String year = DateTime.now().year.toString();
+      String month = DateTime.now().month.toString();
+      String minute = DateTime.now().minute.toString();
+      String second = DateTime.now().second.toString();
+      String semestDateID = '$year-$month-$minute-$second';
+      int insertIndex =
+          allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
+
+      var uniqueId = uuid.v1();
+      allSemesters.add([
+        [semestDateID, null, null, null, null, 'one', uniqueId]
+      ]);
+      print([semestDateID, null, null, null, null, 'one', uniqueId]);
+      _keySemester.currentState!
+          .insertItem(insertIndex, duration: Duration(milliseconds: 0));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +110,18 @@ class _HomePageGIState extends State<HomePageGI> {
                               shrinkWrap: true,
                               physics: ScrollPhysics(),
                               initialItemCount: allSemesters.length,
+                              key: _keySemester,
                               itemBuilder: (context, index, animation) {
+                                print(allSemesters.length);
                                 return SizeTransition(
-                                  sizeFactor: animation,
-                                  key: UniqueKey(),
-                                  child: SemesterGI(
-                                    allSemesters[index],
-                                  ),
-                                );
+                                    sizeFactor: animation,
+                                    key: UniqueKey(),
+                                    child: SemesterGI(
+                                        allSemesters[index],
+                                        allSemesters[index][0][0],
+                                        index,
+                                        allSemesters,
+                                        callBackToUpdateAllSemestersList));
                               },
                             )
                           ],
@@ -91,7 +135,9 @@ class _HomePageGIState extends State<HomePageGI> {
                 visible: _visible,
                 child: FloatingActionButton(
                   backgroundColor: Color(0xff4562a7),
-                  onPressed: () async {},
+                  onPressed: () async {
+                    addSemester();
+                  },
                   child: Icon(
                     Icons.add,
                     color: Colors.white,
@@ -106,19 +152,24 @@ class _HomePageGIState extends State<HomePageGI> {
 
 class SemesterGI extends StatefulWidget {
   List semesterCourses;
-  SemesterGI(this.semesterCourses, {Key? key}) : super(key: key);
+  String semesterId;
+  int index;
+  List allSemesterss;
+  Function callBackallSemesterss;
+  SemesterGI(this.semesterCourses, this.semesterId, this.index,
+      this.allSemesterss, this.callBackallSemesterss,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<SemesterGI> createState() => _SemesterGIState();
 }
 
 class _SemesterGIState extends State<SemesterGI> {
-  GlobalKey<AnimatedListState> _keyAniListCourses =
-      GlobalKey<AnimatedListState>();
+  final _keyAniListCourses = GlobalKey<AnimatedListState>();
   var uuid = Uuid();
 
   bool isChanged = false;
-  int semesterID = 0;
   List listOfCoursesInSemester = [];
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
@@ -141,16 +192,15 @@ class _SemesterGIState extends State<SemesterGI> {
 
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
-      if (listOfCoursesInSemester.isEmpty) {
-        var uniqueId = uuid.v1();
-
-        setState(() {
-          listOfCoursesInSemester
-              .add([1, null, null, null, null, 'one', uniqueId]);
-          semesterID = 1;
-          print('theListAfterAdd:${listOfCoursesInSemester}');
-        });
-      }
+      // if (listOfCoursesInSemester.isEmpty) {
+      //   var uniqueId = uuid.v1();
+      //
+      //   setState(() {
+      //     listOfCoursesInSemester.add(
+      //         [widget.semesterId, null, null, null, null, 'one', uniqueId]);
+      //     print('theListAfterAdd:${listOfCoursesInSemester}');
+      //   });
+      // }
     });
   }
 
@@ -279,8 +329,12 @@ class _SemesterGIState extends State<SemesterGI> {
 
     setState(() {
       listOfCoursesInSemester
-          .add([semesterID, null, null, null, null, 'one', uniqueId]);
+          .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
+      allSemesters[widget.index] = listOfCoursesInSemester;
+      // widget.allSemesterss[widget.index] = listOfCoursesInSemester;
+      // widget.callBackallSemesterss(widget.allSemesterss);
     });
+
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
         : listOfCoursesInSemester.length - 1;
@@ -519,7 +573,7 @@ class _SemesterGIState extends State<SemesterGI> {
                             height: 5,
                           ),
                           Text(
-                            '$semesterID',
+                            '${widget.index + 1}',
                             style: TextStyle(
                               color: Color(0xff4562a7),
                               fontSize: 18,
@@ -660,6 +714,7 @@ class _SemesterGIState extends State<SemesterGI> {
                   key: UniqueKey(),
                   child: Course(
                       index,
+                      widget.index,
                       listOfCoursesInSemester[index],
                       listOfCoursesInSemester,
                       callBackToUpdateTheCoursesList,
@@ -764,13 +819,21 @@ class _SemesterGIState extends State<SemesterGI> {
 
 class Course extends StatefulWidget {
   int index;
+  int semesterIndex;
   List courseList;
   List listCoursesInSemester;
   Function CallBackUpdateList;
   Function CallBackUpdateChange;
+
   GlobalKey<AnimatedListState> _keyAniSemest;
-  Course(this.index, this.courseList, this.listCoursesInSemester,
-      this.CallBackUpdateList, this.CallBackUpdateChange, this._keyAniSemest,
+  Course(
+      this.index,
+      this.semesterIndex,
+      this.courseList,
+      this.listCoursesInSemester,
+      this.CallBackUpdateList,
+      this.CallBackUpdateChange,
+      this._keyAniSemest,
       {Key? key})
       : super(key: key);
 
@@ -786,7 +849,7 @@ class _CourseState extends State<Course> {
 
   late String? selectedValue1;
   late String? selectedValue2;
-  int semesterID = 0;
+  String semesterID = '';
   String? courseID = '';
   String? name = '';
   String? credit = '';
@@ -977,24 +1040,108 @@ class _CourseState extends State<Course> {
   }
 
   deleteCourse() {
-    List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
-    widget.CallBackUpdateList(widget.listCoursesInSemester);
-    widget._keyAniSemest.currentState!.removeItem(widget.index,
-        (context, animation) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: Course(
-            widget.index,
-            deletedCourse,
-            widget.listCoursesInSemester,
-            widget.CallBackUpdateList,
-            widget.CallBackUpdateChange,
-            widget._keyAniSemest),
-      );
-    }, duration: Duration(milliseconds: 300));
-    print('deletedCourse:$deletedCourse');
-    print('theListAfterDeleting:${widget.listCoursesInSemester}');
+    if (widget.listCoursesInSemester.length == 1) {
+      var uuid = Uuid();
+      var uniqueId = uuid.v1();
+      widget.listCoursesInSemester[widget.index] = [
+        semesterID,
+        null,
+        null,
+        null,
+        null,
+        'one',
+        uniqueId
+      ];
+      // List allSemesters = [
+      //   // // semester one
+      //   // [
+      //   //   ['1', null, null, null, null, 'one', '1'],
+      //   //   ['1', null, null, null, null, 'one', '2']
+      //   // ],
+      //   // // semester two
+      //   // [
+      //   //   ['2', null, null, null, null, 'one', '3']
+      //   // ],
+      //   // // semester three
+      // ];
+
+      print('theListAfterUpdate:${widget.listCoursesInSemester}');
+      allSemesters[widget.semesterIndex][widget.index] =
+          widget.listCoursesInSemester[widget.index];
+      widget.CallBackUpdateList(widget.listCoursesInSemester);
+    } else {
+      List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
+      widget.CallBackUpdateList(widget.listCoursesInSemester);
+      widget._keyAniSemest.currentState!.removeItem(widget.index,
+          (context, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: Course(
+              widget.index,
+              widget.semesterIndex,
+              deletedCourse,
+              widget.listCoursesInSemester,
+              widget.CallBackUpdateList,
+              widget.CallBackUpdateChange,
+              widget._keyAniSemest),
+        );
+      }, duration: Duration(milliseconds: 300));
+      print('deletedCourse:$deletedCourse');
+      print('theListAfterDeleting:${widget.listCoursesInSemester}');
+    }
+
     widget.CallBackUpdateChange(true);
+
+//###############################################################
+    // if (widget.allSemesterss.length == 1 &&
+    //     widget.listCoursesInSemester.length == 1) {
+    //   print('no delete');
+    // }
+    //
+    // widget.CallBackUpdateChange(true);
+    //
+    // List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
+    //
+    // widget.CallBackUpdateList(widget.listCoursesInSemester);
+    // widget._keyAniSemest.currentState!.removeItem(widget.index,
+    //     (context, animation) {
+    //   return SizeTransition(
+    //     sizeFactor: animation,
+    //     child: Course(
+    //         widget.index,
+    //         deletedCourse,
+    //         widget.listCoursesInSemester,
+    //         widget.CallBackUpdateList,
+    //         widget.CallBackUpdateChange,
+    //         widget.allSemesterss,
+    //         widget.callBackallSemesterss,
+    //         widget.semesterIndex,
+    //         widget._keyAniSemest),
+    //   );
+    // }, duration: Duration(milliseconds: 0));
+    // print('deletedCourse:$deletedCourse');
+    // print('theListAfterDeleting:${widget.listCoursesInSemester}');
+
+    // if (widget.listCoursesInSemester.isEmpty) {
+    //   var uuid = Uuid();
+    //   var uniqueId = uuid.v1();
+    //
+    //   setState(() {
+    //     widget.listCoursesInSemester
+    //         .add([semesterID, null, null, null, null, 'one', uniqueId]);
+    //     widget.allSemesterss[widget.index] = widget.listCoursesInSemester;
+    //     widget.callBackallSemesterss(widget.allSemesterss);
+    //     widget.allSemesterss[widget.semesterIndex] =
+    //         widget.listCoursesInSemester;
+    //     widget.callBackallSemesterss(widget.allSemesterss);
+    //   });
+    //   widget._keyAniSemest.currentState!
+    //       .insertItem(0, duration: Duration(milliseconds: 250));
+    //   print('theListAfterAdd:${widget.listCoursesInSemester}');
+    // } else {
+    //   widget.allSemesterss[widget.semesterIndex] = widget.listCoursesInSemester;
+    //   widget.callBackallSemesterss(widget.allSemesterss);
+    // }
   }
 
   Widget gradeContainer() {
