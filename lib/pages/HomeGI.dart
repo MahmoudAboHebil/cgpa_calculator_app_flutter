@@ -40,9 +40,14 @@ class HomePageGI extends StatefulWidget {
 
 class _HomePageGIState extends State<HomePageGI> {
   final _keySemester = GlobalKey<AnimatedListState>();
+  late List<GlobalObjectKey<_CourseState>> _semestKeys;
+
   var uuid = Uuid();
 
   bool _visible = true;
+  double CGPA = 0.0;
+  int earnCredit = 0;
+  int totalCredit = 0;
 
   @override
   void initState() {
@@ -55,12 +60,21 @@ class _HomePageGIState extends State<HomePageGI> {
         String second = DateTime.now().second.toString();
         String semestDateID = '$year-$month-$minute-$second';
         var uniqueId = uuid.v1();
+// [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
+
         allSemesters.add([
-          [semestDateID, null, null, null, null, 'one', uniqueId]
+          [semestDateID, 'test', '3', 'A', null, 'one', uniqueId]
         ]);
-        print([semestDateID, null, null, null, null, 'one', uniqueId]);
+
+        // print([semestDateID, null, null, null, null, 'one', uniqueId]);
+      });
+      _semestKeys = List.generate(allSemesters.length, (index) {
+        var uuid = Uuid();
+        var uniqueId = uuid.v1();
+        return GlobalObjectKey<_CourseState>(uniqueId);
       });
     }
+    calcCGPA();
   }
 
   callBackToUpdateAllSemestersList(List allSemest) {
@@ -86,11 +100,101 @@ class _HomePageGIState extends State<HomePageGI> {
       print([semestDateID, null, null, null, null, 'one', uniqueId]);
       _keySemester.currentState!
           .insertItem(insertIndex, duration: Duration(milliseconds: 0));
+      _semestKeys = List.generate(allSemesters.length, (index) {
+        var uuid = Uuid();
+        var uniqueId = uuid.v1();
+        return GlobalObjectKey<_CourseState>(uniqueId);
+      });
     });
+  }
+
+  void calcCGPA() {
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    setState(() {
+      CGPA = 0.0;
+      earnCredit = 0;
+      totalCredit = 0;
+    });
+// [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+    if (allSemesters.isNotEmpty) {
+      for (List semester in allSemesters) {
+        // semester = [[],[],]
+
+        for (List course in semester) {
+          // course = [ ]
+          print('course');
+          print(course);
+          if (course[1] != null && course[2] != null && course[3] != null) {
+            String grade1 = course[3];
+            int credit = int.parse(course[2]);
+            double pointOfGrade = 0.0;
+            double pointOfCourse = 0.0;
+            setState(() {
+              if (grade1 == 'A') {
+                pointOfGrade = 4.00;
+              } else if (grade1 == 'A-') {
+                pointOfGrade = 3.67;
+              } else if (grade1 == 'B+') {
+                pointOfGrade = 3.33;
+              } else if (grade1 == 'B') {
+                pointOfGrade = 3.00;
+              } else if (grade1 == 'B-') {
+                pointOfGrade = 2.67;
+              } else if (grade1 == 'C+') {
+                pointOfGrade = 2.33;
+              } else if (grade1 == 'C') {
+                pointOfGrade = 2.00;
+              } else if (grade1 == 'C-') {
+                pointOfGrade = 1.67;
+              } else if (grade1 == 'D+') {
+                pointOfGrade = 1.33;
+              } else if (grade1 == 'D') {
+                pointOfGrade = 1.00;
+              } else if (grade1 == 'F') {
+                pointOfGrade = 0.00;
+              } else if (grade1 == 'S') {
+                pointOfGrade = -1.00;
+              } else {
+                pointOfGrade = -2.00;
+              }
+            });
+            setState(() {
+              if (pointOfGrade >= 0.00) {
+                // not s/u course
+                totalCredit_without_SU = totalCredit_without_SU + credit;
+                totalCredit = totalCredit + credit;
+                pointOfCourse = pointOfGrade * credit;
+                totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+              } else {
+                // s/u course
+                totalCredit = totalCredit + credit;
+              }
+
+              if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+                //  passed course
+                earnCredit = earnCredit + credit;
+              }
+            });
+          }
+        }
+      }
+      setState(() {
+        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+          CGPA = 0.0;
+        } else {
+          CGPA = (totalPointsOfSemest / totalCredit_without_SU);
+        }
+      });
+    } else {
+      print('################## Empty CGPA#################');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // calcCGPA();
+    // print(allSemesters);
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -109,6 +213,7 @@ class _HomePageGIState extends State<HomePageGI> {
                         child: ListView(
                           shrinkWrap: true,
                           children: [
+                            AppBarHomeGI(CGPA, earnCredit, totalCredit),
                             AnimatedList(
                               shrinkWrap: true,
                               physics: ScrollPhysics(),
@@ -126,6 +231,9 @@ class _HomePageGIState extends State<HomePageGI> {
                                       _keySemester),
                                 );
                               },
+                            ),
+                            SizedBox(
+                              height: 50,
                             )
                           ],
                         ),
@@ -189,21 +297,18 @@ class _SemesterGIState extends State<SemesterGI> {
   String? creditMoreThanThree;
   String? creditEqZero;
 
+  double GPA = 0.0;
+  int earnCredit = 0;
+  int totalCredit = 0;
+  List allCoursesInSemstd = [];
+
   @override
   void initState() {
     super.initState();
 
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
-      // if (listOfCoursesInSemester.isEmpty) {
-      //   var uniqueId = uuid.v1();
-      //
-      //   setState(() {
-      //     listOfCoursesInSemester.add(
-      //         [widget.semesterId, null, null, null, null, 'one', uniqueId]);
-      //     print('theListAfterAdd:${listOfCoursesInSemester}');
-      //   });
-      // }
+      calcGPA();
     });
   }
 
@@ -356,8 +461,99 @@ class _SemesterGIState extends State<SemesterGI> {
           child: SemesterGI(deletedSemest, widget.semesterId, widget.index,
               widget._allSemestersKey),
         );
-      }, duration: Duration(milliseconds: 400q));
+      }, duration: Duration(milliseconds: 400));
     });
+  }
+
+  void calcGPA() {
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    setState(() {
+      GPA = 0.0;
+      earnCredit = 0;
+      totalCredit = 0;
+    });
+
+    List allCoursesInSemstd = [];
+    setState(() {
+      for (List list in listOfCoursesInSemester) {
+        if (list[1] != null && list[2] != null && list[3] != null) {
+          allCoursesInSemstd.add(list);
+        }
+      }
+    });
+    if (allCoursesInSemstd.isNotEmpty) {
+      for (var value in allCoursesInSemstd) {
+        String grade1 = value[3];
+        // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+        int credit = int.parse(value[2]);
+        double pointOfGrade = 0.0;
+        double pointOfCourse = 0.0;
+        setState(() {
+          if (grade1 == 'A') {
+            pointOfGrade = 4.00;
+          } else if (grade1 == 'A-') {
+            pointOfGrade = 3.67;
+          } else if (grade1 == 'B+') {
+            pointOfGrade = 3.33;
+          } else if (grade1 == 'B') {
+            pointOfGrade = 3.00;
+          } else if (grade1 == 'B-') {
+            pointOfGrade = 2.67;
+          } else if (grade1 == 'C+') {
+            pointOfGrade = 2.33;
+          } else if (grade1 == 'C') {
+            pointOfGrade = 2.00;
+          } else if (grade1 == 'C-') {
+            pointOfGrade = 1.67;
+          } else if (grade1 == 'D+') {
+            pointOfGrade = 1.33;
+          } else if (grade1 == 'D') {
+            pointOfGrade = 1.00;
+          } else if (grade1 == 'F') {
+            pointOfGrade = 0.00;
+          } else if (grade1 == 'S') {
+            pointOfGrade = -1.00;
+          } else {
+            pointOfGrade = -2.00;
+          }
+        });
+        setState(() {
+          if (pointOfGrade >= 0.00) {
+            // not s/u course
+            totalCredit_without_SU = totalCredit_without_SU + credit;
+            totalCredit = totalCredit + credit;
+            pointOfCourse = pointOfGrade * credit;
+            totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+          } else {
+            // s/u course
+            totalCredit = totalCredit + credit;
+          }
+
+          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+            //  passed course
+            earnCredit = earnCredit + credit;
+          }
+        });
+      }
+      setState(() {
+        if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+          GPA = 0.0;
+        } else {
+          GPA = (totalPointsOfSemest / totalCredit_without_SU);
+        }
+      });
+      print('################## semester #################');
+      print(allCoursesInSemstd);
+      print('GPA  : $GPA');
+      print('totalPointsOfSemest  : $totalPointsOfSemest');
+      print('totalCredit_without_SU  : $totalCredit_without_SU');
+      print('totalCredit  : $totalCredit');
+      print('earnCredit  : $earnCredit');
+    } else {
+      print('################## Empty #################');
+    }
   }
 
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
@@ -612,7 +808,7 @@ class _SemesterGIState extends State<SemesterGI> {
                             height: 5,
                           ),
                           Text(
-                            '0',
+                            '${GPA.toStringAsFixed(3)}',
                             style: TextStyle(
                               color: Color(0xff4562a7),
                               fontSize: 18,
@@ -633,7 +829,7 @@ class _SemesterGIState extends State<SemesterGI> {
                             height: 5,
                           ),
                           Text(
-                            '0 / 0',
+                            '$earnCredit / $totalCredit',
                             style: TextStyle(
                               color: Color(0xff4562a7),
                               fontSize: 18,
@@ -785,9 +981,7 @@ class _SemesterGIState extends State<SemesterGI> {
                           if (emptyField == null &&
                               creditEqZero == null &&
                               creditMoreThanThree == null) {
-                            // for (int i = 0;
-                            //     i < listOfCoursesInSemester.length;
-                            //     i++) {}
+                            calcGPA();
                             Display();
                             setState(() {
                               isChanged = false;
