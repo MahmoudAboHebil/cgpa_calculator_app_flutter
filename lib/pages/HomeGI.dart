@@ -8,8 +8,7 @@ import 'package:uuid/uuid.dart';
 
 // ToDo:  improve the design of grade GI
 
-// ToDo:  final step add the Calculation ()
-
+// ToDo:  final step add the Calculation (done-but there is no implementation to calc the second grade)
 // ToDo:  the calcCPA button disappear when adding a new semester (done)
 // ToDo: you must learn how to use callBack to improve the calcCGPA button to show up automatic
 class MyBehavior extends ScrollBehavior {
@@ -40,7 +39,7 @@ class HomePageGI extends StatefulWidget {
 
 class _HomePageGIState extends State<HomePageGI> {
   final _keySemester = GlobalKey<AnimatedListState>();
-  late List<GlobalObjectKey<_CourseState>> _semestKeys;
+  // late List<GlobalObjectKey<_CourseState>> _semestKeys;
 
   var uuid = Uuid();
 
@@ -68,11 +67,11 @@ class _HomePageGIState extends State<HomePageGI> {
 
         // print([semestDateID, null, null, null, null, 'one', uniqueId]);
       });
-      _semestKeys = List.generate(allSemesters.length, (index) {
-        var uuid = Uuid();
-        var uniqueId = uuid.v1();
-        return GlobalObjectKey<_CourseState>(uniqueId);
-      });
+      // _semestKeys = List.generate(allSemesters.length, (index) {
+      //   var uuid = Uuid();
+      //   var uniqueId = uuid.v1();
+      //   return GlobalObjectKey<_CourseState>(uniqueId);
+      // });
     }
     calcCGPA();
   }
@@ -100,11 +99,11 @@ class _HomePageGIState extends State<HomePageGI> {
       print([semestDateID, null, null, null, null, 'one', uniqueId]);
       _keySemester.currentState!
           .insertItem(insertIndex, duration: Duration(milliseconds: 0));
-      _semestKeys = List.generate(allSemesters.length, (index) {
-        var uuid = Uuid();
-        var uniqueId = uuid.v1();
-        return GlobalObjectKey<_CourseState>(uniqueId);
-      });
+      // _semestKeys = List.generate(allSemesters.length, (index) {
+      //   var uuid = Uuid();
+      //   var uniqueId = uuid.v1();
+      //   return GlobalObjectKey<_CourseState>(uniqueId);
+      // });
     });
   }
 
@@ -116,6 +115,8 @@ class _HomePageGIState extends State<HomePageGI> {
       earnCredit = 0;
       totalCredit = 0;
     });
+    print('#####################  CGPA ##########################');
+    print(allSemesters);
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
     if (allSemesters.isNotEmpty) {
       for (List semester in allSemesters) {
@@ -123,8 +124,8 @@ class _HomePageGIState extends State<HomePageGI> {
 
         for (List course in semester) {
           // course = [ ]
-          print('course');
-          print(course);
+          // print('course');
+          // print(course);
           if (course[1] != null && course[2] != null && course[3] != null) {
             String grade1 = course[3];
             int credit = int.parse(course[2]);
@@ -193,8 +194,6 @@ class _HomePageGIState extends State<HomePageGI> {
 
   @override
   Widget build(BuildContext context) {
-    // calcCGPA();
-    // print(allSemesters);
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -224,11 +223,12 @@ class _HomePageGIState extends State<HomePageGI> {
                                 return SizeTransition(
                                   sizeFactor: animation,
                                   key: UniqueKey(),
-                                  child: SemesterGI(
-                                      allSemesters[index],
-                                      allSemesters[index][0][0],
-                                      index,
-                                      _keySemester),
+                                  child: SemesterGI(allSemesters[index],
+                                      allSemesters[index][0][0], index, () {
+                                    setState(() {
+                                      calcCGPA();
+                                    });
+                                  }, _keySemester),
                                 );
                               },
                             ),
@@ -265,9 +265,10 @@ class SemesterGI extends StatefulWidget {
   List semesterCourses;
   String semesterId;
   int index;
+  Function calcCGPA;
   GlobalKey<AnimatedListState> _allSemestersKey;
-  SemesterGI(
-      this.semesterCourses, this.semesterId, this.index, this._allSemestersKey,
+  SemesterGI(this.semesterCourses, this.semesterId, this.index, this.calcCGPA,
+      this._allSemestersKey,
       {Key? key})
       : super(key: key);
 
@@ -305,7 +306,7 @@ class _SemesterGIState extends State<SemesterGI> {
   @override
   void initState() {
     super.initState();
-
+    // print('################hereee');
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
       calcGPA();
@@ -459,9 +460,11 @@ class _SemesterGIState extends State<SemesterGI> {
         return SlideTransition(
           position: animation.drive(_offset),
           child: SemesterGI(deletedSemest, widget.semesterId, widget.index,
-              widget._allSemestersKey),
+              () {}, widget._allSemestersKey),
         );
       }, duration: Duration(milliseconds: 400));
+
+      widget.calcCGPA();
     });
   }
 
@@ -544,15 +547,26 @@ class _SemesterGIState extends State<SemesterGI> {
           GPA = (totalPointsOfSemest / totalCredit_without_SU);
         }
       });
-      print('################## semester #################');
-      print(allCoursesInSemstd);
-      print('GPA  : $GPA');
-      print('totalPointsOfSemest  : $totalPointsOfSemest');
-      print('totalCredit_without_SU  : $totalCredit_without_SU');
-      print('totalCredit  : $totalCredit');
-      print('earnCredit  : $earnCredit');
+      // print('################## semester #################');
+      // print(allCoursesInSemstd);
+      // print('GPA  : $GPA');
+      // print('totalPointsOfSemest  : $totalPointsOfSemest');
+      // print('totalCredit_without_SU  : $totalCredit_without_SU');
+      // print('totalCredit  : $totalCredit');
+      // print('earnCredit  : $earnCredit');
     } else {
-      print('################## Empty #################');
+      print('################## Empty GPA #################');
+    }
+  }
+
+  bool isValide() {
+    findErrors();
+    if (emptyField == null &&
+        creditEqZero == null &&
+        creditMoreThanThree == null) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -932,8 +946,9 @@ class _SemesterGIState extends State<SemesterGI> {
                       listOfCoursesInSemester[index],
                       listOfCoursesInSemester,
                       callBackToUpdateTheCoursesList,
-                      callbackIsChanged,
-                      _keyAniListCourses),
+                      callbackIsChanged, () {
+                    widget.calcCGPA();
+                  }, _keyAniListCourses),
                 );
               },
               initialItemCount: listOfCoursesInSemester.length,
@@ -982,6 +997,7 @@ class _SemesterGIState extends State<SemesterGI> {
                               creditEqZero == null &&
                               creditMoreThanThree == null) {
                             calcGPA();
+                            widget.calcCGPA();
                             Display();
                             setState(() {
                               isChanged = false;
@@ -1055,6 +1071,7 @@ class Course extends StatefulWidget {
   List listCoursesInSemester;
   Function CallBackUpdateList;
   Function CallBackUpdateChange;
+  Function calcCGPA;
 
   GlobalKey<AnimatedListState> _keyAniSemest;
   Course(
@@ -1064,6 +1081,7 @@ class Course extends StatefulWidget {
       this.listCoursesInSemester,
       this.CallBackUpdateList,
       this.CallBackUpdateChange,
+      this.calcCGPA,
       this._keyAniSemest,
       {Key? key})
       : super(key: key);
@@ -1283,19 +1301,6 @@ class _CourseState extends State<Course> {
         'one',
         uniqueId
       ];
-      // List allSemesters = [
-      //   // // semester one
-      //   // [
-      //   //   ['1', null, null, null, null, 'one', '1'],
-      //   //   ['1', null, null, null, null, 'one', '2']
-      //   // ],
-      //   // // semester two
-      //   // [
-      //   //   ['2', null, null, null, null, 'one', '3']
-      //   // ],
-      //   // // semester three
-      // ];
-
       print('theListAfterUpdate:${widget.listCoursesInSemester}');
       allSemesters[widget.semesterIndex][widget.index] =
           widget.listCoursesInSemester[widget.index];
@@ -1314,14 +1319,18 @@ class _CourseState extends State<Course> {
               widget.listCoursesInSemester,
               widget.CallBackUpdateList,
               widget.CallBackUpdateChange,
+              () {},
               widget._keyAniSemest),
         );
       }, duration: Duration(milliseconds: 300));
       print('deletedCourse:$deletedCourse');
       print('theListAfterDeleting:${widget.listCoursesInSemester}');
     }
+    // widget.CallBackUpdateChange(true);
 
-    widget.CallBackUpdateChange(true);
+    Future.delayed(Duration(milliseconds: 320), () {
+      widget.calcCGPA();
+    });
 
 //###############################################################
     // if (widget.allSemesterss.length == 1 &&
@@ -1796,6 +1805,7 @@ class _CourseState extends State<Course> {
                     setState(() {
                       Future.delayed(Duration(milliseconds: 100), () {
                         deleteCourse();
+                        // widget.calcCGPA();
                       });
                     });
                   },
