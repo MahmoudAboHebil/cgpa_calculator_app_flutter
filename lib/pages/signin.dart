@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'HomeWithFireStore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'HomeWithFireStoreFinal.dart';
 
 class Siginin extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _SigininState extends State<Siginin> {
   String password = '';
   bool remember = true;
   bool pressed = false;
-
+  bool showProgress = false;
   void setDataCheckUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (remember) {
@@ -112,279 +113,288 @@ class _SigininState extends State<Siginin> {
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
-              body: Padding(
-                padding: EdgeInsets.fromLTRB(35, 50, 35, 0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Welcome back to',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 20,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'CGPA App!',
+              body: ModalProgressHUD(
+                inAsyncCall: showProgress,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(35, 50, 35, 0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Welcome back to',
                           style: TextStyle(
                             color: Color(0xff004d60),
-                            fontSize: 25,
+                            fontSize: 20,
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Enter the following details',
-                        style:
-                            TextStyle(color: Color(0xffce2029), fontSize: 18),
-                      ),
-                      Text(
-                        'to sign in...',
-                        style:
-                            TextStyle(color: Color(0xffce2029), fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 25,
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextField(
-                              keyboardType: TextInputType.emailAddress,
-                              controller: _controller1,
-                              onChanged: (text) {
-                                setState(() {
-                                  _errorText1;
-                                });
-                              },
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter Email',
-                                errorText: _errorText1,
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            child: TextField(
-                              controller: _controller2,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              onChanged: (text) {
-                                setState(() {
-                                  _errorText2;
-                                });
-                              },
-                              style: TextStyle(
-                                  fontSize: 18, color: Color(0xff004d60)),
-                              decoration: InputDecoration(
-                                hintText: 'Enter Password',
-                                errorText: _errorText2,
-                                hintStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff4562a7),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Switch(
-                                  value: remember,
-                                  onChanged: (value) async {
-                                    SharedPreferences prefs =
-                                        await SharedPreferences.getInstance();
-
-                                    setState(() {
-                                      remember = value;
-                                      prefs.setBool('check', value);
-                                    });
-                                  },
-                                  activeColor: Color(0xff4562a7),
-                                  activeTrackColor: Colors.white,
-                                  splashRadius: 0),
-                              Text(
-                                'Remember me',
-                                style: TextStyle(
-                                    color: Color(0xffce2029), fontSize: 15),
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SignUpPage(),
-                                  ));
-                            },
-                            child: Text(
-                              'Sign Up',
-                              style: TextStyle(
-                                  color: Color(0xffce2029), fontSize: 15),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Sign in',
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'CGPA App!',
                             style: TextStyle(
-                                color: Color(0xff4562a7),
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              setState(() {
-                                pressed = true;
-                              });
-
-                              var validate1 = _errorText1;
-                              var validate2 = _errorText2;
-                              if (validate1 == null && validate2 == null) {
-                                setState(() {
-                                  pressed = false;
-                                  email = _controller1.text;
-                                  password = _controller2.text;
-                                });
-                                try {
-                                  final user =
-                                      await _auth.signInWithEmailAndPassword(
-                                          email: email, password: password);
-                                  if (user != null) {
-                                    setRememberMy(email, password);
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => HomePage(),
-                                      ),
-                                      (route) => true,
-                                    );
-                                  }
-                                  _controller1.clear();
-                                  _controller2.clear();
-                                } catch (e) {
-                                  print(e);
-                                }
-
-                                // ScaffoldMessenger.of(context).showSnackBar(
-                                //   const SnackBar(
-                                //       content: Text('Processing Data')),
-                                // );
-                              }
-                            },
-                            child: Container(
-                              height: 50,
-                              width: 50,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                color: Colors.white,
-                              ),
-                              child: Icon(
-                                Icons.arrow_forward_rounded,
-                                color: Color(0xff4562a7),
-                                size: 30,
-                              ),
+                              color: Color(0xff004d60),
+                              fontSize: 25,
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 270,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'OR | Sign in with',
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'Enter the following details',
                           style:
                               TextStyle(color: Color(0xffce2029), fontSize: 18),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.facebook,
-                            color: Color(0xff4562a7),
-                            size: 50,
+                        Text(
+                          'to sign in...',
+                          style:
+                              TextStyle(color: Color(0xffce2029), fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 25,
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 0, vertical: 10),
+                              child: TextField(
+                                keyboardType: TextInputType.emailAddress,
+                                controller: _controller1,
+                                onChanged: (text) {
+                                  setState(() {
+                                    _errorText1;
+                                  });
+                                },
+                                style: TextStyle(
+                                    fontSize: 18, color: Color(0xff004d60)),
+                                decoration: InputDecoration(
+                                  hintText: 'Enter Email',
+                                  errorText: _errorText1,
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0xff4562a7),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 0, vertical: 10),
+                              child: TextField(
+                                controller: _controller2,
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                onChanged: (text) {
+                                  setState(() {
+                                    _errorText2;
+                                  });
+                                },
+                                style: TextStyle(
+                                    fontSize: 18, color: Color(0xff004d60)),
+                                decoration: InputDecoration(
+                                  hintText: 'Enter Password',
+                                  errorText: _errorText2,
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0xff4562a7),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Switch(
+                                    value: remember,
+                                    onChanged: (value) async {
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
+
+                                      setState(() {
+                                        remember = value;
+                                        prefs.setBool('check', value);
+                                      });
+                                    },
+                                    activeColor: Color(0xff4562a7),
+                                    activeTrackColor: Colors.white,
+                                    splashRadius: 0),
+                                Text(
+                                  'Remember me',
+                                  style: TextStyle(
+                                      color: Color(0xffce2029), fontSize: 15),
+                                ),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUpPage(),
+                                    ));
+                              },
+                              child: Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                    color: Color(0xffce2029), fontSize: 15),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Sign in',
+                              style: TextStyle(
+                                  color: Color(0xff4562a7),
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                setState(() {
+                                  pressed = true;
+                                });
+
+                                var validate1 = _errorText1;
+                                var validate2 = _errorText2;
+                                if (validate1 == null && validate2 == null) {
+                                  setState(() {
+                                    pressed = false;
+                                    email = _controller1.text;
+                                    password = _controller2.text;
+                                    showProgress = true;
+                                  });
+
+                                  try {
+                                    final user =
+                                        await _auth.signInWithEmailAndPassword(
+                                            email: email, password: password);
+                                    if (user != null) {
+                                      setRememberMy(email, password);
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePageFin(),
+                                        ),
+                                        (route) => true,
+                                      );
+                                    }
+                                    _controller1.clear();
+                                    _controller2.clear();
+
+                                    setState(() {
+                                      showProgress = false;
+                                    });
+                                  } catch (e) {
+                                    print(e);
+                                  }
+
+                                  // ScaffoldMessenger.of(context).showSnackBar(
+                                  //   const SnackBar(
+                                  //       content: Text('Processing Data')),
+                                  // );
+                                }
+                              },
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Colors.white,
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Color(0xff4562a7),
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 270,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'OR | Sign in with',
+                            style: TextStyle(
+                                color: Color(0xffce2029), fontSize: 18),
                           ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            height: 43,
-                            width: 43,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.facebook,
                               color: Color(0xff4562a7),
+                              size: 50,
                             ),
-                            child: FaIcon(
-                              FontAwesomeIcons.twitter,
-                              color: Color(0xffb8c8d1),
-                              size: 25,
+                            SizedBox(
+                              width: 20,
                             ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            height: 43,
-                            width: 43,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: Color(0xff4562a7),
+                            Container(
+                              height: 43,
+                              width: 43,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Color(0xff4562a7),
+                              ),
+                              child: FaIcon(
+                                FontAwesomeIcons.twitter,
+                                color: Color(0xffb8c8d1),
+                                size: 25,
+                              ),
                             ),
-                            child: FaIcon(
-                              FontAwesomeIcons.googlePlusG,
-                              color: Color(0xffb8c8d1),
-                              size: 25,
+                            SizedBox(
+                              width: 20,
                             ),
-                          ),
-                        ],
-                      )
-                    ],
+                            Container(
+                              height: 43,
+                              width: 43,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Color(0xff4562a7),
+                              ),
+                              child: FaIcon(
+                                FontAwesomeIcons.googlePlusG,
+                                color: Color(0xffb8c8d1),
+                                size: 25,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

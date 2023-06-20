@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'pages/HomeGI.dart';
+import 'pages/welcome.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
             textSelectionTheme: TextSelectionThemeData(
                 selectionColor: Colors.transparent,
                 selectionHandleColor: Colors.transparent)),
-        home: HomePageGI(),
+        home: WelcomePage(),
       ),
     );
   }

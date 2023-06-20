@@ -9,6 +9,7 @@ import 'package:cgp_calculator/providerBrain.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:uuid/uuid.dart';
+
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
 // ToDo: add semester button (done)
@@ -104,39 +105,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  bool vale = true;
   void getCurrentUser() async {
     try {
       final user = await _auth.currentUser;
-
       if (user != null) {
         bool exist = await checkExist('${user.email}');
-        print('##########   ############');
-        print(exist);
         setState(() {
           loggedInUser = user;
-
           if (!exist) {
-            // ToDo: add first the User documents in dataBase (done)
             setNewUser(user);
           } else {
             _courses = FirebaseFirestore.instance
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
-            // setData();
-            // setState(() {
-            //   allSemestData;
-            // });
-            // print('#######################################');
-            // Future.delayed(Duration(milliseconds: 100), () {
-            //   print(allSemestData);
-            // });
           }
-
-          // isCoursesIsEmpty(user);
         });
-
         print(loggedInUser!.email);
       }
     } catch (e) {
