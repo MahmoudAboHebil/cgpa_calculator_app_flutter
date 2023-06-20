@@ -246,6 +246,7 @@ class _HomePageGIState extends State<HomePageGI> {
                 child: FloatingActionButton(
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
+                    calcCGPA();
                     addSemester();
                   },
                   child: Icon(
