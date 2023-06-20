@@ -6,8 +6,7 @@ import 'package:uuid/uuid.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 
-// ToDo:  improve the design of grade GI
-
+// ToDo:  improve the design of grade GI (done)
 // ToDo:  final step add the Calculation (done-but there is no implementation to calc the second grade)
 // ToDo:  the calcCPA button disappear when adding a new semester (done)
 // ToDo: you must learn how to use callBack to improve the calcCGPA button to show up automatic
@@ -998,7 +997,7 @@ class _SemesterGIState extends State<SemesterGI> {
                               creditMoreThanThree == null) {
                             calcGPA();
                             widget.calcCGPA();
-                            Display();
+                            // Display();
                             setState(() {
                               isChanged = false;
                             });
@@ -1412,7 +1411,7 @@ class _CourseState extends State<Course> {
                                       width: 1)),
                             ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 selectedValue1 == null
                                     ? Text(
@@ -1476,7 +1475,7 @@ class _CourseState extends State<Course> {
                           },
                           dropdownStyleData: DropdownStyleData(
                             maxHeight: 200,
-                            width: 70,
+                            width: 60,
                             padding: null,
                             elevation: 2,
                             decoration: BoxDecoration(
@@ -1488,7 +1487,7 @@ class _CourseState extends State<Course> {
                               //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
                               // ],
                             ),
-                            offset: const Offset(20, 0),
+                            offset: const Offset(0, 0),
                             scrollbarTheme: ScrollbarThemeData(
                               radius: const Radius.circular(40),
                               thickness: MaterialStateProperty.all(0),
@@ -1522,7 +1521,7 @@ class _CourseState extends State<Course> {
                                     width: 1)),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               selectedValue2 == null
                                   ? Text(
@@ -1586,7 +1585,7 @@ class _CourseState extends State<Course> {
                         },
                         dropdownStyleData: DropdownStyleData(
                           maxHeight: 200,
-                          width: 70,
+                          width: 60,
                           padding: null,
                           elevation: 2,
                           decoration: BoxDecoration(
@@ -1598,7 +1597,7 @@ class _CourseState extends State<Course> {
                             //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
                             // ],
                           ),
-                          offset: const Offset(20, 0),
+                          offset: const Offset(-10, 0),
                           scrollbarTheme: ScrollbarThemeData(
                             radius: const Radius.circular(40),
                             thickness: MaterialStateProperty.all(0),
