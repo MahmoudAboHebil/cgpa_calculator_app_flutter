@@ -96,43 +96,38 @@ class _HomePageFinState extends State<HomePageFin> {
   void getDataFromDB() async {
     getCurrentUser();
     List data = await getDocs();
-    bool isUserNull = loggedInUser == null;
+    bool isUserNull = true;
+    if (loggedInUser != null) {
+      isUserNull = false;
+    }
     bool val = true;
     if (allSemesters.isEmpty) {
       if (val & !isUserNull) {
         setState(() {
-          addCourseInDB('first', 'first', null, null, null, null, 'one');
+          addCourseInDB('init', 'init', null, null, null, null, 'one');
         });
         val = false;
       }
     }
 
-    bool vale = true;
-    if (data.isNotEmpty && vale) {
+    if (data.isNotEmpty) {
       setState(() {
-        vale = false;
+        showSpinner = false;
         List valList = [];
         for (List semester in data) {
-          if (semester[0][0] != 'first') {
+          if (semester[0][0] != 'init') {
             valList.add(semester);
           }
         }
         if (valList.isEmpty) {
-          String year = DateTime.now().year.toString();
-          String month = DateTime.now().month.toString();
-          String minute = DateTime.now().minute.toString();
-          String second = DateTime.now().second.toString();
-          String semestDateID = '$year-$month-$minute-$second';
-          var uniqueId = uuid.v1();
           allSemesters = [
             [
-              [semestDateID, null, null, null, null, 'one', uniqueId]
+              ['firstSemester', null, null, null, null, 'one', 'firstCourse']
             ]
           ];
         } else {
           allSemesters = valList;
         }
-        showSpinner = false;
       });
     }
   }
@@ -214,17 +209,20 @@ class _HomePageFinState extends State<HomePageFin> {
         });
       });
       setState(() {
-        keySemesters = keySemesters.toSet().toList();
+        if (keySemesters.isNotEmpty) {
+          keySemesters = keySemesters.toSet().toList();
+        }
       });
       for (int i = 0; i < keySemesters.length; i++) {
         listS.add(await getSemesterCourses(keySemesters[i]));
       }
     }
-    if (listS.length == keySemesters.length && listS[0].isNotEmpty) {
-      return listS;
-    } else {
-      return [];
+    if (listS.isNotEmpty) {
+      if (listS.length == keySemesters.length && listS[0].isNotEmpty) {
+        return listS;
+      }
     }
+    return [];
   }
 
   Future<List> getSemesterCourses(String ID) async {
@@ -264,9 +262,11 @@ class _HomePageFinState extends State<HomePageFin> {
     setState(() {
       String year = DateTime.now().year.toString();
       String month = DateTime.now().month.toString();
+      String day = DateTime.now().day.toString();
+      String hour = DateTime.now().hour.toString();
       String minute = DateTime.now().minute.toString();
       String second = DateTime.now().second.toString();
-      String semestDateID = '$year-$month-$minute-$second';
+      String semestDateID = '$year-$month-$day-$hour-$minute-$second';
       int insertIndex =
           allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
 
@@ -1545,9 +1545,19 @@ class _CourseFinState extends State<CourseFin> {
           'one',
           courseID
         ];
+        _controller_Credit = TextEditingController();
+        _controller_Name = TextEditingController();
+        selectedValue2 = null;
+        selectedValue1 = null;
+        name = '';
+        credit = '';
+        type = 'one';
+        val = false;
+        selectedValueIs1Null = false;
+        selectedValueIs2Null = false;
       });
 
-      // deleteCourseFromDB(courseID);
+      updateData(semesterID, courseID, null, null, null, null, 'one');
       // addCourseInDB(semesterID, courseID, null, null, null, null, 'one');
       print('theListAfterUpdate:${widget.listCoursesInSemester}');
       allSemesters[widget.semesterIndex][widget.index] =
@@ -1555,7 +1565,7 @@ class _CourseFinState extends State<CourseFin> {
       widget.CallBackUpdateList(widget.listCoursesInSemester);
     } else {
       List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
-      // deleteCourseFromDB(courseID);
+      deleteCourseFromDB(courseID);
       widget.CallBackUpdateList(widget.listCoursesInSemester);
       widget._keyAniSemest.currentState!.removeItem(widget.index,
           (context, animation) {
