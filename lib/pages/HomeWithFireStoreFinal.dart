@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:collection/collection.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 class MyBehavior extends ScrollBehavior {
@@ -15,6 +16,8 @@ class MyBehavior extends ScrollBehavior {
     return child;
   }
 }
+
+bool showSpinner = true;
 
 List allSemesters = [
   // // semester one
@@ -30,8 +33,9 @@ List allSemesters = [
 ];
 User? loggedInUser;
 CollectionReference? _courses;
-void addCourseInDB(String semestId, String courseId, String? name,
-    String? credit, String? grade1, String? grade2, String type) async {
+
+void addCourseInDB(int semestID, String courseId, String? name, String? credit,
+    String? grade1, String? grade2, String type) async {
   await FirebaseFirestore.instance
       .collection('UsersCourses')
       .doc('${loggedInUser!.email}')
@@ -42,9 +46,9 @@ void addCourseInDB(String semestId, String courseId, String? name,
     'credit': credit,
     'grade1': grade1,
     'grade2': grade2,
-    'semestId': semestId,
+    'semestId': semestID,
     'type': type,
-    'id': courseId
+    'id': courseId,
   });
 }
 
@@ -61,7 +65,7 @@ void updateData(var semestId, var courseId, var name, var credit, var grade1,
   });
 }
 
-void deleteSemesterFromDB(String semesterId) async {
+void deleteSemesterFromDB(int semesterId) async {
   await _courses!.get().then((QuerySnapshot querySnapshot) {
     querySnapshot.docs.forEach((doc) {
       final DocumentSnapshot course = doc;
@@ -91,50 +95,21 @@ class _HomePageFinState extends State<HomePageFin> {
   double CGPA = 0.0;
   int earnCredit = 0;
   int totalCredit = 0;
-  bool showSpinner = true;
-
-  void getDataFromDB() async {
-    getCurrentUser();
-    List data = await getDocs();
-    bool isUserNull = true;
-    if (loggedInUser != null) {
-      isUserNull = false;
-    }
-    bool val = true;
-    if (allSemesters.isEmpty) {
-      if (val & !isUserNull) {
-        setState(() {
-          addCourseInDB('init', 'init', null, null, null, null, 'one');
-        });
-        val = false;
-      }
-    }
-
-    if (data.isNotEmpty) {
-      setState(() {
-        showSpinner = false;
-        List valList = [];
-        for (List semester in data) {
-          if (semester[0][0] != 'init') {
-            valList.add(semester);
-          }
-        }
-        if (valList.isEmpty) {
-          allSemesters = [
-            [
-              ['firstSemester', null, null, null, null, 'one', 'firstCourse']
-            ]
-          ];
-        } else {
-          allSemesters = valList;
-        }
-      });
-    }
-  }
+  bool flag = true;
+  // bool showSpinner2 = true;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _courses = null;
+      loggedInUser = null;
+      showSpinner = true;
+      allSemesters.clear();
+    });
+    print('##############VVVVVVVVVVVV');
+    print(allSemesters);
+    getCurrentUser();
   }
 
   static Future<bool> checkExist(String docID) async {
@@ -162,7 +137,17 @@ class _HomePageFinState extends State<HomePageFin> {
     await FirebaseFirestore.instance
         .collection('UsersCourses')
         .doc('${user.email}')
-        .collection('courses');
+        .collection('courses')
+        .doc('init')
+        .set({
+      'courseName': null,
+      'credit': null,
+      'grade1': null,
+      'grade2': null,
+      'semestId': -1,
+      'type': 'one',
+      'id': 'init',
+    });
 
     setState(() {
       _courses = FirebaseFirestore.instance
@@ -173,6 +158,9 @@ class _HomePageFinState extends State<HomePageFin> {
   }
 
   void getCurrentUser() async {
+    setState(() {
+      showSpinner = true;
+    });
     try {
       final user = await _auth.currentUser;
       if (user != null) {
@@ -190,65 +178,106 @@ class _HomePageFinState extends State<HomePageFin> {
         });
         // print(loggedInUser!.email);
       }
+      setState(() {
+        showSpinner = false;
+      });
     } catch (e) {
       print(e);
     }
   }
 
-  Future<List> getDocs() async {
-    List listS = [];
-    setState(() {
-      keySemesters = [];
-    });
+  int maxSemester = 0;
+  Widget Content() {
     if (_courses != null) {
-      await _courses!.get().then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          setState(() {
-            keySemesters.add(doc['semestId']);
-          });
-        });
-      });
-      setState(() {
-        if (keySemesters.isNotEmpty) {
-          keySemesters = keySemesters.toSet().toList();
-        }
-      });
-      for (int i = 0; i < keySemesters.length; i++) {
-        listS.add(await getSemesterCourses(keySemesters[i]));
-      }
+      return StreamBuilder(
+        stream: _courses!.snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+          if (streamSnapshot.hasData) {
+            List<int> keys = [];
+            for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+              final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+
+              keys.add(course['semestId']);
+            }
+            maxSemester = keys.max;
+            keys = keys.toSet().toList();
+            keys.sort();
+            keys.remove(-1);
+            if (flag) {
+              for (int i = 0; i < keys.length; i++) {
+                if (allSemesters.length < keys.length) {
+                  allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
+                }
+              }
+              if (allSemesters.isEmpty) {
+                print('jerrrrrrrrrrrrrrr');
+                allSemesters = [
+                  [
+                    [
+                      1,
+                      null,
+                      null,
+                      null,
+                      null,
+                      'one',
+                      'firstCourse',
+                    ]
+                  ]
+                ];
+                addCourseInDB(1, 'firstCourse', null, null, null, null, 'one');
+              }
+              flag = false;
+            }
+
+            return AnimatedList(
+              shrinkWrap: true,
+              physics: ScrollPhysics(),
+              initialItemCount: allSemesters.length,
+              key: _keySemester,
+              itemBuilder: (context, index, animation) {
+                // print(allSemesters);
+                return SizeTransition(
+                  sizeFactor: animation,
+                  key: UniqueKey(),
+                  child: allSemesters.isNotEmpty
+                      ? SemesterFin(
+                          allSemesters[index], allSemesters[index][0][0], index,
+                          () {
+                          // setState(() {
+                          //   calcCGPA();
+                          // });
+                        }, _keySemester)
+                      : Container(),
+                );
+              },
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
+    } else {
+      return Container();
     }
-    if (listS.isNotEmpty) {
-      if (listS.length == keySemesters.length && listS[0].isNotEmpty) {
-        return listS;
-      }
-    }
-    return [];
   }
 
-  Future<List> getSemesterCourses(String ID) async {
+  List getSemesterCourses(int ID, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
     List courses = [];
-
-    if (_courses != null) {
-      await _courses!.get().then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          final DocumentSnapshot course = doc;
-          setState(() {
-            if (course['semestId'] == ID) {
-              courses.add([
-                course['semestId'],
-                course['courseName'],
-                course['credit'],
-                course['grade1'],
-                course['grade2'],
-                course['type'],
-                course['id'],
-              ]);
-            }
-          });
-        });
-      });
+    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+      final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+      if (course['semestId'] == ID && course.id != 'init') {
+        courses.add([
+          course['semestId'],
+          course['courseName'],
+          course['credit'],
+          course['grade1'],
+          course['grade2'],
+          course['type'],
+          course['id'],
+        ]);
+      }
     }
-
+    // print(courses);
     return courses;
   }
 
@@ -260,22 +289,22 @@ class _HomePageFinState extends State<HomePageFin> {
 
   void addSemester() {
     setState(() {
-      String year = DateTime.now().year.toString();
-      String month = DateTime.now().month.toString();
-      String day = DateTime.now().day.toString();
-      String hour = DateTime.now().hour.toString();
-      String minute = DateTime.now().minute.toString();
-      String second = DateTime.now().second.toString();
-      String semestDateID = '$year-$month-$day-$hour-$minute-$second';
+      // String year = DateTime.now().year.toString();
+      // String month = DateTime.now().month.toString();
+      // String day = DateTime.now().day.toString();
+      // String hour = DateTime.now().hour.toString();
+      // String minute = DateTime.now().minute.toString();
+      // String second = DateTime.now().second.toString();
+      // String semestDateID = '$year-$month-$day-$hour-$minute-$second';
       int insertIndex =
           allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
 
       var uniqueId = uuid.v1();
       allSemesters.add([
-        [semestDateID, null, null, null, null, 'one', uniqueId]
+        [maxSemester + 1, null, null, null, null, 'one', uniqueId]
       ]);
-      print([semestDateID, null, null, null, null, 'one', uniqueId]);
-      addCourseInDB(semestDateID, uniqueId, null, null, null, null, 'one');
+      print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
+      addCourseInDB(maxSemester + 1, uniqueId, null, null, null, null, 'one');
       _keySemester.currentState!
           .insertItem(insertIndex, duration: Duration(milliseconds: 0));
     });
@@ -368,12 +397,6 @@ class _HomePageFinState extends State<HomePageFin> {
 
   @override
   Widget build(BuildContext context) {
-    if (showSpinner) {
-      getDataFromDB();
-      setState(() {
-        allSemesters;
-      });
-    }
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -394,33 +417,12 @@ class _HomePageFinState extends State<HomePageFin> {
                             child: ListView(
                               shrinkWrap: true,
                               children: [
-                                AppBarHomeFin(CGPA, earnCredit, totalCredit),
-                                !showSpinner
-                                    ? AnimatedList(
-                                        shrinkWrap: true,
-                                        physics: ScrollPhysics(),
-                                        initialItemCount: allSemesters.length,
-                                        key: _keySemester,
-                                        itemBuilder:
-                                            (context, index, animation) {
-                                          // print(
-                                          //     '55555555555555555555555555555');
-                                          // print(allSemesters.length);
-                                          return SizeTransition(
-                                            sizeFactor: animation,
-                                            key: UniqueKey(),
-                                            child: SemesterFin(
-                                                allSemesters[index],
-                                                allSemesters[index][0][0],
-                                                index, () {
-                                              // setState(() {
-                                              //   calcCGPA();
-                                              // });
-                                            }, _keySemester),
-                                          );
-                                        },
-                                      )
-                                    : Container(),
+                                AppBarHomeFin(
+                                  CGPA,
+                                  earnCredit,
+                                  totalCredit,
+                                ),
+                                showSpinner ? Container() : Content(),
                                 SizedBox(
                                   height: 50,
                                 )
@@ -453,7 +455,7 @@ class _HomePageFinState extends State<HomePageFin> {
 
 class SemesterFin extends StatefulWidget {
   List semesterCourses;
-  String semesterId;
+  int semesterId;
   int index;
   Function calcCGPA;
   GlobalKey<AnimatedListState> _allSemestersKey;
@@ -640,7 +642,6 @@ class _SemesterFinState extends State<SemesterFin> {
       listOfCoursesInSemester
           .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
       allSemesters[widget.index] = listOfCoursesInSemester;
-      addCourseInDB(widget.semesterId, uniqueId, null, null, null, null, 'one');
     });
     _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
       var uuid = Uuid();
@@ -653,12 +654,17 @@ class _SemesterFinState extends State<SemesterFin> {
     _keyAniListCourses.currentState!
         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
     print('theListAfterAdd:${listOfCoursesInSemester}');
+    Future.delayed(Duration(milliseconds: 270), () {
+      addCourseInDB(widget.semesterId, uniqueId, null, null, null, null, 'one');
+    });
   }
 
   void deleteSemester() {
     setState(() {
       List deletedSemest = allSemesters.removeAt(widget.index);
       deleteSemesterFromDB(widget.semesterId);
+      print('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
+      print(widget.semesterId);
       widget._allSemestersKey.currentState!.removeItem(widget.index,
           (context, animation) {
         return SlideTransition(
@@ -1311,7 +1317,7 @@ class _CourseFinState extends State<CourseFin> {
 
   late String? selectedValue1;
   late String? selectedValue2;
-  String semesterID = '';
+  int semesterID = 0;
   String courseID = '';
   String? name = '';
   String? credit = '';
@@ -1565,7 +1571,6 @@ class _CourseFinState extends State<CourseFin> {
       widget.CallBackUpdateList(widget.listCoursesInSemester);
     } else {
       List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
-      deleteCourseFromDB(courseID);
       widget.CallBackUpdateList(widget.listCoursesInSemester);
       widget._keyAniSemest.currentState!.removeItem(widget.index,
           (context, animation) {
@@ -1577,13 +1582,16 @@ class _CourseFinState extends State<CourseFin> {
               deletedCourse,
               widget.listCoursesInSemester,
               widget.CallBackUpdateList,
-              widget.CallBackUpdateChange,
+              () {},
               () {},
               widget._keyAniSemest),
         );
       }, duration: Duration(milliseconds: 300));
-      print('deletedCourse:$deletedCourse');
-      print('theListAfterDeleting:${widget.listCoursesInSemester}');
+      Future.delayed(Duration(milliseconds: 310), () {
+        deleteCourseFromDB(courseID);
+        print('deletedCourse:$deletedCourse');
+        print('theListAfterDeleting:${widget.listCoursesInSemester}');
+      });
     }
 
     setState(() {
@@ -2214,11 +2222,8 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                   GestureDetector(
                     onTap: () {
                       _signOut();
-                      Future.delayed(Duration(milliseconds: 200), () {
-                        allSemesters = [];
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      });
+                      Navigator.pop(context);
+                      Navigator.pop(context);
                     },
                     child: Icon(
                       Icons.arrow_back_ios_new,
