@@ -1,23 +1,16 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cgp_calculator/pages/signin.dart';
 // import 'package:flutter/material.dart';
-// import 'package:flutter/rendering.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:flutter/services.dart';
 // import 'package:percent_indicator/percent_indicator.dart';
-// import 'package:provider/provider.dart';
-// import 'package:cgp_calculator/providerBrain.dart';
-// import 'package:collection/collection.dart';
 // import 'package:dropdown_button2/src/dropdown_button2.dart';
 // import 'package:uuid/uuid.dart';
-// import 'signin.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+// import 'package:collection/collection.dart';
+//
 // // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
-//
-// // ToDo: add semester button (done)
-// // ToDo: there is error  when delete all semesters (done)
-// // ToDo: build GPA semester method  (done)
-//
-// // ToDo: build the calc-CGPA method (done-but there is no implementation to calc the second grade)
-//
+// // ToDo:  the calcCPA button disappear when adding a new semester (done - but there is a Special case when removing a course)
 // class MyBehavior extends ScrollBehavior {
 //   @override
 //   Widget buildOverscrollIndicator(
@@ -26,39 +19,110 @@
 //   }
 // }
 //
+// bool showSpinner = true;
+//
+// List allSemesters = [
+//   // // semester one
+//   // [
+//   //   ['1', null, null, null, null, 'one', '1'],
+//   //   ['1', null, null, null, null, 'one', '2']
+//   // ],
+//   // // semester two
+//   // [
+//   //   ['2', null, null, null, null, 'one', '3']
+//   // ],
+//   // // semester three
+// ];
 // User? loggedInUser;
-// bool signOut = false;
-// List allSemestData = [];
+// CollectionReference? _courses;
 //
-// // GlobalKey<FirebaseAnimatedListState> _semestKey=GlobalKey<FirebaseAnimatedListState>();
-// Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
-//
-// class HomePage extends StatefulWidget {
-//   @override
-//   State<HomePage> createState() => _HomePageState();
+// void addCourseInDB(int semestID, String courseId, String? name, String? credit,
+//     String? grade1, String? grade2, String type) async {
+//   await FirebaseFirestore.instance
+//       .collection('UsersCourses')
+//       .doc('${loggedInUser!.email}')
+//       .collection('courses')
+//       .doc(courseId)
+//       .set({
+//     'courseName': name,
+//     'credit': credit,
+//     'grade1': grade1,
+//     'grade2': grade2,
+//     'semestId': semestID,
+//     'type': type,
+//     'id': courseId,
+//   });
 // }
 //
-// class _HomePageState extends State<HomePage> {
-//   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-//   CollectionReference? _courses;
+// void updateData(var semestId, var courseId, var name, var credit, var grade1,
+//     var grade2, var type) async {
+//   await _courses!.doc(courseId).set({
+//     'id': courseId,
+//     'courseName': name,
+//     'credit': credit,
+//     'grade1': grade1,
+//     'grade2': grade2,
+//     'semestId': semestId,
+//     'type': '$type',
+//   });
+// }
 //
-//   // FirebaseFirestore.instance
-//   //     .collection('UsersCourses')
-//   //     .doc('init')
-//   //     .collection('courses');
+// void deleteSemesterFromDB(int semesterId) async {
+//   await _courses!.get().then((QuerySnapshot querySnapshot) {
+//     querySnapshot.docs.forEach((doc) {
+//       final DocumentSnapshot course = doc;
+//       if (course['semestId'] == semesterId) {
+//         String id = course.id;
+//         _courses!.doc(id).delete();
+//       }
+//     });
+//   });
+// }
 //
+// void deleteCourseFromDB(String courseId) async {
+//   _courses!.doc(courseId).delete();
+// }
+//
+// class HomePageFin extends StatefulWidget {
+//   @override
+//   State<HomePageFin> createState() => _HomePageFinState();
+// }
+//
+// class _HomePageFinState extends State<HomePageFin> {
+//   final _keySemester = GlobalKey<AnimatedListState>();
 //   final _auth = FirebaseAuth.instance;
-//
-//   Future<void> _signOut() async {
-//     await FirebaseAuth.instance.signOut();
+//   List<bool> isChangeList = [];
+//   List keySemesters = [];
+//   var uuid = Uuid();
+//   bool _visible = true;
+//   double CGPA = 0.0;
+//   int earnCredit = 0;
+//   int totalCredit = 0;
+//   bool flag = true;
+//   // bool showSpinner2 = true;
+//   callBackChangeList(int index, bool value, remove) {
+//     setState(() {
+//       if (remove) {
+//         isChangeList.removeAt(index);
+//       } else {
+//         isChangeList[index] = value;
+//       }
+//     });
 //   }
 //
-//   List allCourse = [];
-//   List<String> Ids = [];
-//   int numbersOfSemester = 0;
-//
-//   Stream stream = Stream.empty();
-//   List currentMessageList = [];
+//   @override
+//   void initState() {
+//     super.initState();
+//     setState(() {
+//       _courses = null;
+//       loggedInUser = null;
+//       showSpinner = true;
+//       allSemesters.clear();
+//     });
+//     print('##############VVVVVVVVVVVV');
+//     print(allSemesters);
+//     getCurrentUser();
+//   }
 //
 //   static Future<bool> checkExist(String docID) async {
 //     bool exist = false;
@@ -92,9 +156,11 @@
 //       'credit': null,
 //       'grade1': null,
 //       'grade2': null,
-//       'semestId': 1,
-//       'type': 'one'
+//       'semestId': -1,
+//       'type': 'one',
+//       'id': 'init',
 //     });
+//
 //     setState(() {
 //       _courses = FirebaseFirestore.instance
 //           .collection('UsersCourses')
@@ -103,82 +169,129 @@
 //     });
 //   }
 //
-//   bool vale = true;
 //   void getCurrentUser() async {
+//     setState(() {
+//       showSpinner = true;
+//     });
 //     try {
 //       final user = await _auth.currentUser;
-//
 //       if (user != null) {
 //         bool exist = await checkExist('${user.email}');
-//         print('##########   ############');
-//         print(exist);
 //         setState(() {
 //           loggedInUser = user;
-//
 //           if (!exist) {
-//             // ToDo: add first the User documents in dataBase (done)
 //             setNewUser(user);
 //           } else {
 //             _courses = FirebaseFirestore.instance
 //                 .collection('UsersCourses')
 //                 .doc('${user.email}')
 //                 .collection('courses');
-//             // setData();
-//             // setState(() {
-//             //   allSemestData;
-//             // });
-//             // print('#######################################');
-//             // Future.delayed(Duration(milliseconds: 100), () {
-//             //   print(allSemestData);
-//             // });
 //           }
-//
-//           // isCoursesIsEmpty(user);
 //         });
-//
-//         print(loggedInUser!.email);
+//         // print(loggedInUser!.email);
 //       }
+//       setState(() {
+//         showSpinner = false;
+//       });
 //     } catch (e) {
 //       print(e);
 //     }
 //   }
 //
-//   int lengthOfDocuments = 0;
-//   List keySemesters = [];
-//   Future getDocs() async {
-//     if (!signOut) {
-//       setState(() {
-//         lengthOfDocuments = 0;
-//         keySemesters = [];
-//       });
-//       if (_courses != null) {
-//         await _courses!.get().then((QuerySnapshot querySnapshot) {
-//           querySnapshot.docs.forEach((doc) {
-//             setState(() {
-//               keySemesters.add(doc['semestId']);
-//               lengthOfDocuments++;
-//             });
-//           });
-//         });
-//         // print(
-//         //     '################   $lengthOfDocuments ###############################');
-//         setState(() {
-//           keySemesters = keySemesters.toSet().toList();
-//         });
-//       }
+//   int maxSemester = 0;
+//   Widget Content() {
+//     if (_courses != null) {
+//       return StreamBuilder(
+//         stream: _courses!.snapshots(),
+//         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+//           if (streamSnapshot.hasData) {
+//             List<int> keys = [];
+//             for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+//               final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+//
+//               keys.add(course['semestId']);
+//             }
+//             maxSemester = keys.max;
+//             keys = keys.toSet().toList();
+//             keys.sort();
+//             keys.remove(-1);
+//             if (flag) {
+//               for (int i = 0; i < keys.length; i++) {
+//                 if (allSemesters.length < keys.length) {
+//                   allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
+//                 }
+//               }
+//               if (allSemesters.isEmpty) {
+//                 print('jerrrrrrrrrrrrrrr');
+//                 allSemesters = [
+//                   [
+//                     [
+//                       1,
+//                       null,
+//                       null,
+//                       null,
+//                       null,
+//                       'one',
+//                       'firstCourse',
+//                     ]
+//                   ]
+//                 ];
+//                 addCourseInDB(1, 'firstCourse', null, null, null, null, 'one');
+//               }
+//               isChangeList = [];
+//               for (int i = 0; i < keys.length; i++) {
+//                 isChangeList.add(false);
+//               }
+//               // print(isChangeList);
+//               if (isChangeList.isEmpty) {
+//                 isChangeList = [false];
+//               }
+//               flag = false;
+//             }
+//
+//             return AnimatedList(
+//               shrinkWrap: true,
+//               physics: ScrollPhysics(),
+//               initialItemCount: allSemesters.length,
+//               key: _keySemester,
+//               itemBuilder: (context, index, animation) {
+//                 print(allSemesters);
+//                 return SizeTransition(
+//                   sizeFactor: animation,
+//                   key: UniqueKey(),
+//                   child: allSemesters.isNotEmpty
+//                       ? SemesterFin(
+//                           allSemesters[index],
+//                           allSemesters[index][0][0],
+//                           index,
+//                           () {
+//                             // setState(() {
+//                             //   calcCGPA();
+//                             // });
+//                           },
+//                           _keySemester,
+//                           isChangeList[index],
+//                           callBackChangeList,
+//                         )
+//                       : Container(),
+//                 );
+//               },
+//             );
+//           } else {
+//             return Container();
+//           }
+//         },
+//       );
+//     } else {
+//       return Container();
 //     }
 //   }
 //
-//   double CGPA = 0.0;
-//   int earnCredit = 0;
-//   int totalCredit = 0;
-//   List allsemesters = [];
-//   List getSemesterCourses(
-//       int num, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+//   List getSemesterCourses(int ID, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
 //     List courses = [];
 //     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
 //       final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-//       if (course['semestId'] == num && course.id != 'init') {
+//       if (course['semestId'] == ID && course.id != 'init') {
 //         courses.add([
 //           course['semestId'],
 //           course['courseName'],
@@ -190,182 +303,39 @@
 //         ]);
 //       }
 //     }
-//
+//     // print(courses);
 //     return courses;
 //   }
 //
-//   int maxSemester = 0;
-//   List semestKeys = [];
-//   bool flag = true;
-//
-//   List cgpaCourses = [];
-//
-//   void addCgpaCoursesData(
-//       int key, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-//     cgpaCourses.add(getSemesterCourses(key, streamSnapshot));
-//   }
-//
-//   Widget content(AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-//     List<int> list = [];
-//     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-//       final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-//       list.add(course['semestId']);
-//     }
-//     maxSemester = list.max;
-//     semestKeys = list.toSet().toList();
-//     cgpaCourses = [];
-//     for (int i = 0; i < semestKeys.length; i++) {
-//       if (cgpaCourses.length < semestKeys.length) {
-//         addCgpaCoursesData(semestKeys[i], streamSnapshot);
-//       }
-//     }
-//     if (flag) {
-//       for (int i = 0; i < semestKeys.length; i++) {
-//         if (allSemestData.length < semestKeys.length) {
-//           allSemestData.add([
-//             semestKeys[i],
-//             getSemesterCourses(semestKeys[i], streamSnapshot)
-//           ]);
-//         }
-//       }
-//       flag = false;
-//     }
-//
-//     // print(allSemestData);
-//     // print(allSemestData.length);
-//     // // print(semestKeys);
-//     //
-//     // print(allSemestData.length);
-//
-//     return signOut
-//         ? Container()
-//         : NotificationListener<UserScrollNotification>(
-//             child: AnimatedList(
-//               initialItemCount: allSemestData.length,
-//               shrinkWrap: true,
-//               physics: ScrollPhysics(),
-//               key: _listKey,
-//               itemBuilder: (context, index, animation) {
-//                 return Semester(
-//                   allSemestData[index][0],
-//                   index + 1,
-//                   allSemestData[index][1],
-//                   _courses,
-//                   streamSnapshot,
-//                   _listKey,
-//                 );
-//               },
-//             ),
-//             onNotification: (notification) {
-//               ScrollDirection direction = notification.direction;
-//               setState(() {
-//                 if (direction == ScrollDirection.reverse) {
-//                   _visible = false;
-//                 } else if (direction == ScrollDirection.forward) {
-//                   _visible = true;
-//                 }
-//               });
-//               return true;
-//             });
-//   }
-//
-//   Widget list() {
-//     getDocs();
-//     // bool exit =_courses.limit(1).
-//     // print('######################$lengthOfDocuments');
-//
-//     if (_courses == null) {
-//       // Semester(this.semesterId,this.semesterIndex, this.semestCourses, this.collection,
-//       //     this.streamSnapshot);
-//
-//       return Semester(
-//         888888,
-//         1,
-//         [
-//           [888888, null, null, null, null, 'one', '']
-//         ],
-//         null,
-//         null,
-//         _listKey,
-//       );
-//     }
-//
-//     // else if (lengthOfDocuments == 0) {
-//     //   // print('######################$lengthOfDocuments');
-//     //   return Container();
-//     // }
-//
-//     else {
-//       return StreamBuilder(
-//           stream: _courses!.snapshots(),
-//           builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-//             if (streamSnapshot.hasData) {
-//               return content(streamSnapshot);
-//             }
-//
-//             return Semester(
-//               888888,
-//               1,
-//               [
-//                 [888888, null, null, null, null, 'one', '']
-//               ],
-//               null,
-//               null,
-//               _listKey,
-//             );
-//           });
-//     }
-//   }
-//
-//   @override
-//   void initState() {
-//     super.initState();
+//   callBackToUpdateAllSemestersList(List allSemest) {
 //     setState(() {
-//       signOut = false;
-//       // allSemestData = [];
+//       allSemesters = allSemest;
 //     });
-//     getCurrentUser();
-//     getDocs();
 //   }
 //
-//   @override
-//   void dispose() {
-//     super.dispose();
-//   }
+//   void addSemester() {
+//     setState(() {
+//       // String year = DateTime.now().year.toString();
+//       // String month = DateTime.now().month.toString();
+//       // String day = DateTime.now().day.toString();
+//       // String hour = DateTime.now().hour.toString();
+//       // String minute = DateTime.now().minute.toString();
+//       // String second = DateTime.now().second.toString();
+//       // String semestDateID = '$year-$month-$day-$hour-$minute-$second';
+//       int insertIndex =
+//           allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
 //
-//   late Widget theContent;
-//
-//   void addEmptySemestInDB(var uniqueId) async {
-//     await _courses!.doc(uniqueId).set({
-//       'id': uniqueId,
-//       'courseName': null,
-//       'credit': null,
-//       'grade1': null,
-//       'grade2': null,
-//       'semestId': maxSemester + 1,
-//       'type': 'one',
+//       var uniqueId = uuid.v1();
+//       allSemesters.add([
+//         [maxSemester + 1, null, null, null, null, 'one', uniqueId]
+//       ]);
+//       isChangeList.add(false);
+//       print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
+//       addCourseInDB(maxSemester + 1, uniqueId, null, null, null, null, 'one');
+//       _keySemester.currentState!
+//           .insertItem(insertIndex, duration: Duration(milliseconds: 0));
 //     });
-//     print('#################################');
-//     print(uniqueId);
 //   }
-//
-//   // void addInitCourseInDB() async {
-//   //   await FirebaseFirestore.instance
-//   //       .collection('UsersCourses')
-//   //       .doc('${loggedInUser!.email}')
-//   //       .collection('courses')
-//   //       .doc('init')
-//   //       .set({
-//   //     'courseName': 'test',
-//   //     'credit': '3',
-//   //     'grade1': 'A',
-//   //     'grade2': '',
-//   //     'semsterNum': '1',
-//   //     'type': 'one'
-//   //   });
-//   // }
-//
-//   bool _visible = true;
 //
 //   void calcCGPA() {
 //     int totalCredit_without_SU = 0;
@@ -375,14 +345,17 @@
 //       earnCredit = 0;
 //       totalCredit = 0;
 //     });
+//     print('#####################  CGPA ##########################');
+//     print(allSemesters);
 // // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-//     if (cgpaCourses.isNotEmpty) {
-//       for (List semester in cgpaCourses) {
+//     if (allSemesters.isNotEmpty) {
+//       for (List semester in allSemesters) {
 //         // semester = [[],[],]
 //
 //         for (List course in semester) {
 //           // course = [ ]
-//
+//           // print('course');
+//           // print(course);
 //           if (course[1] != null && course[2] != null && course[3] != null) {
 //             String grade1 = course[3];
 //             int credit = int.parse(course[2]);
@@ -444,42 +417,21 @@
 //           CGPA = (totalPointsOfSemest / totalCredit_without_SU);
 //         }
 //       });
-//       // print('################## semester #################');
-//       // print(box.toMap());
-//       // print('GPA  : $GPA');
-//       // print('totalPointsOfSemest  : $totalPointsOfSemest');
-//       // print('totalCredit_without_SU  : $totalCredit_without_SU');
-//       // print('totalCredit  : $totalCredit');
-//       // print('earnCredit  : $earnCredit');
 //     } else {
-//       print('################## Empty #################');
+//       print('################## Empty CGPA#################');
 //     }
 //   }
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     getDocs();
-//     // print(cgpaCourses[0][0][6]);
-//     if (mounted) {
-//       setState(() {
-//         cgpaCourses;
-//         allSemestData;
-//         calcCGPA();
-//       });
-//     }
 //     return WillPopScope(
 //       onWillPop: () async {
-//         setState(() {
-//           signOut = false;
-//           _signOut();
-//         });
-//         Future.delayed(Duration(milliseconds: 200), () {
-//           Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                 builder: (context) => Siginin(),
-//               ));
-//         });
+//         Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//               builder: (context) => Siginin(),
+//             ));
+//
 //         return false;
 //       },
 //       child: Container(
@@ -489,62 +441,42 @@
 //             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
 //             child: Scaffold(
 //                 backgroundColor: Color(0xffb8c8d1),
-//                 body: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.stretch,
-//                   children: [
-//                     Flexible(
-//                         child: Stack(
-//                       children: [
-//                         ScrollConfiguration(
-//                           behavior: MyBehavior(),
-//                           child: ListView(
-//                             shrinkWrap: true,
-//                             children: [
-//                               AppBarHome(CGPA, earnCredit, totalCredit),
-//                               signOut ? Container() : list(),
-//                             ],
-//                           ),
-//                         )
-//                       ],
-//                     ))
-//                   ],
+//                 body: ModalProgressHUD(
+//                   inAsyncCall: showSpinner,
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.stretch,
+//                     children: [
+//                       Flexible(
+//                           child: Stack(
+//                         children: [
+//                           ScrollConfiguration(
+//                               behavior: MyBehavior(),
+//                               child: ListView(
+//                                 shrinkWrap: true,
+//                                 children: [
+//                                   AppBarHomeFin(
+//                                     CGPA,
+//                                     earnCredit,
+//                                     totalCredit,
+//                                   ),
+//                                   showSpinner ? Container() : Content(),
+//                                   SizedBox(
+//                                     height: 50,
+//                                   )
+//                                 ],
+//                               ))
+//                         ],
+//                       ))
+//                     ],
+//                   ),
 //                 ),
 //                 floatingActionButton: Visibility(
 //                   visible: _visible,
 //                   child: FloatingActionButton(
 //                     backgroundColor: Color(0xff4562a7),
 //                     onPressed: () async {
-//                       var uuid = Uuid();
-//                       var uniqueId = uuid.v1();
-//                       setState(() {
-//                         addEmptySemestInDB(uniqueId);
-//                       });
-//                       int insertIndex = keySemesters.isEmpty
-//                           ? keySemesters.length
-//                           : keySemesters.length - 1;
-//                       print(insertIndex);
-//                       print(allsemesters);
-//                       print(allsemesters.length);
-//
-//                       _listKey.currentState!.insertItem(insertIndex);
-//                       setState(() {
-//                         allSemestData.add([
-//                           maxSemester + 1,
-//                           [
-//                             [
-//                               maxSemester + 1,
-//                               null,
-//                               null,
-//                               null,
-//                               null,
-//                               'one',
-//                               uniqueId
-//                             ]
-//                           ]
-//                         ]);
-//                       });
-//
-//                       // _semestKey.currentState
+//                       // calcCGPA();
+//                       addSemester();
 //                     },
 //                     child: Icon(
 //                       Icons.add,
@@ -559,153 +491,30 @@
 //   }
 // }
 //
-// bool pressDeleteSemest = false;
+// // bool isChanged = false;
 //
-// class Semester extends StatefulWidget {
+// class SemesterFin extends StatefulWidget {
+//   List semesterCourses;
 //   int semesterId;
-//   int semesterIndex;
-//   List semestCourses;
-//   CollectionReference? collection;
-//   AsyncSnapshot<QuerySnapshot>? streamSnapshot;
-//   GlobalKey<AnimatedListState> AniKey;
-//   Semester(this.semesterId, this.semesterIndex, this.semestCourses,
-//       this.collection, this.streamSnapshot, this.AniKey,
+//   int index;
+//   Function calcCGPA;
+//   bool isChanged;
+//   Function ChangeList;
+//   GlobalKey<AnimatedListState> _allSemestersKey;
+//   SemesterFin(this.semesterCourses, this.semesterId, this.index, this.calcCGPA,
+//       this._allSemestersKey, this.isChanged, this.ChangeList,
 //       {Key? key})
 //       : super(key: key);
 //
 //   @override
-//   State<Semester> createState() => _SemesterState();
+//   State<SemesterFin> createState() => _SemesterFinState();
 // }
 //
-// class _SemesterState extends State<Semester> {
-//   GlobalKey<AnimatedListState> _keyOfCourse = GlobalKey<AnimatedListState>();
-//   // final courseKey = GlobalKey<_CourseState>();
-//   bool isChanged = false;
-//   callback(value) {
-//     setState(() {
-//       isChanged = value;
-//     });
-//   }
-//
-//   // late String `semestNu`mString;
-//   bool val = true;
-//   double GPA = 0.0;
-//   int earnCredit = 0;
-//   int totalCredit = 0;
-//   List allCoursesInSemst = [];
-//   void calcGPA() {
-//     // List allCoursesInSemstd = [];
-//     // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-//     int totalCredit_without_SU = 0;
-//     double totalPointsOfSemest = 0.0;
-//     setState(() {
-//       GPA = 0.0;
-//       earnCredit = 0;
-//       totalCredit = 0;
-//     });
-//
-//     // for (int i = 0; i < widget.streamSnapshot!.data!.docs.length; i++) {
-//     //   final DocumentSnapshot course = widget.streamSnapshot!.data!.docs[i];
-//     //   if (course['semestId'] == widget.semesterId &&
-//     //       course.id != 'init' &&
-//     //       course['credit'] != null &&
-//     //       course['grade1'] != null) {
-//     //     setState(() {
-//     //       allCoursesInSemstd.add([
-//     //         course['semestId'],
-//     //         course['courseName'],
-//     //         course['credit'],
-//     //         course['grade1'],
-//     //         course['grade2'],
-//     //         course['type'],
-//     //         course['id'],
-//     //       ]);
-//     //     });
-//     //   }
-//     // }
-//     // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-//
-//     List allCoursesInSemstd = [];
-//     setState(() {
-//       for (List list in listOfCoursesInSemester) {
-//         if (list[1] != null && list[2] != null && list[3] != null) {
-//           allCoursesInSemstd.add(list);
-//         }
-//       }
-//     });
-//     if (allCoursesInSemstd.isNotEmpty) {
-//       for (var value in allCoursesInSemstd) {
-//         String grade1 = value[3];
-//         // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-//
-//         int credit = int.parse(value[2]);
-//         double pointOfGrade = 0.0;
-//         double pointOfCourse = 0.0;
-//         setState(() {
-//           if (grade1 == 'A') {
-//             pointOfGrade = 4.00;
-//           } else if (grade1 == 'A-') {
-//             pointOfGrade = 3.67;
-//           } else if (grade1 == 'B+') {
-//             pointOfGrade = 3.33;
-//           } else if (grade1 == 'B') {
-//             pointOfGrade = 3.00;
-//           } else if (grade1 == 'B-') {
-//             pointOfGrade = 2.67;
-//           } else if (grade1 == 'C+') {
-//             pointOfGrade = 2.33;
-//           } else if (grade1 == 'C') {
-//             pointOfGrade = 2.00;
-//           } else if (grade1 == 'C-') {
-//             pointOfGrade = 1.67;
-//           } else if (grade1 == 'D+') {
-//             pointOfGrade = 1.33;
-//           } else if (grade1 == 'D') {
-//             pointOfGrade = 1.00;
-//           } else if (grade1 == 'F') {
-//             pointOfGrade = 0.00;
-//           } else if (grade1 == 'S') {
-//             pointOfGrade = -1.00;
-//           } else {
-//             pointOfGrade = -2.00;
-//           }
-//         });
-//         setState(() {
-//           if (pointOfGrade >= 0.00) {
-//             // not s/u course
-//             totalCredit_without_SU = totalCredit_without_SU + credit;
-//             totalCredit = totalCredit + credit;
-//             pointOfCourse = pointOfGrade * credit;
-//             totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-//           } else {
-//             // s/u course
-//             totalCredit = totalCredit + credit;
-//           }
-//
-//           if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
-//             //  passed course
-//             earnCredit = earnCredit + credit;
-//           }
-//         });
-//       }
-//       setState(() {
-//         if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
-//           GPA = 0.0;
-//         } else {
-//           GPA = (totalPointsOfSemest / totalCredit_without_SU);
-//         }
-//       });
-//       print('################## semester #################');
-//       print(allCoursesInSemst);
-//       print('GPA  : $GPA');
-//       print('totalPointsOfSemest  : $totalPointsOfSemest');
-//       print('totalCredit_without_SU  : $totalCredit_without_SU');
-//       print('totalCredit  : $totalCredit');
-//       print('earnCredit  : $earnCredit');
-//     } else {
-//       print('################## Empty #################');
-//     }
-//   }
+// class _SemesterFinState extends State<SemesterFin> {
+//   final _keyAniListCourses = GlobalKey<AnimatedListState>();
+//   late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
+//   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
+//   var uuid = Uuid();
 //
 //   List listOfCoursesInSemester = [];
 //   List<int?> errorTypeName = [];
@@ -722,6 +531,43 @@
 //   String? emptyField;
 //   String? creditMoreThanThree;
 //   String? creditEqZero;
+//
+//   double GPA = 0.0;
+//   int earnCredit = 0;
+//   int totalCredit = 0;
+//   List allCoursesInSemstd = [];
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     // print('################hereee');
+//     setState(() {
+//       // List valList=[];
+//       // for(List course in widget.semesterCourses){
+//       //   if(course[6] !='')
+//       // }
+//       listOfCoursesInSemester = widget.semesterCourses;
+//       _courseKeys = List.generate(widget.semesterCourses.length, (index) {
+//         var uuid = Uuid();
+//         var uniqueId = uuid.v1();
+//         return GlobalObjectKey<_CourseFinState>(uniqueId);
+//       });
+//       // calcGPA();
+//     });
+//   }
+//
+//   callbackIsChanged() {
+//     setState(() {
+//       widget.ChangeList(widget.index, true, false);
+//     });
+//   }
+//
+//   callBackToUpdateTheCoursesList(newList) {
+//     setState(() {
+//       listOfCoursesInSemester = newList;
+//     });
+//   }
+//
 //   void findErrors() {
 //     for (List course in listOfCoursesInSemester) {
 //       // not empty course
@@ -830,75 +676,151 @@
 //     }
 //   }
 //
-//   void addEmptyCourseInDB(var uniqueId) async {
-//     await widget.collection!.doc(uniqueId).set({
-//       'id': uniqueId,
-//       'courseName': null,
-//       'credit': null,
-//       'grade1': null,
-//       'grade2': null,
-//       'semestId': widget.semesterId,
-//       'type': 'one',
-//     });
-//     print('#################################');
-//     print(uniqueId);
-//   }
-//
-//   void addCourse() async {
-//     var uuid = Uuid();
+//   void addCourse() {
 //     var uniqueId = uuid.v1();
 //
-//     addEmptyCourseInDB(uniqueId);
 //     setState(() {
 //       listOfCoursesInSemester
 //           .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
-//
-//       _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
-//         var uuid = Uuid();
-//         var uniqueId = uuid.v1();
-//         return GlobalObjectKey<_CourseState>(uniqueId);
-//       });
+//       allSemesters[widget.index] = listOfCoursesInSemester;
+//     });
+//     _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
+//       var uuid = Uuid();
+//       var uniqueId = uuid.v1();
+//       return GlobalObjectKey<_CourseFinState>(uniqueId);
 //     });
 //     int insertIndex = listOfCoursesInSemester.isEmpty
 //         ? listOfCoursesInSemester.length
 //         : listOfCoursesInSemester.length - 1;
-//     // print('################# insertIndex: $insertIndex ######################');
-//     _keyOfCourse.currentState!.insertItem(insertIndex);
-//     print(
-//         '####################semsetId:${widget.semesterId}############################');
-//     // ToDo: set id
+//     _keyAniListCourses.currentState!
+//         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
+//     print('theListAfterAdd:${listOfCoursesInSemester}');
+//     Future.delayed(Duration(milliseconds: 270), () {
+//       addCourseInDB(widget.semesterId, uniqueId, null, null, null, null, 'one');
+//     });
 //   }
 //
-//   var uuid = Uuid();
-//
-//   bool delete = false;
-//   late List<GlobalObjectKey<_CourseState>> _courseKeys;
-//   @override
-//   void initState() {
-//     super.initState();
+//   void deleteSemester() {
 //     setState(() {
-//       listOfCoursesInSemester = widget.semestCourses;
+//       List deletedSemest = allSemesters.removeAt(widget.index);
+//       widget.ChangeList(widget.index, false, true);
 //
-//       if (listOfCoursesInSemester.isEmpty) {
-//         print('################# # here  #####################');
-//         var uniqueId = uuid.v1();
-//         addEmptyCourseInDB(uniqueId);
+//       deleteSemesterFromDB(widget.semesterId);
+//       print('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
+//       print(widget.semesterId);
+//       widget._allSemestersKey.currentState!.removeItem(widget.index,
+//           (context, animation) {
+//         return SlideTransition(
+//           position: animation.drive(_offset),
+//           child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
+//               () {}, widget._allSemestersKey, false, () {}),
+//         );
+//       }, duration: Duration(milliseconds: 400));
+//
+//       // widget.calcCGPA();
+//     });
+//   }
+//
+//   void calcGPA() {
+//     int totalCredit_without_SU = 0;
+//     double totalPointsOfSemest = 0.0;
+//     setState(() {
+//       GPA = 0.0;
+//       earnCredit = 0;
+//       totalCredit = 0;
+//     });
+//
+//     List allCoursesInSemstd = [];
+//     setState(() {
+//       for (List list in listOfCoursesInSemester) {
+//         if (list[1] != null && list[2] != null && list[3] != null) {
+//           allCoursesInSemstd.add(list);
+//         }
+//       }
+//     });
+//     if (allCoursesInSemstd.isNotEmpty) {
+//       for (var value in allCoursesInSemstd) {
+//         String grade1 = value[3];
+//         // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+//
+//         int credit = int.parse(value[2]);
+//         double pointOfGrade = 0.0;
+//         double pointOfCourse = 0.0;
 //         setState(() {
-//           listOfCoursesInSemester.add(
-//               [widget.semesterId, null, null, null, null, 'one', uniqueId]);
+//           if (grade1 == 'A') {
+//             pointOfGrade = 4.00;
+//           } else if (grade1 == 'A-') {
+//             pointOfGrade = 3.67;
+//           } else if (grade1 == 'B+') {
+//             pointOfGrade = 3.33;
+//           } else if (grade1 == 'B') {
+//             pointOfGrade = 3.00;
+//           } else if (grade1 == 'B-') {
+//             pointOfGrade = 2.67;
+//           } else if (grade1 == 'C+') {
+//             pointOfGrade = 2.33;
+//           } else if (grade1 == 'C') {
+//             pointOfGrade = 2.00;
+//           } else if (grade1 == 'C-') {
+//             pointOfGrade = 1.67;
+//           } else if (grade1 == 'D+') {
+//             pointOfGrade = 1.33;
+//           } else if (grade1 == 'D') {
+//             pointOfGrade = 1.00;
+//           } else if (grade1 == 'F') {
+//             pointOfGrade = 0.00;
+//           } else if (grade1 == 'S') {
+//             pointOfGrade = -1.00;
+//           } else {
+//             pointOfGrade = -2.00;
+//           }
+//         });
+//         setState(() {
+//           if (pointOfGrade >= 0.00) {
+//             // not s/u course
+//             totalCredit_without_SU = totalCredit_without_SU + credit;
+//             totalCredit = totalCredit + credit;
+//             pointOfCourse = pointOfGrade * credit;
+//             totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+//           } else {
+//             // s/u course
+//             totalCredit = totalCredit + credit;
+//           }
+//
+//           if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+//             //  passed course
+//             earnCredit = earnCredit + credit;
+//           }
 //         });
 //       }
-//       _courseKeys = List.generate(widget.semestCourses.length, (index) {
-//         var uuid = Uuid();
-//         var uniqueId = uuid.v1();
-//         return GlobalObjectKey<_CourseState>(uniqueId);
+//       setState(() {
+//         if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+//           GPA = 0.0;
+//         } else {
+//           GPA = (totalPointsOfSemest / totalCredit_without_SU);
+//         }
 //       });
-//     });
-//     if (widget.semesterId != 888888) {
-//       calcGPA();
+//       // print('################## semester #################');
+//       // print(allCoursesInSemstd);
+//       // print('GPA  : $GPA');
+//       // print('totalPointsOfSemest  : $totalPointsOfSemest');
+//       // print('totalCredit_without_SU  : $totalCredit_without_SU');
+//       // print('totalCredit  : $totalCredit');
+//       // print('earnCredit  : $earnCredit');
+//     } else {
+//       print('################## Empty GPA #################');
 //     }
-//     // print('################### map #####################');
-//     // print(box.toMap());
+//   }
+//
+//   bool isValide() {
+//     findErrors();
+//     if (emptyField == null &&
+//         creditEqZero == null &&
+//         creditMoreThanThree == null) {
+//       return true;
+//     } else {
+//       return false;
+//     }
 //   }
 //
 //   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
@@ -1015,50 +937,65 @@
 //     ));
 //   }
 //
-//   // void shift(int index, int toIndex) async {
-//   //   for (int i = 0; i < widget.streamSnapshot!.data!.docs.length; i++) {
-//   //     final DocumentSnapshot course = widget.streamSnapshot!.data!.docs[i];
-//   //     if (course['semsterNum'] == index.toString()) {
-//   //       print('#######${course['semsterNum']} to  $toIndex');
-//   //
-//   //       String id = course.id;
-//   //       widget.collection!.doc(id).update({'semsterNum': toIndex.toString()});
-//   //     }
-//   //   }
-//   //
-//   //   // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
-//   //
-//   //   // for(int i=0;i<listOfCoursesInSemester.length;i++){
-//   //   //   await widget.collection!.doc(listOfCoursesInSemester[6]).set({
-//   //   //     'id': listOfCoursesInSemester[6],
-//   //   //     'courseName': listOfCoursesInSemester[1],
-//   //   //     'credit': listOfCoursesInSemester[2],
-//   //   //     'grade1':  listOfCoursesInSemester[3],
-//   //   //     'grade2':  listOfCoursesInSemester[4],
-//   //   //     'semsterNum': '$toIndex',
-//   //   //     'type':  listOfCoursesInSemester[5],
-//   //   //   });
-//   //   // }
-//   // }
+//   Widget dis() {
+//     return ListView.builder(
+//       shrinkWrap: true,
+//       itemBuilder: (context, index) {
+//         return Padding(
+//           padding: EdgeInsets.all(10),
+//           child: Text(
+//             '${listOfCoursesInSemester[index]}',
+//             style: TextStyle(fontSize: 18, color: Colors.white),
+//           ),
+//         );
+//       },
+//       itemCount: listOfCoursesInSemester.length,
+//     );
+//   }
+//
+//   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> Display() {
+//     return ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         backgroundColor: Colors.transparent,
+//         behavior: SnackBarBehavior.floating,
+//         duration: Duration(seconds: 10),
+//         clipBehavior: Clip.none,
+//         elevation: 0,
+//         content: Stack(
+//           alignment: Alignment.center,
+//           clipBehavior: Clip.none,
+//           children: [
+//             Container(
+//               padding: EdgeInsets.all(8),
+//               decoration: BoxDecoration(
+//                 color: Color(0xff4562a7),
+//                 borderRadius: BorderRadius.all(Radius.circular(15)),
+//               ),
+//               child: Row(
+//                 children: [
+//                   SizedBox(
+//                     width: 48,
+//                   ),
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         dis(),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 //
 //   @override
 //   void dispose() {
 //     super.dispose();
-//     // widget.streamSnapshot.
-//   }
-//
-//   void addEmptySemestInDB(var uniqueId, int semesterid) async {
-//     await widget.collection!.doc(uniqueId).set({
-//       'id': uniqueId,
-//       'courseName': null,
-//       'credit': null,
-//       'grade1': null,
-//       'grade2': null,
-//       'semestId': semesterid,
-//       'type': 'one',
-//     });
-//     print('#################################');
-//     print(uniqueId);
 //   }
 //
 //   @override
@@ -1075,102 +1012,8 @@
 //               children: [
 //                 GestureDetector(
 //                   onTap: () async {
-//                     // List<int> list = [];
-//                     // List<int> semestKeys = [];
-//                     // int maxSemester = 0;
-//                     // for (int i = 0;
-//                     //     i < widget.streamSnapshot!.data!.docs.length;
-//                     //     i++) {
-//                     //   final DocumentSnapshot course =
-//                     //       widget.streamSnapshot!.data!.docs[i];
-//                     //   list.add(course['semestId']);
-//                     // }
-//                     // maxSemester = list.max;
-//                     // setState(() {
-//                     //   semestKeys = list.toSet().toList();
-//                     // });
-//
-//                     List<List> removedItem = [];
-//                     int index = 0;
-//                     int semesterId = 0;
-//                     CollectionReference? collection;
-//                     AsyncSnapshot<QuerySnapshot>? snap;
-//                     GlobalKey<AnimatedListState> keyl = widget.AniKey;
-//                     setState(() {
-//                       index = widget.semesterIndex - 1;
-//                       semesterId = widget.semesterId;
-//                       collection = widget.collection;
-//                       snap = widget.streamSnapshot;
-//                       keyl = widget.AniKey;
-//                       List v = [];
-//                       v = allSemestData.removeAt(index);
-//                       removedItem = v[1];
-//                       delete = true;
-//                       // listOfCoursesInSemester.clear();
-//                       // listOfCoursesInSemester.add([
-//                       //   widget.semesterId,
-//                       //   null,
-//                       //   null,
-//                       //   null,
-//                       //   null,
-//                       //   'one',
-//                       //   uniqueId
-//                       // ]);
-//                     });
-//                     print(removedItem);
-//                     widget.AniKey.currentState!.removeItem(index,
-//                         (context, animation) {
-//                       // Semester(this.semesterId, this.semesterIndex, this.semestCourses,
-//                       //     this.collection, this.streamSnapshot, this.AniKey,
-//                       //     {Key? key})
-//                       //     : super(key: key);
-//
-//                       return SlideTransition(
-//                         position: animation.drive(_offset),
-//                         // key: UniqueKey(),
-//                         child: Semester(semesterId, index + 1, removedItem,
-//                             collection, snap, keyl
-//                             // key: GlobalKey(),
-//                             ),
-//                       );
-//                     });
-//
-//                     // print('############## length: ${semestKeys.length}##################');
-//                     if (allSemestData.length == 0) {
-//                       var uuid = Uuid();
-//                       var uniqueId = uuid.v1();
-//                       setState(() {
-//                         addEmptySemestInDB(uniqueId, semesterId + 1);
-//                       });
-//                       setState(() {
-//                         allSemestData.add([
-//                           semesterId + 1,
-//                           [
-//                             [
-//                               semesterId + 1,
-//                               null,
-//                               null,
-//                               null,
-//                               null,
-//                               'one',
-//                               uniqueId
-//                             ]
-//                           ]
-//                         ]);
-//                       });
-//                       widget.AniKey.currentState!.insertItem(0);
-//                     }
-//
-//                     for (int i = 0;
-//                         i < widget.streamSnapshot!.data!.docs.length;
-//                         i++) {
-//                       final DocumentSnapshot course =
-//                           widget.streamSnapshot!.data!.docs[i];
-//                       if (course['semestId'] == semesterId) {
-//                         String id = course.id;
-//                         widget.collection!.doc(id).delete();
-//                       }
-//                     }
+//                     FocusManager.instance.primaryFocus?.unfocus();
+//                     deleteSemester();
 //                   },
 //                   child: Icon(
 //                     Icons.delete_forever,
@@ -1211,7 +1054,7 @@
 //                             height: 5,
 //                           ),
 //                           Text(
-//                             '${widget.semesterIndex}',
+//                             '${widget.index + 1}',
 //                             style: TextStyle(
 //                               color: Color(0xff4562a7),
 //                               fontSize: 18,
@@ -1345,51 +1188,35 @@
 //                 ),
 //               ],
 //             ),
-//             listOfCoursesInSemester.isNotEmpty
-//                 ? AnimatedList(
-//                     itemBuilder: (context, index, animation) {
-//                       // _courseKeys = List.generate(
-//                       //     listOfCoursesInSemester.length, (index) {
-//                       //   var uuid = Uuid();
-//                       //   var uniqueId = uuid.v1();
-//                       //   return GlobalObjectKey<_CourseState>(uniqueId);
-//                       // });
-//
-//                       return Course(
-//                         listOfCoursesInSemester,
-//                         _keyOfCourse,
-//                         isChanged,
-//                         callback,
-//                         listOfCoursesInSemester[index][0],
-//                         listOfCoursesInSemester[index][1],
-//                         listOfCoursesInSemester[index][2],
-//                         listOfCoursesInSemester[index][3],
-//                         listOfCoursesInSemester[index][4],
-//                         listOfCoursesInSemester[index][5],
-//                         listOfCoursesInSemester[index],
-//                         listOfCoursesInSemester[index][6],
-//                         widget.collection,
-//                         key: _courseKeys[index],
-//                       );
+//             AnimatedList(
+//               itemBuilder: (context, index, animation) {
+//                 return SizeTransition(
+//                   sizeFactor: animation,
+//                   key: UniqueKey(),
+//                   child: CourseFin(
+//                     index,
+//                     widget.index,
+//                     listOfCoursesInSemester[index],
+//                     listOfCoursesInSemester,
+//                     callBackToUpdateTheCoursesList,
+//                     callbackIsChanged,
+//                     () {
+//                       // widget.calcCGPA();
 //                     },
-//                     initialItemCount: listOfCoursesInSemester.length,
-//                     shrinkWrap: true,
-//                     physics: ScrollPhysics(),
-//                     key: _keyOfCourse,
-//                   )
-//                 : AnimatedList(
-//                     itemBuilder: (context, index, animation) {
-//                       return Container();
-//                     },
-//                     initialItemCount: listOfCoursesInSemester.length,
-//                     shrinkWrap: true,
-//                     physics: ScrollPhysics(),
-//                     key: _keyOfCourse,
+//                     _keyAniListCourses,
+//                     key: _courseKeys[index],
 //                   ),
+//                 );
+//               },
+//               initialItemCount: listOfCoursesInSemester.length,
+//               shrinkWrap: true,
+//               physics: ScrollPhysics(),
+//               key: _keyAniListCourses,
+//             ),
 //             Row(
-//               mainAxisAlignment: isChanged
-//                   ? MainAxisAlignment.spaceEvenly
-//                   : MainAxisAlignment.center,
+//               mainAxisAlignment: widget.isChanged
+//                   ? MainAxisAlignment.center
+//                   : MainAxisAlignment.end,
 //               children: [
 //                 GestureDetector(
 //                   onTap: () {
@@ -1398,6 +1225,9 @@
 //                   },
 //                   child: Container(
 //                     alignment: Alignment.center,
+//                     margin: widget.isChanged
+//                         ? EdgeInsets.only(right: 30)
+//                         : EdgeInsets.only(right: 85),
 //                     decoration: BoxDecoration(
 //                         color: Color(0xffeaf1ed),
 //                         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -1415,28 +1245,26 @@
 //                     ),
 //                   ),
 //                 ),
-//                 isChanged
+//                 widget.isChanged
 //                     ? GestureDetector(
 //                         onTap: () {
 //                           FocusManager.instance.primaryFocus?.unfocus();
 //
 //                           findErrors();
-//                           print(listOfCoursesInSemester);
-//                           print(emptyField);
-//                           print(creditEqZero);
-//                           print(creditMoreThanThree);
 //                           if (emptyField == null &&
 //                               creditEqZero == null &&
 //                               creditMoreThanThree == null) {
+//                             // calcGPA();
+//                             // widget.calcCGPA();
+//                             // Display();
 //                             for (int i = 0;
 //                                 i < listOfCoursesInSemester.length;
 //                                 i++) {
 //                               _courseKeys[i].currentState!.collectDate();
 //                             }
-//                             // courseKey.currentState!.c
-//                             calcGPA();
 //                             setState(() {
-//                               isChanged = false;
+//                               widget.isChanged = false;
+//                               widget.ChangeList(widget.index, false, false);
 //                             });
 //                           } else {
 //                             message();
@@ -1449,14 +1277,12 @@
 //                             errorTypeCredit.clear();
 //                             errorTypeName.clear();
 //                           });
-//
-//                           // Future.delayed(Duration(milliseconds: 600), () {
-//                           //   Provider.of<MyData>(context, listen: false)
-//                           //       .changeSaveData(false);
-//                           // });
 //                         },
 //                         child: Container(
 //                           alignment: Alignment.center,
+//                           margin: widget.isChanged
+//                               ? EdgeInsets.all(0)
+//                               : EdgeInsets.only(right: 20),
 //                           decoration: BoxDecoration(
 //                               color: Color(0xff4562a7),
 //                               borderRadius:
@@ -1476,8 +1302,23 @@
 //                           ),
 //                         ),
 //                       )
-//                     : SizedBox(
-//                         width: 0,
+//                     : GestureDetector(
+//                         onTap: () {
+//                           setState(() {
+//                             widget.isChanged = true;
+//                             widget.ChangeList(widget.index, true, false);
+//                           });
+//                         },
+//                         child: AbsorbPointer(
+//                           child: Container(
+//                             margin: EdgeInsets.only(right: 18),
+//                             child: Icon(
+//                               Icons.arrow_back_ios_new,
+//                               color: Color(0xff004d60),
+//                               size: 26,
+//                             ),
+//                           ),
+//                         ),
 //                       ),
 //               ],
 //             ),
@@ -1488,85 +1329,52 @@
 //   }
 // }
 //
-// class Course extends StatefulWidget {
-//   // const Course({Key? key}) : super(key: key);
-//
-//   List semstCourses;
-//   GlobalKey<AnimatedListState> _keyOfCourse;
-//   bool isChanged;
-//   Function callback;
-//
-//   int? semestId;
-//   String? name;
-//   String? credite;
-//   String? grade1;
-//   String? grade2;
-//   String option;
+// class CourseFin extends StatefulWidget {
+//   int index;
+//   int semesterIndex;
 //   List courseList;
-//   String id;
-//   CollectionReference? collection;
+//   List listCoursesInSemester;
+//   Function CallBackUpdateList;
+//   Function CallBackUpdateChange;
+//   Function calcCGPA;
 //
-//   Course(
-//       this.semstCourses,
-//       this._keyOfCourse,
-//       this.isChanged,
-//       this.callback,
-//       this.semestId,
-//       this.name,
-//       this.credite,
-//       this.grade1,
-//       this.grade2,
-//       this.option,
+//   GlobalKey<AnimatedListState> _keyAniSemest;
+//   CourseFin(
+//       this.index,
+//       this.semesterIndex,
 //       this.courseList,
-//       this.id,
-//       this.collection,
+//       this.listCoursesInSemester,
+//       this.CallBackUpdateList,
+//       this.CallBackUpdateChange,
+//       this.calcCGPA,
+//       this._keyAniSemest,
 //       {Key? key})
 //       : super(key: key);
 //
 //   @override
-//   State<Course> createState() => _CourseState();
+//   State<CourseFin> createState() => _CourseFinState();
 // }
 //
-// class _CourseState extends State<Course> {
+// class _CourseFinState extends State<CourseFin> {
 //   late TextEditingController _controller_Name;
 //   late TextEditingController _controller_Credit;
-//   final Function eq = const ListEquality().equals;
 //   FocusNode _focusName = FocusNode();
-//   FocusNode _focusCredite = FocusNode();
-//   void _onFocusNameChange() {
-//     // print("Focus Name: ${_focusName.hasFocus.toString()}");
+//   FocusNode _focusCredit = FocusNode();
 //
-//     if (_focusName.hasFocus) {
-//       Provider.of<MyData>(context, listen: false).changeSetValues(false);
-//     } else {
-//       Provider.of<MyData>(context, listen: false).changeSetValues(true);
-//     }
-//     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-//     // print(
-//     //     '######################  $setValues  #################################');
-//   }
-//
-//   void _onFocusCrediteChange() {
-//     // print("Focus Credite: ${_focusCredite.hasFocus.toString()}");
-//
-//     if (_focusCredite.hasFocus) {
-//       Provider.of<MyData>(context, listen: false).changeSetValues(false);
-//     } else {
-//       Provider.of<MyData>(context, listen: false).changeSetValues(true);
-//     }
-//
-//     // bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-//     // print(
-//     //     '######################  $setValues  #################################');
-//   }
-//
-//   List listOfCoursesInSemester = [];
 //   late String? selectedValue1;
 //   late String? selectedValue2;
+//   int semesterID = 0;
+//   String courseID = '';
+//   String? name = '';
+//   String? credit = '';
+//   String? type = '';
+//   late bool val;
 //   bool selectedValueIs1Null = false;
 //   bool selectedValueIs2Null = false;
-//   int index = 0;
-//   int? id;
+//   bool valideName = true;
+//   bool valideCredit = true;
+//   bool pressDeleteCourse = false;
+//
 //   final List<String> items = [
 //     'A',
 //     'A-',
@@ -1582,95 +1390,133 @@
 //     'S',
 //     'U'
 //   ];
-//   void test() {
-//     bool setValues = Provider.of<MyData>(context, listen: false).setValues;
-//     // print('p############### $isDelete ##############');
-//     // print(widget.grade2);
-//     // // if (isDelete) {
-//     setState(() {
-//       val = widget.courseList[5] == 'one' ? false : true;
-//     });
-//     // }
-//     // print('###################### test ##########################');
-//     // print(box.toMap());
-//     // // print(listOfCoursesInSemester);
-//     if (setValues) {
-//       setState(() {
-//         index = listOfCoursesInSemester.indexOf(widget.courseList);
-//         selectedValue1 = widget.grade1;
-//         selectedValue2 = widget.grade2;
-//         // selectedValue == null
-//         //     ? selectedValueIsNull = true
-//         //     : selectedValueIsNull = false;
-//         if (widget.name == null) {
-//           _controller_Name = TextEditingController();
-//         } else {
-//           _controller_Name = TextEditingController(text: widget.name);
-//         }
-//         if (widget.credite == null) {
-//           _controller_Credit = TextEditingController();
-//         } else {
-//           _controller_Credit = TextEditingController(text: widget.credite);
-//         }
-//       });
-//     }
-//   }
 //
-//   // void isNameRepeating() {
-//   //   var t = box.isNotEmpty;
-//   //   if (t) {
-//   //     Map map = box.toMap();
-//   //     List list = [];
-//   //     for (final mapEntry in map.entries) {
-//   //       var key = mapEntry.key;
-//   //       var value = mapEntry.value;
-//   //       list.add(value[1]);
-//   //     }
-//   //
-//   //     print('############## list ######################');
-//   //     print(list);
-//   //   }
-//   // }
-//
-//   // bool secondTry = false;
 //   @override
 //   void initState() {
 //     super.initState();
-//     if (mounted) {
-//       setState(() {
-//         listOfCoursesInSemester = widget.semstCourses;
-//       });
-//     }
+// // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 //     _focusName.addListener(_onFocusNameChange);
-//     _focusCredite.addListener(_onFocusCrediteChange);
-//     // ToDo: get Id
+//     _focusCredit.addListener(_onFocusCreditChange);
 //
 //     setState(() {
-//       index = listOfCoursesInSemester.indexOf(widget.courseList);
-//       selectedValue1 = widget.grade1;
-//       selectedValue2 = widget.grade2;
-//       val = widget.courseList[5] == 'one' ? false : true;
-//       if (widget.name == null) {
+//       semesterID = widget.courseList[0];
+//       name = widget.courseList[1];
+//       credit = widget.courseList[2];
+//       selectedValue1 = widget.courseList[3];
+//       selectedValue2 = widget.courseList[4];
+//       type = widget.courseList[5];
+//       courseID = widget.courseList[6];
+//       val = type == 'one' ? false : true;
+//       if (name == null) {
 //         _controller_Name = TextEditingController();
 //       } else {
-//         _controller_Name = TextEditingController(text: widget.name);
+//         _controller_Name = TextEditingController(text: name);
 //       }
-//       if (widget.credite == null) {
+//       if (credit == null) {
 //         _controller_Credit = TextEditingController();
 //       } else {
-//         _controller_Credit = TextEditingController(text: widget.credite);
+//         _controller_Credit = TextEditingController(text: credit);
 //       }
 //     });
-//
-//     // var name = _controller_Name.text;
-//     // var credit = _controller_Credit.text;
-//     // String? sNum = widget.courseList[0];
-//     // String option = widget.courseList[5];
 //     validationMethod();
 //   }
 //
-//   bool valideName = true;
-//   bool valideCredit = true;
+//   void collectDate() {
+//     // print(sav)
+//     // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
+//     var name = _controller_Name.text;
+//     var credit = _controller_Credit.text;
+//     setState(() {
+//       selectedValue2 = widget.courseList[4];
+//     });
+//     if (valideName &&
+//         valideCredit &&
+//         selectedValue1 != null &&
+//         !pressDeleteCourse) {
+//       if (val) {
+//         updateData(semesterID, courseID, name, credit, selectedValue1,
+//             selectedValue2, 'two');
+//       } else {
+//         updateData(
+//             semesterID, courseID, name, credit, selectedValue1, null, 'one');
+//       }
+//     }
+//   }
+//
+//   void _onFocusNameChange() {
+//     if (_focusName.hasFocus) {
+//     } else {
+//       String value = _controller_Name.text;
+//       if (value.isNotEmpty) {
+//         widget.listCoursesInSemester[widget.index][1] = value;
+//       } else {
+//         widget.listCoursesInSemester[widget.index][1] = null;
+//       }
+//       widget.CallBackUpdateList(widget.listCoursesInSemester);
+//       widget.CallBackUpdateChange();
+//     }
+//     errorGrade();
+//     validationMethod();
+//   }
+//
+//   void _onFocusCreditChange() {
+//     if (_focusCredit.hasFocus) {
+//     } else {
+//       String value = _controller_Credit.text;
+//       if (value.isNotEmpty) {
+//         widget.listCoursesInSemester[widget.index][2] = value;
+//       } else {
+//         widget.listCoursesInSemester[widget.index][2] = null;
+//       }
+//       widget.CallBackUpdateList(widget.listCoursesInSemester);
+//       widget.CallBackUpdateChange();
+//     }
+//   }
+//
+//   String? get _errorCredit {
+//     var Name = name ?? '';
+//     var Credit = credit ?? '';
+//     // if (pressed) {
+//     if (Credit.isNotEmpty && Credit.length > 3) {
+//       return '';
+//     }
+//     if (Credit.isNotEmpty &&
+//         (int.parse(Credit) == 0 ||
+//             int.parse(Credit) == 00 ||
+//             int.parse(Credit) == 000)) {
+//       return '';
+//     }
+//
+//     if ((Name.isNotEmpty && Name.trim().isNotEmpty)) {
+//       if (Credit.isEmpty || Credit.trim().isEmpty) {
+//         return '';
+//       }
+//     } else if ((Credit.isEmpty || Credit.trim().isEmpty) &&
+//         (selectedValue1 != null || selectedValue2 != null)) {
+//       return '';
+//     }
+//     // }
+//     return null;
+//   }
+//
+//   String? get _errorName {
+//     var Name = name ?? '';
+//     var Credit = credit ?? '';
+//     // if (pressed) {
+//
+//     if (Credit.isNotEmpty && Credit.trim().isNotEmpty) {
+//       if (Name.isEmpty || Name.trim().isEmpty) {
+//         return '';
+//       }
+//     } else if ((Name.isEmpty || Name.trim().isEmpty) &&
+//         (selectedValue1 != null || selectedValue2 != null)) {
+//       return '';
+//     }
+//     // }
+//
+//     return null;
+//   }
+//
 //   void validationMethod() {
 //     if (_errorName != null) {
 //       setState(() {
@@ -1693,76 +1539,27 @@
 //     }
 //   }
 //
-//   String? get _errorCredit {
-//     var name = widget.name ?? '';
-//     var credit = widget.credite ?? '';
-//     // if (pressed) {
-//     if (credit.isNotEmpty && credit.length > 3) {
-//       return '';
-//     }
-//     if (credit.isNotEmpty &&
-//         (int.parse(credit) == 0 ||
-//             int.parse(credit) == 00 ||
-//             int.parse(credit) == 000)) {
-//       return '';
-//     }
-//
-//     if ((name.isNotEmpty && name.trim().isNotEmpty)) {
-//       if (credit.isEmpty || credit.trim().isEmpty) {
-//         return '';
-//       }
-//     } else if ((credit.isEmpty || credit.trim().isEmpty) &&
-//         (selectedValue1 != null || selectedValue2 != null)) {
-//       return '';
-//     }
-//     // }
-//     return null;
-//   }
-//
-//   String? get _errorName {
-//     var name = widget.name ?? '';
-//     var credit = widget.credite ?? '';
-//     // if (pressed) {
-//
-//     if (credit.isNotEmpty && credit.trim().isNotEmpty) {
-//       if (name.isEmpty || name.trim().isEmpty) {
-//         return '';
-//       }
-//     } else if ((name.isEmpty || name.trim().isEmpty) &&
-//         (selectedValue1 != null || selectedValue2 != null)) {
-//       return '';
-//     }
-//     // }
-//
-//     return null;
-//   }
-//
 //   void errorGrade() {
-//     var name = widget.name ?? '';
-//     var credit = widget.credite ?? '';
-//     // if (pressed) {
-//     if ((name.isNotEmpty && name.trim().isNotEmpty) ||
-//         (credit.isNotEmpty && credit.trim().isNotEmpty)) {
+//     var Name = name ?? '';
+//     var Credit = credit ?? '';
+//     if ((Name.isNotEmpty && Name.trim().isNotEmpty) ||
+//         (Credit.isNotEmpty && Credit.trim().isNotEmpty)) {
 //       if (selectedValue1 == null) {
 //         setState(() {
 //           selectedValueIs1Null = true;
-//           // print('############# red ###############');
 //         });
 //       } else {
 //         setState(() {
 //           selectedValueIs1Null = false;
-//           // print('############# white ###############');
 //         });
 //       }
 //       if (selectedValue2 == null) {
 //         setState(() {
 //           selectedValueIs2Null = true;
-//           // print('############# red ###############');
 //         });
 //       } else {
 //         setState(() {
 //           selectedValueIs2Null = false;
-//           // print('############# white ###############');
 //         });
 //       }
 //     } else {
@@ -1775,130 +1572,134 @@
 //           selectedValueIs1Null = false;
 //           selectedValueIs2Null = false;
 //         }
-//         // print('############# white ###############');
 //       });
 //     }
 //     // }
 //   }
 //
-//   bool pressDeleteCourse = false;
-//   void deleteCourse() async {
-//     // ToDo: delete with id
+//   deleteCourse() {
+//     print('####################$courseID');
 //     setState(() {
 //       pressDeleteCourse = true;
 //     });
-//     await widget.collection!.doc(widget.id).delete();
 //
-//     // setState(() {
-//     // delete = true;
-//     // List deletedCourse = [
-//     //   widget.semestCourse,
-//     //   widget.name,
-//     //   widget.credite,
-//     //   widget.grade
-//     // ];
+//     if (widget.listCoursesInSemester.length == 1) {
+//       // var uuid = Uuid();
+//       // var uniqueId = uuid.v1();
 //
-//     int index = listOfCoursesInSemester.indexOf(widget.courseList);
-//     List deletedCourse = listOfCoursesInSemester.removeAt(index);
-//     // print('################## deleted course###############################');
-//     // print(deletedCourse);
-//     widget._keyOfCourse.currentState!.removeItem(index, (context, animation) {
-//       return SizeTransition(
-//         sizeFactor: animation,
-//         key: ValueKey(
-//           widget.name,
-//         ),
-//         child: Course(
-//             listOfCoursesInSemester,
-//             widget._keyOfCourse,
-//             widget.isChanged,
-//             widget.callback,
-//             widget.semestId,
-//             widget.name,
-//             widget.credite,
-//             widget.grade1,
-//             widget.grade2,
-//             widget.option,
-//             widget.courseList,
-//             widget.id,
-//             widget.collection),
-//       );
-//     }, duration: Duration(milliseconds: 400));
-//     // });
+//       setState(() {
+//         widget.listCoursesInSemester[widget.index] = [
+//           semesterID,
+//           null,
+//           null,
+//           null,
+//           null,
+//           'one',
+//           courseID
+//         ];
+//         _controller_Credit = TextEditingController();
+//         _controller_Name = TextEditingController();
+//         selectedValue2 = null;
+//         selectedValue1 = null;
+//         name = '';
+//         credit = '';
+//         type = 'one';
+//         val = false;
+//         selectedValueIs1Null = false;
+//         selectedValueIs2Null = false;
+//       });
+//
+//       updateData(semesterID, courseID, null, null, null, null, 'one');
+//       // addCourseInDB(semesterID, courseID, null, null, null, null, 'one');
+//       print('theListAfterUpdate:${widget.listCoursesInSemester}');
+//       allSemesters[widget.semesterIndex][widget.index] =
+//           widget.listCoursesInSemester[widget.index];
+//       widget.CallBackUpdateList(widget.listCoursesInSemester);
+//     } else {
+//       List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
+//       widget.CallBackUpdateList(widget.listCoursesInSemester);
+//       widget._keyAniSemest.currentState!.removeItem(widget.index,
+//           (context, animation) {
+//         return SizeTransition(
+//           sizeFactor: animation,
+//           child: CourseFin(
+//               widget.index,
+//               widget.semesterIndex,
+//               deletedCourse,
+//               widget.listCoursesInSemester,
+//               widget.CallBackUpdateList,
+//               () {},
+//               () {},
+//               widget._keyAniSemest),
+//         );
+//       }, duration: Duration(milliseconds: 300));
+//       Future.delayed(Duration(milliseconds: 310), () {
+//         deleteCourseFromDB(courseID);
+//         print('deletedCourse:$deletedCourse');
+//         print('theListAfterDeleting:${widget.listCoursesInSemester}');
+//       });
+//     }
 //
 //     setState(() {
-//       widget.isChanged = true;
-//       widget.callback(true);
 //       pressDeleteCourse = false;
 //     });
+//
+//     // Future.delayed(Duration(milliseconds: 320), () {
+//     //   widget.calcCGPA();
+//     // });
+//
+// //###############################################################
+//     // if (widget.allSemesterss.length == 1 &&
+//     //     widget.listCoursesInSemester.length == 1) {
+//     //   print('no delete');
+//     // }
+//     //
+//     // widget.CallBackUpdateChange(true);
+//     //
+//     // List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
+//     //
+//     // widget.CallBackUpdateList(widget.listCoursesInSemester);
+//     // widget._keyAniSemest.currentState!.removeItem(widget.index,
+//     //     (context, animation) {
+//     //   return SizeTransition(
+//     //     sizeFactor: animation,
+//     //     child: Course(
+//     //         widget.index,
+//     //         deletedCourse,
+//     //         widget.listCoursesInSemester,
+//     //         widget.CallBackUpdateList,
+//     //         widget.CallBackUpdateChange,
+//     //         widget.allSemesterss,
+//     //         widget.callBackallSemesterss,
+//     //         widget.semesterIndex,
+//     //         widget._keyAniSemest),
+//     //   );
+//     // }, duration: Duration(milliseconds: 0));
+//     // print('deletedCourse:$deletedCourse');
+//     // print('theListAfterDeleting:${widget.listCoursesInSemester}');
+//
+//     // if (widget.listCoursesInSemester.isEmpty) {
+//     //   var uuid = Uuid();
+//     //   var uniqueId = uuid.v1();
+//     //
+//     //   setState(() {
+//     //     widget.listCoursesInSemester
+//     //         .add([semesterID, null, null, null, null, 'one', uniqueId]);
+//     //     widget.allSemesterss[widget.index] = widget.listCoursesInSemester;
+//     //     widget.callBackallSemesterss(widget.allSemesterss);
+//     //     widget.allSemesterss[widget.semesterIndex] =
+//     //         widget.listCoursesInSemester;
+//     //     widget.callBackallSemesterss(widget.allSemesterss);
+//     //   });
+//     //   widget._keyAniSemest.currentState!
+//     //       .insertItem(0, duration: Duration(milliseconds: 250));
+//     //   print('theListAfterAdd:${widget.listCoursesInSemester}');
+//     // } else {
+//     //   widget.allSemesterss[widget.semesterIndex] = widget.listCoursesInSemester;
+//     //   widget.callBackallSemesterss(widget.allSemesterss);
+//     // }
 //   }
 //
-//   late MyData _provider;
-//
-//   @override
-//   void didChangeDependencies() {
-//     _provider = Provider.of<MyData>(context, listen: false);
-//
-//     super.didChangeDependencies();
-//   }
-//
-//   @override
-//   void dispose() {
-//     super.dispose();
-//     _controller_Name.dispose();
-//     _controller_Credit.dispose();
-//     _focusName.removeListener(_onFocusNameChange);
-//     _focusName.dispose();
-//     _focusCredite.removeListener(_onFocusCrediteChange);
-//     _focusCredite.dispose();
-//   }
-//
-//   late bool val;
-//   void updateData(var semestId, var name, var credit, var grade1, var grade2,
-//       var type) async {
-//     await widget.collection!.doc(widget.id).set({
-//       'id': widget.id,
-//       'courseName': name,
-//       'credit': credit,
-//       'grade1': grade1,
-//       'grade2': grade2,
-//       'semestId': semestId,
-//       'type': '$type',
-//     });
-//   }
-//
-//   void collectDate() {
-//     // print(sav)
-//     // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
-//     var name = _controller_Name.text;
-//     var credit = _controller_Credit.text;
-//     int? semestId = widget.courseList[0];
-//     setState(() {
-//       selectedValue2 = widget.courseList[4];
-//     });
-//
-//     if (valideName &&
-//         valideCredit &&
-//         selectedValue1 != null &&
-//         !pressDeleteCourse) {
-//       // print('pressDeleteSemest: $pressDeleteSemest');
-//       // print('pressDeleteCourse: $pressDeleteCourse');
-//       // print('save: $save');
-//
-//       print('############### courseList ##################');
-//       print(widget.courseList);
-//       print('############### semestId ##################');
-//       print(widget.semestId);
-//       if (val) {
-//         updateData(
-//             semestId, name, credit, selectedValue1, selectedValue2, 'two');
-//       } else {
-//         updateData(semestId, name, credit, selectedValue1, null, 'one');
-//       }
-//     }
-//   }
-//
-//   @override
 //   Widget gradeContainer() {
 //     return Row(
 //       children: [
@@ -1906,119 +1707,112 @@
 //             ? Row(
 //                 children: [
 //                   GestureDetector(
-//                     onTap: () {
-//                       FocusManager.instance.primaryFocus?.unfocus();
-//                     },
-//                     child: DropdownButtonHideUnderline(
-//                       child: DropdownButton2(
-//                         onMenuStateChange: (value) {
-//                           errorGrade();
-//                         },
-//                         customButton: Container(
-//                           width: 45,
-//                           height: 31,
-//                           decoration: BoxDecoration(
-//                             color: Colors.transparent,
-//                             border: Border(
-//                                 bottom: BorderSide(
-//                                     color: selectedValueIs1Null
-//                                         ? Color(0xffce2029)
-//                                         : Colors.white,
-//                                     width: 1)),
-//                           ),
-//                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.end,
-//                             children: [
-//                               selectedValue1 == null
-//                                   ? Text(
-//                                       '1 st',
-//                                       style: TextStyle(
-//                                           color: Colors.grey, fontSize: 18),
-//                                     )
-//                                   : Text(
-//                                       '$selectedValue1',
-//                                       style: TextStyle(
-//                                         fontSize: 18,
-//                                         color: Color(0xff4562a7),
-//                                       ),
-//                                     ),
-//                             ],
-//                           ),
-//                         ),
-//                         items: items
-//                             .map((item) => DropdownMenuItem<String>(
-//                                   value: item,
-//                                   child: Center(
-//                                     child: Container(
-//                                       alignment: Alignment.center,
-//                                       width: 45,
-//                                       height: 80,
-//                                       decoration: BoxDecoration(
-//                                           border: Border(
-//                                         bottom: BorderSide(
-//                                             color: Colors.white, width: 1),
-//                                       )),
-//                                       child: Text(
-//                                         item,
-//                                         style: const TextStyle(
+//                       onTap: () {
+//                         FocusManager.instance.primaryFocus?.unfocus();
+//                       },
+//                       child: DropdownButtonHideUnderline(
+//                         child: DropdownButton2(
+//                           onMenuStateChange: (value) {
+//                             errorGrade();
+//                           },
+//                           customButton: Container(
+//                             width: 45,
+//                             height: 31,
+//                             decoration: BoxDecoration(
+//                               color: Colors.transparent,
+//                               border: Border(
+//                                   bottom: BorderSide(
+//                                       color: selectedValueIs1Null
+//                                           ? Color(0xffce2029)
+//                                           : Colors.white,
+//                                       width: 1)),
+//                             ),
+//                             child: Row(
+//                               mainAxisAlignment: MainAxisAlignment.center,
+//                               children: [
+//                                 selectedValue1 == null
+//                                     ? Text(
+//                                         '1 st',
+//                                         style: TextStyle(
+//                                             color: Colors.grey, fontSize: 18),
+//                                       )
+//                                     : Text(
+//                                         '$selectedValue1',
+//                                         style: TextStyle(
 //                                           fontSize: 18,
 //                                           color: Color(0xff4562a7),
 //                                         ),
 //                                       ),
-//                                     ),
-//                                   ),
-//                                 ))
-//                             .toList(),
-//                         value: selectedValue1,
-//                         onChanged: (value) {
-//                           setState(() {
-//                             widget.isChanged = true;
-//                             widget.callback(true);
-//                             selectedValue1 = value as String;
-//                             widget.courseList[3] = selectedValue1;
-//                             listOfCoursesInSemester[index][3] = value;
-//                             // print('################# courseList ######################');
-//                             // print(courseList);
-//                             // print(
-//                             //     '################# semsestcourses ######################');
-//                             // print(widget.semestCourse[index]);
-//
-//                             errorGrade();
-//                             // theStateOfCourse();
-//                             // Provider.of<MyData>(context, listen: false)
-//                             //     .changeSaveData(true);
-//
-//                             // collectDate();
-//                           });
-//                         },
-//                         dropdownStyleData: DropdownStyleData(
-//                           maxHeight: 200,
-//                           width: 70,
-//                           padding: null,
-//                           elevation: 2,
-//                           decoration: BoxDecoration(
-//                             borderRadius: BorderRadius.only(
-//                                 bottomLeft: Radius.circular(10),
-//                                 bottomRight: Radius.circular(10)),
-//                             color: Color(0xffb8c8d1),
-//                             // boxShadow: [
-//                             //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-//                             // ],
+//                               ],
+//                             ),
 //                           ),
-//                           offset: const Offset(20, 0),
-//                           scrollbarTheme: ScrollbarThemeData(
-//                             radius: const Radius.circular(40),
-//                             thickness: MaterialStateProperty.all(0),
-//                             thumbVisibility: MaterialStateProperty.all(false),
+//                           items: items
+//                               .map((item) => DropdownMenuItem<String>(
+//                                     value: item,
+//                                     child: Center(
+//                                       child: Container(
+//                                         alignment: Alignment.center,
+//                                         width: 45,
+//                                         height: 80,
+//                                         decoration: BoxDecoration(
+//                                             border: Border(
+//                                           bottom: BorderSide(
+//                                               color: Colors.white, width: 1),
+//                                         )),
+//                                         child: Text(
+//                                           item,
+//                                           style: const TextStyle(
+//                                             fontSize: 18,
+//                                             color: Color(0xff4562a7),
+//                                           ),
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ))
+//                               .toList(),
+//                           value: selectedValue1,
+//                           key: ValueKey(selectedValue1),
+//                           onChanged: (value) {
+//                             setState(() {
+//                               selectedValue1 = value as String;
+//                               widget.courseList[3] = selectedValue1;
+//                               if (value.isNotEmpty) {
+//                                 widget.listCoursesInSemester[widget.index][3] =
+//                                     value;
+//                               } else {
+//                                 widget.listCoursesInSemester[widget.index][3] =
+//                                     null;
+//                               }
+//                               widget.CallBackUpdateList(
+//                                   widget.listCoursesInSemester);
+//                               widget.CallBackUpdateChange();
+//
+//                               errorGrade();
+//                             });
+//                           },
+//                           dropdownStyleData: DropdownStyleData(
+//                             maxHeight: 200,
+//                             width: 60,
+//                             padding: null,
+//                             elevation: 2,
+//                             decoration: BoxDecoration(
+//                               borderRadius: BorderRadius.only(
+//                                   bottomLeft: Radius.circular(10),
+//                                   bottomRight: Radius.circular(10)),
+//                               color: Color(0xffb8c8d1),
+//                               // boxShadow: [
+//                               //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+//                               // ],
+//                             ),
+//                             offset: const Offset(0, 0),
+//                             scrollbarTheme: ScrollbarThemeData(
+//                               radius: const Radius.circular(40),
+//                               thickness: MaterialStateProperty.all(0),
+//                               thumbVisibility: MaterialStateProperty.all(false),
+//                             ),
 //                           ),
 //                         ),
-//                         // menuItemStyleData: const MenuItemStyleData(
-//                         //   height: 40,
-//                         //   padding: EdgeInsets.only(left: 14, right: 14),
-//                         // ),
-//                       ),
-//                     ),
-//                   ),
+//                       )),
 //                   SizedBox(
 //                     width: 5,
 //                   ),
@@ -2044,7 +1838,7 @@
 //                                     width: 1)),
 //                           ),
 //                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.end,
+//                             mainAxisAlignment: MainAxisAlignment.center,
 //                             children: [
 //                               selectedValue2 == null
 //                                   ? Text(
@@ -2087,30 +1881,28 @@
 //                                 ))
 //                             .toList(),
 //                         value: selectedValue2,
+//                         key: ValueKey(selectedValue2),
 //                         onChanged: (value) {
 //                           setState(() {
-//                             widget.isChanged = true;
-//                             widget.callback(true);
 //                             selectedValue2 = value as String;
 //                             widget.courseList[4] = selectedValue2;
-//                             listOfCoursesInSemester[index][4] = value;
-//                             // print('################# courseList ######################');
-//                             // print(courseList);
-//                             // print(
-//                             //     '################# semsestcourses ######################');
-//                             // print(widget.semestCourse[index]);
+//                             if (value.isNotEmpty) {
+//                               widget.listCoursesInSemester[widget.index][4] =
+//                                   value;
+//                             } else {
+//                               widget.listCoursesInSemester[widget.index][4] =
+//                                   null;
+//                             }
+//                             widget.CallBackUpdateList(
+//                                 widget.listCoursesInSemester);
 //
 //                             errorGrade();
-//                             // theStateOfCourse();
-//                             // Provider.of<MyData>(context, listen: false)
-//                             //     .changeSaveData(true);
-//
-//                             // collectDate();
+//                             widget.CallBackUpdateChange();
 //                           });
 //                         },
 //                         dropdownStyleData: DropdownStyleData(
 //                           maxHeight: 200,
-//                           width: 70,
+//                           width: 60,
 //                           padding: null,
 //                           elevation: 2,
 //                           decoration: BoxDecoration(
@@ -2122,17 +1914,13 @@
 //                             //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
 //                             // ],
 //                           ),
-//                           offset: const Offset(20, 0),
+//                           offset: const Offset(-10, 0),
 //                           scrollbarTheme: ScrollbarThemeData(
 //                             radius: const Radius.circular(40),
 //                             thickness: MaterialStateProperty.all(0),
 //                             thumbVisibility: MaterialStateProperty.all(false),
 //                           ),
 //                         ),
-//                         // menuItemStyleData: const MenuItemStyleData(
-//                         //   height: 40,
-//                         //   padding: EdgeInsets.only(left: 14, right: 14),
-//                         // ),
 //                       ),
 //                     ),
 //                   )
@@ -2210,26 +1998,20 @@
 //                             ))
 //                         .toList(),
 //                     value: selectedValue1,
+//                     key: ValueKey(selectedValue1),
 //                     onChanged: (value) {
 //                       setState(() {
-//                         widget.isChanged = true;
-//                         widget.callback(true);
-//
 //                         selectedValue1 = value as String;
 //                         widget.courseList[3] = selectedValue1;
-//                         listOfCoursesInSemester[index][3] = value;
-//                         // print('################# courseList ######################');
-//                         // print(courseList);
-//                         // print(
-//                         //     '################# semsestcourses ######################');
-//                         // print(widget.semestCourse[index]);
+//                         if (value.isNotEmpty) {
+//                           widget.listCoursesInSemester[widget.index][3] = value;
+//                         } else {
+//                           widget.listCoursesInSemester[widget.index][3] = null;
+//                         }
+//                         widget.CallBackUpdateList(widget.listCoursesInSemester);
 //
 //                         errorGrade();
-//                         // theStateOfCourse();
-//                         // Provider.of<MyData>(context, listen: false)
-//                         //     .changeSaveData(true);
-//
-//                         // collectDate();
+//                         widget.CallBackUpdateChange();
 //                       });
 //                     },
 //                     dropdownStyleData: DropdownStyleData(
@@ -2253,10 +2035,6 @@
 //                         thumbVisibility: MaterialStateProperty.all(false),
 //                       ),
 //                     ),
-//                     // menuItemStyleData: const MenuItemStyleData(
-//                     //   height: 40,
-//                     //   padding: EdgeInsets.only(left: 14, right: 14),
-//                     // ),
 //                   ),
 //                 ),
 //               ),
@@ -2268,21 +2046,20 @@
 //                 setState(() {
 //                   selectedValue2 = null;
 //                   widget.courseList[4] = null;
-//                   listOfCoursesInSemester[index][4] = null;
+//                   widget.listCoursesInSemester[widget.index][4] = null;
 //                   widget.courseList[5] = 'one';
-//                   listOfCoursesInSemester[index][5] = 'one';
+//                   widget.listCoursesInSemester[widget.index][5] = 'one';
 //                 });
 //               } else {
 //                 setState(() {
 //                   widget.courseList[4] = selectedValue2;
-//                   listOfCoursesInSemester[index][4] = selectedValue2;
-//
+//                   widget.listCoursesInSemester[widget.index][4] =
+//                       selectedValue2;
 //                   widget.courseList[5] = 'two';
-//                   listOfCoursesInSemester[index][5] = 'two';
+//                   widget.listCoursesInSemester[widget.index][5] = 'two';
 //                 });
 //               }
-//               // print('###########################');
-//               // print(box.toMap());
+//               widget.CallBackUpdateList(widget.listCoursesInSemester);
 //             });
 //           },
 //           child: AbsorbPointer(
@@ -2305,16 +2082,6 @@
 //                     color: val ? Colors.green : Colors.transparent,
 //                     borderRadius: BorderRadius.all(Radius.circular(100)),
 //                   )),
-//
-//               // val ?
-//               // Icon(
-//               //         Icons.check_box,
-//               //         color: Colors.green,
-//               //       )
-//               //     : Icon(
-//               //         Icons.check_box_outline_blank,
-//               //         color: Colors.green,
-//               //       ),
 //             ),
 //           ),
 //         )
@@ -2322,22 +2089,21 @@
 //     );
 //   }
 //
-//   Widget build(BuildContext context) {
-//     if (mounted) {
-//       test();
-//       errorGrade();
-//       validationMethod();
-//       // theStateOfCourse;
-//       // if (!pressDelete) {
-//       // setState(() {
-//       //   val;
-//       //   gradeContainer();
-//       // });
+//   @override
+//   void dispose() {
+//     super.dispose();
+//     _controller_Name.dispose();
+//     _controller_Credit.dispose();
+//     _focusName.removeListener(_onFocusNameChange);
+//     _focusName.dispose();
+//     _focusCredit.removeListener(_onFocusCreditChange);
+//     _focusCredit.dispose();
+//   }
 //
-//       // collectDate();
-//       // findSecondTryCourse();
-//       // }
-//     }
+//   @override
+//   Widget build(BuildContext context) {
+//     errorGrade();
+//     validationMethod();
 //
 //     return Padding(
 //       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -2351,12 +2117,13 @@
 //               children: [
 //                 GestureDetector(
 //                   onTap: () {
+//                     FocusManager.instance.primaryFocus?.unfocus();
+//                     // widget.CallBackUpdateChange();
 //                     setState(() {
-//                       FocusManager.instance.primaryFocus?.unfocus();
-//
-//                       // Provider.of<MyData>(context, listen: false)
-//                       //     .changeDelete(true);
-//                       deleteCourse();
+//                       Future.delayed(Duration(milliseconds: 100), () {
+//                         deleteCourse();
+//                         // widget.calcCGPA();
+//                       });
 //                     });
 //                   },
 //                   child: Icon(
@@ -2371,7 +2138,6 @@
 //                   child: TextField(
 //                     controller: _controller_Name,
 //                     textAlign: TextAlign.center,
-//                     autofocus: false,
 //                     focusNode: _focusName,
 //                     style: TextStyle(
 //                       fontSize: 18,
@@ -2379,20 +2145,17 @@
 //                     ),
 //                     onChanged: (value) {
 //                       setState(() {
-//                         widget.isChanged = true;
-//                         widget.callback(true);
-//
-//                         widget.courseList[1] = value;
-//                         if (value.isNotEmpty) {
-//                           listOfCoursesInSemester[index][1] = value;
-//                         } else {
-//                           listOfCoursesInSemester[index][1] = null;
-//                         }
 //                         errorGrade();
+//                         widget.courseList[1] = value;
+//                         name = value;
+//                         if (value.isNotEmpty) {
+//                           widget.listCoursesInSemester[widget.index][1] = value;
+//                         } else {
+//                           widget.listCoursesInSemester[widget.index][1] = null;
+//                         }
+//                         // widget.CallBackUpdateList(widget.listCoursesInSemester);
 //                         selectedValueIs1Null;
 //                         selectedValueIs2Null;
-//                         // theStateOfCourse();
-//                         // collectDate();
 //                       });
 //                     },
 //                     decoration: InputDecoration(
@@ -2422,21 +2185,17 @@
 //               child: TextField(
 //                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
 //                 controller: _controller_Credit,
+//                 focusNode: _focusCredit,
 //                 textAlign: TextAlign.center,
-//                 focusNode: _focusCredite,
 //                 keyboardType: TextInputType.number,
 //                 onChanged: (value) {
 //                   setState(() {
-//                     widget.isChanged = true;
-//                     widget.callback(true);
-//                     widget.courseList[2] = value;
+//                     credit = value;
 //                     if (value.isNotEmpty) {
-//                       listOfCoursesInSemester[index][2] = value;
+//                       widget.listCoursesInSemester[widget.index][2] = value;
 //                     } else {
-//                       listOfCoursesInSemester[index][2] = null;
+//                       widget.listCoursesInSemester[widget.index][2] = null;
 //                     }
-//                     // theStateOfCourse();
-//                     // collectDate();
 //                   });
 //                 },
 //                 style: TextStyle(
@@ -2467,18 +2226,18 @@
 //   }
 // }
 //
-// class AppBarHome extends StatefulWidget {
+// class AppBarHomeFin extends StatefulWidget {
 //   double cgpa;
 //   int earnCredit;
 //   int totalCredit;
 //
-//   AppBarHome(this.cgpa, this.earnCredit, this.totalCredit);
+//   AppBarHomeFin(this.cgpa, this.earnCredit, this.totalCredit);
 //
 //   @override
-//   State<AppBarHome> createState() => _AppBarHomeState();
+//   State<AppBarHomeFin> createState() => _AppBarHomeFinState();
 // }
 //
-// class _AppBarHomeState extends State<AppBarHome> {
+// class _AppBarHomeFinState extends State<AppBarHomeFin> {
 //   Future<void> _signOut() async {
 //     await FirebaseAuth.instance.signOut();
 //   }
@@ -2504,16 +2263,14 @@
 //                 children: [
 //                   GestureDetector(
 //                     onTap: () {
-//                       setState(() {
-//                         signOut = true;
-//                         allSemestData = [];
-//                       });
 //                       _signOut();
-//                       Future.delayed(Duration(milliseconds: 200), () {
-//                         Navigator.pop(context);
-//                         Navigator.pop(context);
-//                       });
-//                       // Navigator.pushNamedAndRemoveUntil(context, newRouteName, (route) => )
+//                       Navigator.pushAndRemoveUntil(
+//                         context,
+//                         MaterialPageRoute(
+//                           builder: (context) => Siginin(),
+//                         ),
+//                         (route) => true,
+//                       );
 //                     },
 //                     child: Icon(
 //                       Icons.arrow_back_ios_new,

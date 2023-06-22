@@ -512,7 +512,7 @@ class SemesterFin extends StatefulWidget {
 
 class _SemesterFinState extends State<SemesterFin> {
   final _keyAniListCourses = GlobalKey<AnimatedListState>();
-  late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
+  // late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
   var uuid = Uuid();
 
@@ -547,11 +547,11 @@ class _SemesterFinState extends State<SemesterFin> {
       //   if(course[6] !='')
       // }
       listOfCoursesInSemester = widget.semesterCourses;
-      _courseKeys = List.generate(widget.semesterCourses.length, (index) {
-        var uuid = Uuid();
-        var uniqueId = uuid.v1();
-        return GlobalObjectKey<_CourseFinState>(uniqueId);
-      });
+      // _courseKeys = List.generate(widget.semesterCourses.length, (index) {
+      //   var uuid = Uuid();
+      //   var uniqueId = uuid.v1();
+      //   return GlobalObjectKey<_CourseFinState>(uniqueId);
+      // });
       // calcGPA();
     });
   }
@@ -684,11 +684,11 @@ class _SemesterFinState extends State<SemesterFin> {
           .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
       allSemesters[widget.index] = listOfCoursesInSemester;
     });
-    _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
-      var uuid = Uuid();
-      var uniqueId = uuid.v1();
-      return GlobalObjectKey<_CourseFinState>(uniqueId);
-    });
+    // _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
+    //   var uuid = Uuid();
+    //   var uniqueId = uuid.v1();
+    //   return GlobalObjectKey<_CourseFinState>(uniqueId);
+    // });
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
         : listOfCoursesInSemester.length - 1;
@@ -998,6 +998,27 @@ class _SemesterFinState extends State<SemesterFin> {
     super.dispose();
   }
 
+  void collectDate() {
+    for (List courseList in listOfCoursesInSemester) {
+      var semesterID = courseList[0];
+      var name = courseList[1];
+      var credit = courseList[2];
+      var selectedValue1 = courseList[3];
+      var selectedValue2 = courseList[4];
+      var type = courseList[5];
+      var courseID = courseList[6];
+      var val = type == 'one' ? false : true;
+
+      if (val) {
+        updateData(semesterID, courseID, name, credit, selectedValue1,
+            selectedValue2, 'two');
+      } else {
+        updateData(
+            semesterID, courseID, name, credit, selectedValue1, null, 'one');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1204,7 +1225,8 @@ class _SemesterFinState extends State<SemesterFin> {
                       // widget.calcCGPA();
                     },
                     _keyAniListCourses,
-                    key: _courseKeys[index],
+                    // key: _courseKeys[index],
+                    // key: UniqueKey(),
                   ),
                 );
               },
@@ -1254,14 +1276,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           if (emptyField == null &&
                               creditEqZero == null &&
                               creditMoreThanThree == null) {
-                            // calcGPA();
-                            // widget.calcCGPA();
-                            // Display();
-                            for (int i = 0;
-                                i < listOfCoursesInSemester.length;
-                                i++) {
-                              _courseKeys[i].currentState!.collectDate();
-                            }
+                            collectDate();
                             setState(() {
                               widget.isChanged = false;
                               widget.ChangeList(widget.index, false, false);
@@ -1419,28 +1434,6 @@ class _CourseFinState extends State<CourseFin> {
       }
     });
     validationMethod();
-  }
-
-  void collectDate() {
-    // print(sav)
-    // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
-    var name = _controller_Name.text;
-    var credit = _controller_Credit.text;
-    setState(() {
-      selectedValue2 = widget.courseList[4];
-    });
-    if (valideName &&
-        valideCredit &&
-        selectedValue1 != null &&
-        !pressDeleteCourse) {
-      if (val) {
-        updateData(semesterID, courseID, name, credit, selectedValue1,
-            selectedValue2, 'two');
-      } else {
-        updateData(
-            semesterID, courseID, name, credit, selectedValue1, null, 'one');
-      }
-    }
   }
 
   void _onFocusNameChange() {

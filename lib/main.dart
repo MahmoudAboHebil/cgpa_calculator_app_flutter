@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/welcome.dart';
+import 'pages/HomeGI.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
