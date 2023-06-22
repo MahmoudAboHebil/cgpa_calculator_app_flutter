@@ -9,6 +9,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
+// ToDo:  the calcCPA button disappear when adding a new semester (done - but there is a Special case when removing a course)
 class MyBehavior extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(
@@ -89,6 +90,7 @@ class HomePageFin extends StatefulWidget {
 class _HomePageFinState extends State<HomePageFin> {
   final _keySemester = GlobalKey<AnimatedListState>();
   final _auth = FirebaseAuth.instance;
+  List<bool> isChangeList = [];
   List keySemesters = [];
   var uuid = Uuid();
   bool _visible = true;
@@ -97,6 +99,15 @@ class _HomePageFinState extends State<HomePageFin> {
   int totalCredit = 0;
   bool flag = true;
   // bool showSpinner2 = true;
+  callBackChangeList(int index, bool value, remove) {
+    setState(() {
+      if (remove) {
+        isChangeList.removeAt(index);
+      } else {
+        isChangeList[index] = value;
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -226,6 +237,11 @@ class _HomePageFinState extends State<HomePageFin> {
                 ];
                 addCourseInDB(1, 'firstCourse', null, null, null, null, 'one');
               }
+              isChangeList = [];
+              for (int i = 0; i < keys.length; i++) {
+                isChangeList.add(false);
+              }
+              // print(isChangeList);
               flag = false;
             }
 
@@ -241,12 +257,18 @@ class _HomePageFinState extends State<HomePageFin> {
                   key: UniqueKey(),
                   child: allSemesters.isNotEmpty
                       ? SemesterFin(
-                          allSemesters[index], allSemesters[index][0][0], index,
+                          allSemesters[index],
+                          allSemesters[index][0][0],
+                          index,
                           () {
-                          // setState(() {
-                          //   calcCGPA();
-                          // });
-                        }, _keySemester)
+                            // setState(() {
+                            //   calcCGPA();
+                            // });
+                          },
+                          _keySemester,
+                          isChangeList[index],
+                          callBackChangeList,
+                        )
                       : Container(),
                 );
               },
@@ -303,6 +325,7 @@ class _HomePageFinState extends State<HomePageFin> {
       allSemesters.add([
         [maxSemester + 1, null, null, null, null, 'one', uniqueId]
       ]);
+      isChangeList.add(false);
       print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
       addCourseInDB(maxSemester + 1, uniqueId, null, null, null, null, 'one');
       _keySemester.currentState!
@@ -453,14 +476,18 @@ class _HomePageFinState extends State<HomePageFin> {
   }
 }
 
+// bool isChanged = false;
+
 class SemesterFin extends StatefulWidget {
   List semesterCourses;
   int semesterId;
   int index;
   Function calcCGPA;
+  bool isChanged;
+  Function ChangeList;
   GlobalKey<AnimatedListState> _allSemestersKey;
   SemesterFin(this.semesterCourses, this.semesterId, this.index, this.calcCGPA,
-      this._allSemestersKey,
+      this._allSemestersKey, this.isChanged, this.ChangeList,
       {Key? key})
       : super(key: key);
 
@@ -474,7 +501,6 @@ class _SemesterFinState extends State<SemesterFin> {
   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
   var uuid = Uuid();
 
-  bool isChanged = false;
   List listOfCoursesInSemester = [];
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
@@ -515,9 +541,9 @@ class _SemesterFinState extends State<SemesterFin> {
     });
   }
 
-  callbackIsChanged(value) {
+  callbackIsChanged() {
     setState(() {
-      isChanged = value;
+      widget.ChangeList(widget.index, true, false);
     });
   }
 
@@ -662,6 +688,8 @@ class _SemesterFinState extends State<SemesterFin> {
   void deleteSemester() {
     setState(() {
       List deletedSemest = allSemesters.removeAt(widget.index);
+      widget.ChangeList(widget.index, false, true);
+
       deleteSemesterFromDB(widget.semesterId);
       print('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
       print(widget.semesterId);
@@ -670,7 +698,7 @@ class _SemesterFinState extends State<SemesterFin> {
         return SlideTransition(
           position: animation.drive(_offset),
           child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
-              () {}, widget._allSemestersKey),
+              () {}, widget._allSemestersKey, false, () {}),
         );
       }, duration: Duration(milliseconds: 400));
 
@@ -1171,8 +1199,9 @@ class _SemesterFinState extends State<SemesterFin> {
               key: _keyAniListCourses,
             ),
             Row(
-              mainAxisAlignment:
-                  isChanged ? MainAxisAlignment.center : MainAxisAlignment.end,
+              mainAxisAlignment: widget.isChanged
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -1181,7 +1210,7 @@ class _SemesterFinState extends State<SemesterFin> {
                   },
                   child: Container(
                     alignment: Alignment.center,
-                    margin: isChanged
+                    margin: widget.isChanged
                         ? EdgeInsets.only(right: 30)
                         : EdgeInsets.only(right: 85),
                     decoration: BoxDecoration(
@@ -1201,7 +1230,7 @@ class _SemesterFinState extends State<SemesterFin> {
                     ),
                   ),
                 ),
-                isChanged
+                widget.isChanged
                     ? GestureDetector(
                         onTap: () {
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -1219,7 +1248,8 @@ class _SemesterFinState extends State<SemesterFin> {
                               _courseKeys[i].currentState!.collectDate();
                             }
                             setState(() {
-                              isChanged = false;
+                              widget.isChanged = false;
+                              widget.ChangeList(widget.index, false, false);
                             });
                           } else {
                             message();
@@ -1235,7 +1265,7 @@ class _SemesterFinState extends State<SemesterFin> {
                         },
                         child: Container(
                           alignment: Alignment.center,
-                          margin: isChanged
+                          margin: widget.isChanged
                               ? EdgeInsets.all(0)
                               : EdgeInsets.only(right: 20),
                           decoration: BoxDecoration(
@@ -1260,7 +1290,8 @@ class _SemesterFinState extends State<SemesterFin> {
                     : GestureDetector(
                         onTap: () {
                           setState(() {
-                            isChanged = true;
+                            widget.isChanged = true;
+                            widget.ChangeList(widget.index, true, false);
                           });
                         },
                         child: AbsorbPointer(
@@ -1407,7 +1438,7 @@ class _CourseFinState extends State<CourseFin> {
         widget.listCoursesInSemester[widget.index][1] = null;
       }
       widget.CallBackUpdateList(widget.listCoursesInSemester);
-      widget.CallBackUpdateChange(true);
+      widget.CallBackUpdateChange();
     }
     errorGrade();
     validationMethod();
@@ -1423,7 +1454,7 @@ class _CourseFinState extends State<CourseFin> {
         widget.listCoursesInSemester[widget.index][2] = null;
       }
       widget.CallBackUpdateList(widget.listCoursesInSemester);
-      widget.CallBackUpdateChange(true);
+      widget.CallBackUpdateChange();
     }
   }
 
@@ -1598,8 +1629,6 @@ class _CourseFinState extends State<CourseFin> {
       pressDeleteCourse = false;
     });
 
-    widget.CallBackUpdateChange(true);
-
     // Future.delayed(Duration(milliseconds: 320), () {
     //   widget.calcCGPA();
     // });
@@ -1741,7 +1770,7 @@ class _CourseFinState extends State<CourseFin> {
                               }
                               widget.CallBackUpdateList(
                                   widget.listCoursesInSemester);
-                              widget.CallBackUpdateChange(true);
+                              widget.CallBackUpdateChange();
 
                               errorGrade();
                             });
@@ -1853,7 +1882,7 @@ class _CourseFinState extends State<CourseFin> {
                                 widget.listCoursesInSemester);
 
                             errorGrade();
-                            widget.CallBackUpdateChange(true);
+                            widget.CallBackUpdateChange();
                           });
                         },
                         dropdownStyleData: DropdownStyleData(
@@ -1967,7 +1996,7 @@ class _CourseFinState extends State<CourseFin> {
                         widget.CallBackUpdateList(widget.listCoursesInSemester);
 
                         errorGrade();
-                        widget.CallBackUpdateChange(true);
+                        widget.CallBackUpdateChange();
                       });
                     },
                     dropdownStyleData: DropdownStyleData(
@@ -2074,6 +2103,7 @@ class _CourseFinState extends State<CourseFin> {
                 GestureDetector(
                   onTap: () {
                     FocusManager.instance.primaryFocus?.unfocus();
+                    // widget.CallBackUpdateChange();
                     setState(() {
                       Future.delayed(Duration(milliseconds: 100), () {
                         deleteCourse();
@@ -2111,7 +2141,7 @@ class _CourseFinState extends State<CourseFin> {
                         // widget.CallBackUpdateList(widget.listCoursesInSemester);
                         selectedValueIs1Null;
                         selectedValueIs2Null;
-                        // widget.CallBackUpdateChange(true);
+                        widget.CallBackUpdateChange();
                       });
                     },
                     decoration: InputDecoration(
@@ -2154,7 +2184,7 @@ class _CourseFinState extends State<CourseFin> {
                     }
                     // widget.CallBackUpdateList(widget.listCoursesInSemester);
                   });
-                  // widget.CallBackUpdateChange(true);
+                  widget.CallBackUpdateChange();
                 },
                 style: TextStyle(
                   fontSize: 18,
@@ -2222,7 +2252,6 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                   GestureDetector(
                     onTap: () {
                       _signOut();
-                      Navigator.pop(context);
                       Navigator.pop(context);
                     },
                     child: Icon(
