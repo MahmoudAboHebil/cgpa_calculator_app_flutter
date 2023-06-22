@@ -1,3 +1,4 @@
+import 'package:cgp_calculator/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -242,6 +243,9 @@ class _HomePageFinState extends State<HomePageFin> {
                 isChangeList.add(false);
               }
               // print(isChangeList);
+              if (isChangeList.isEmpty) {
+                isChangeList = [false];
+              }
               flag = false;
             }
 
@@ -251,7 +255,7 @@ class _HomePageFinState extends State<HomePageFin> {
               initialItemCount: allSemesters.length,
               key: _keySemester,
               itemBuilder: (context, index, animation) {
-                // print(allSemesters);
+                print(allSemesters);
                 return SizeTransition(
                   sizeFactor: animation,
                   key: UniqueKey(),
@@ -420,56 +424,67 @@ class _HomePageFinState extends State<HomePageFin> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xffb8c8d1),
-      child: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Scaffold(
-              backgroundColor: Color(0xffb8c8d1),
-              body: ModalProgressHUD(
-                inAsyncCall: showSpinner,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Flexible(
-                        child: Stack(
-                      children: [
-                        ScrollConfiguration(
-                            behavior: MyBehavior(),
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: [
-                                AppBarHomeFin(
-                                  CGPA,
-                                  earnCredit,
-                                  totalCredit,
-                                ),
-                                showSpinner ? Container() : Content(),
-                                SizedBox(
-                                  height: 50,
-                                )
-                              ],
-                            ))
-                      ],
-                    ))
-                  ],
-                ),
-              ),
-              floatingActionButton: Visibility(
-                visible: _visible,
-                child: FloatingActionButton(
-                  backgroundColor: Color(0xff4562a7),
-                  onPressed: () async {
-                    // calcCGPA();
-                    addSemester();
-                  },
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Siginin(),
+            ));
+
+        return false;
+      },
+      child: Container(
+        color: Color(0xffb8c8d1),
+        child: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Scaffold(
+                backgroundColor: Color(0xffb8c8d1),
+                body: ModalProgressHUD(
+                  inAsyncCall: showSpinner,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(
+                          child: Stack(
+                        children: [
+                          ScrollConfiguration(
+                              behavior: MyBehavior(),
+                              child: ListView(
+                                shrinkWrap: true,
+                                children: [
+                                  AppBarHomeFin(
+                                    CGPA,
+                                    earnCredit,
+                                    totalCredit,
+                                  ),
+                                  showSpinner ? Container() : Content(),
+                                  SizedBox(
+                                    height: 50,
+                                  )
+                                ],
+                              ))
+                        ],
+                      ))
+                    ],
                   ),
                 ),
-              )),
+                floatingActionButton: Visibility(
+                  visible: _visible,
+                  child: FloatingActionButton(
+                    backgroundColor: Color(0xff4562a7),
+                    onPressed: () async {
+                      // calcCGPA();
+                      addSemester();
+                    },
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                  ),
+                )),
+          ),
         ),
       ),
     );
@@ -2141,7 +2156,6 @@ class _CourseFinState extends State<CourseFin> {
                         // widget.CallBackUpdateList(widget.listCoursesInSemester);
                         selectedValueIs1Null;
                         selectedValueIs2Null;
-                        widget.CallBackUpdateChange();
                       });
                     },
                     decoration: InputDecoration(
@@ -2182,9 +2196,7 @@ class _CourseFinState extends State<CourseFin> {
                     } else {
                       widget.listCoursesInSemester[widget.index][2] = null;
                     }
-                    // widget.CallBackUpdateList(widget.listCoursesInSemester);
                   });
-                  widget.CallBackUpdateChange();
                 },
                 style: TextStyle(
                   fontSize: 18,
@@ -2252,7 +2264,13 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                   GestureDetector(
                     onTap: () {
                       _signOut();
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Siginin(),
+                        ),
+                        (route) => true,
+                      );
                     },
                     child: Icon(
                       Icons.arrow_back_ios_new,
