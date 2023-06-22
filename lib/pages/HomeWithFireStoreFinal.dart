@@ -99,6 +99,7 @@ class _HomePageFinState extends State<HomePageFin> {
   int earnCredit = 0;
   int totalCredit = 0;
   bool flag = true;
+  bool calcFlag = true;
   // bool showSpinner2 = true;
   callBackChangeList(int index, bool value, remove) {
     setState(() {
@@ -119,9 +120,10 @@ class _HomePageFinState extends State<HomePageFin> {
       showSpinner = true;
       allSemesters.clear();
     });
-    print('##############VVVVVVVVVVVV');
-    print(allSemesters);
     getCurrentUser();
+    // Future.delayed(Duration(seconds: 3), () {
+    //   calcCGPA();
+    // });
   }
 
   static Future<bool> checkExist(String docID) async {
@@ -246,8 +248,13 @@ class _HomePageFinState extends State<HomePageFin> {
               if (isChangeList.isEmpty) {
                 isChangeList = [false];
               }
+              Future.delayed(Duration.zero, () {
+                calcCGPA();
+              });
               flag = false;
             }
+
+            print(allSemesters.length);
 
             return AnimatedList(
               shrinkWrap: true,
@@ -255,7 +262,6 @@ class _HomePageFinState extends State<HomePageFin> {
               initialItemCount: allSemesters.length,
               key: _keySemester,
               itemBuilder: (context, index, animation) {
-                print(allSemesters);
                 return SizeTransition(
                   sizeFactor: animation,
                   key: UniqueKey(),
@@ -265,9 +271,9 @@ class _HomePageFinState extends State<HomePageFin> {
                           allSemesters[index][0][0],
                           index,
                           () {
-                            // setState(() {
-                            //   calcCGPA();
-                            // });
+                            setState(() {
+                              calcCGPA();
+                            });
                           },
                           _keySemester,
                           isChangeList[index],
@@ -540,19 +546,11 @@ class _SemesterFinState extends State<SemesterFin> {
   @override
   void initState() {
     super.initState();
-    // print('################hereee');
     setState(() {
-      // List valList=[];
-      // for(List course in widget.semesterCourses){
-      //   if(course[6] !='')
-      // }
       listOfCoursesInSemester = widget.semesterCourses;
-      // _courseKeys = List.generate(widget.semesterCourses.length, (index) {
-      //   var uuid = Uuid();
-      //   var uniqueId = uuid.v1();
-      //   return GlobalObjectKey<_CourseFinState>(uniqueId);
-      // });
-      // calcGPA();
+      if (!widget.isChanged) {
+        calcGPA();
+      }
     });
   }
 
@@ -703,11 +701,7 @@ class _SemesterFinState extends State<SemesterFin> {
   void deleteSemester() {
     setState(() {
       List deletedSemest = allSemesters.removeAt(widget.index);
-      widget.ChangeList(widget.index, false, true);
 
-      deleteSemesterFromDB(widget.semesterId);
-      print('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
-      print(widget.semesterId);
       widget._allSemestersKey.currentState!.removeItem(widget.index,
           (context, animation) {
         return SlideTransition(
@@ -715,10 +709,12 @@ class _SemesterFinState extends State<SemesterFin> {
           child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
               () {}, widget._allSemestersKey, false, () {}),
         );
-      }, duration: Duration(milliseconds: 400));
+      }, duration: Duration(milliseconds: 250));
 
-      // widget.calcCGPA();
+      widget.calcCGPA();
     });
+    deleteSemesterFromDB(widget.semesterId);
+    widget.ChangeList(widget.index, false, true);
   }
 
   void calcGPA() {
@@ -1222,11 +1218,9 @@ class _SemesterFinState extends State<SemesterFin> {
                     callBackToUpdateTheCoursesList,
                     callbackIsChanged,
                     () {
-                      // widget.calcCGPA();
+                      widget.calcCGPA();
                     },
                     _keyAniListCourses,
-                    // key: _courseKeys[index],
-                    // key: UniqueKey(),
                   ),
                 );
               },
@@ -1277,6 +1271,8 @@ class _SemesterFinState extends State<SemesterFin> {
                               creditEqZero == null &&
                               creditMoreThanThree == null) {
                             collectDate();
+                            calcGPA();
+                            widget.calcCGPA();
                             setState(() {
                               widget.isChanged = false;
                               widget.ChangeList(widget.index, false, false);
@@ -1637,9 +1633,9 @@ class _CourseFinState extends State<CourseFin> {
       pressDeleteCourse = false;
     });
 
-    // Future.delayed(Duration(milliseconds: 320), () {
-    //   widget.calcCGPA();
-    // });
+    Future.delayed(Duration(milliseconds: 320), () {
+      widget.calcCGPA();
+    });
 
 //###############################################################
     // if (widget.allSemesterss.length == 1 &&
@@ -2346,7 +2342,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                         LinearPercentIndicator(
                           width: 250,
                           lineHeight: 15,
-                          percent: 0.5,
+                          percent: widget.cgpa / 4,
                           backgroundColor: Colors.grey.shade400,
                           progressColor: Color(0xff4562a7),
                           animation: true,
