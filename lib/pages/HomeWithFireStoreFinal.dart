@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
+import 'package:cgp_calculator/authServieses.dart';
+import 'package:provider/provider.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 // ToDo:  the calcCPA button disappear when adding a new semester (done - but there is a Special case when removing a course)
@@ -432,12 +434,15 @@ class _HomePageFinState extends State<HomePageFin> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Siginin(),
-            ));
-
+        // final prov = Provider.of<AuthServer>(context, listen: false);
+        // prov.googleLogout();
+        //
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => Siginin(),
+        //     ));
+        //
         return false;
       },
       child: Container(
@@ -2251,8 +2256,11 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      _signOut();
+                    onTap: () async {
+                      final prov =
+                          Provider.of<AuthServer>(context, listen: false);
+                      await prov.googleLogout();
+
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

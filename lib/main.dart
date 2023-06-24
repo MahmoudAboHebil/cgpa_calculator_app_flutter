@@ -5,6 +5,7 @@ import 'providerBrain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/welcome.dart';
 import 'pages/HomeGI.dart';
+import 'authServieses.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<MyData>(
-      create: (context) => MyData(),
+    return ChangeNotifierProvider<AuthServer>(
+      create: (context) => AuthServer(),
       child: MaterialApp(
         theme: ThemeData().copyWith(
             textSelectionTheme: TextSelectionThemeData(
