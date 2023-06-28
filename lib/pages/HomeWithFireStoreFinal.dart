@@ -2236,6 +2236,61 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
     await FirebaseAuth.instance.signOut();
   }
 
+  CollectionReference? _usersInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+  }
+
+  String email = '';
+  String name = '';
+  String imageURL = '';
+  @override
+  Widget build(BuildContext context) {
+    if (_usersInfo != null && loggedInUser != null) {
+      return StreamBuilder(
+        stream: _usersInfo!.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData) {
+            for (int i = 0; i < snapshot.data!.docs.length; i++) {
+              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
+              if (userInfo['email'] == loggedInUser!.email) {
+                email = userInfo['email'];
+                name = userInfo['name'];
+                imageURL = userInfo['image'];
+              }
+            }
+            return ContentAppBar(widget.cgpa, widget.earnCredit,
+                widget.totalCredit, email, name, imageURL);
+          }
+          return Container();
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+}
+
+class ContentAppBar extends StatelessWidget {
+  double cgpa;
+  int earnCredit;
+  int totalCredit;
+  String email;
+  String name;
+  String imageURL;
+
+  ContentAppBar(this.cgpa, this.earnCredit, this.totalCredit, this.email,
+      this.name, this.imageURL);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -2252,9 +2307,39 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
             border: Border.all(color: Colors.white54, width: 2),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Row(
                 children: [
+                  imageURL.isEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'images/user3.png',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            imageURL,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name),
+                      Text(email),
+                    ],
+                  ),
                   GestureDetector(
                     onTap: () async {
                       final prov =
@@ -2269,49 +2354,9 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                         (route) => true,
                       );
                     },
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Color(0xff4562a7),
-                      size: 30,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                    child: Text(
-                      'Back',
-                      style: TextStyle(
-                        color: Color(0xffce2029),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'CGPA Calculator',
-                    style: TextStyle(
-                      color: Color(0xff004d60),
-                      fontSize: 20,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 65,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 10, left: 10),
-                    child: Icon(
-                      Icons.lightbulb_rounded,
-                      color: Color(0xff4562a7),
-                      size: 25,
-                    ),
-                  ),
-                  Icon(
-                    Icons.settings,
-                    color: Color(0xff4562a7),
-                    size: 25,
+                    child: Text('logout'),
                   ),
                 ],
-              ),
-              SizedBox(
-                height: 25,
               ),
               Row(
                 children: [
@@ -2338,7 +2383,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                             Padding(
                               padding: EdgeInsets.only(left: 20),
                               child: Text(
-                                '${widget.cgpa.toStringAsFixed(3)}',
+                                '${cgpa.toStringAsFixed(3)}',
                                 style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 20,
@@ -2350,7 +2395,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                         LinearPercentIndicator(
                           width: 250,
                           lineHeight: 15,
-                          percent: widget.cgpa / 4,
+                          percent: cgpa / 4,
                           backgroundColor: Colors.grey.shade400,
                           progressColor: Color(0xff4562a7),
                           animation: true,
@@ -2376,7 +2421,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          '${widget.earnCredit} / ${widget.totalCredit}',
+                          '$earnCredit / $totalCredit',
                           style: TextStyle(
                             color: Color(0xff004d60),
                             fontSize: 20,
@@ -2394,3 +2439,64 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
     );
   }
 }
+
+// Row(
+// children: [
+// GestureDetector(
+// onTap: () async {
+// final prov =
+// Provider.of<AuthServer>(context, listen: false);
+// await prov.googleLogout();
+//
+// Navigator.pushAndRemoveUntil(
+// context,
+// MaterialPageRoute(
+// builder: (context) => Siginin(),
+// ),
+// (route) => true,
+// );
+// },
+// child: Icon(
+// Icons.arrow_back_ios_new,
+// color: Color(0xff4562a7),
+// size: 30,
+// ),
+// ),
+// Padding(
+// padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+// child: Text(
+// 'Back',
+// style: TextStyle(
+// color: Color(0xffce2029),
+// fontSize: 15,
+// ),
+// ),
+// ),
+// Text(
+// 'CGPA Calculator',
+// style: TextStyle(
+// color: Color(0xff004d60),
+// fontSize: 20,
+// ),
+// ),
+// SizedBox(
+// width: 65,
+// ),
+// Padding(
+// padding: EdgeInsets.only(right: 10, left: 10),
+// child: Icon(
+// Icons.lightbulb_rounded,
+// color: Color(0xff4562a7),
+// size: 25,
+// ),
+// ),
+// Icon(
+// Icons.settings,
+// color: Color(0xff4562a7),
+// size: 25,
+// ),
+// ],
+// ),
+// SizedBox(
+// height: 25,
+// ),

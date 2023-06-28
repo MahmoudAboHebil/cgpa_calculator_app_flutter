@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'HomeWithFireStoreFinal.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Siginin extends StatefulWidget {
   @override
@@ -136,6 +138,34 @@ class _ContentState extends State<Content> {
     }
 
     return null;
+  }
+
+  static Future<bool> checkExist(String docID) async {
+    bool exist = false;
+    try {
+      await FirebaseFirestore.instance
+          .doc("UsersInfo/$docID")
+          .get()
+          .then((doc) {
+        exist = doc.exists;
+      });
+      return exist;
+    } catch (e) {
+      // If any error
+      return false;
+    }
+  }
+
+  void addUserInfo(String? email, String? name, String? imageURl) async {
+    bool isExist = await checkExist('$email');
+    if (!isExist) {
+      // firstTime
+      await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+      });
+    }
   }
 
   @override
@@ -412,6 +442,10 @@ class _ContentState extends State<Content> {
                         showProgress = true;
                       });
                       await prov.googleLogin();
+
+                      addUserInfo(prov.gUser!.email, prov.gUser!.displayName,
+                          prov.gUser!.photoUrl);
+
                       setState(() {
                         showProgress = false;
                       });
