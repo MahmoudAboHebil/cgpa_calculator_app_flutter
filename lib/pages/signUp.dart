@@ -10,6 +10,8 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'HomeWithFireStoreFinal.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/authServieses.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -151,6 +153,35 @@ class _ContentSignUpState extends State<ContentSignUp> {
     return null;
   }
 
+  static Future<bool> checkExist(String docID) async {
+    bool exist = false;
+    try {
+      await FirebaseFirestore.instance
+          .doc("UsersInfo/$docID")
+          .get()
+          .then((doc) {
+        exist = doc.exists;
+      });
+      return exist;
+    } catch (e) {
+      // If any error
+      return false;
+    }
+  }
+
+  void addUserInfo(String? email, String? name, String? imageURl) async {
+    bool isExist = await checkExist('$email');
+    if (!isExist) {
+      // firstTime
+      await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+      });
+    }
+  }
+
+  String imageURL = '';
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -467,6 +498,22 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                         .createUserWithEmailAndPassword(
                                             email: email, password: password);
                                     if (user != null) {
+                                      if (image != null) {
+                                        Reference referenceRoot =
+                                            FirebaseStorage.instance.ref();
+                                        Reference referenceDirImage =
+                                            referenceRoot.child('images');
+                                        Reference referenceImageToUpload =
+                                            referenceDirImage.child(email);
+                                        await referenceImageToUpload
+                                            .putFile(File(image!.path));
+                                        String imageURL =
+                                            await referenceImageToUpload
+                                                .getDownloadURL();
+                                        addUserInfo(email, nameOrID, imageURL);
+                                      } else {
+                                        addUserInfo(email, nameOrID, '');
+                                      }
                                       Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
@@ -479,26 +526,9 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                       _controller3.clear();
                                       _controller4.clear();
                                     }
-                                    _controller1.clear();
-                                    _controller2.clear();
                                   } catch (e) {
                                     print(e);
                                   }
-                                  _controller1.clear();
-                                  _controller2.clear();
-                                  _controller3.clear();
-                                  _controller4.clear();
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => HomePageFin(),
-                                    ),
-                                    (route) => true,
-                                  );
-
-                                  setState(() {
-                                    showProgress = false;
-                                  });
                                 }
                               },
                               child: Container(
@@ -569,6 +599,10 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   showProgress = true;
                                 });
                                 await prov.googleLogin();
+                                addUserInfo(
+                                    prov.gUser!.email,
+                                    prov.gUser!.displayName,
+                                    prov.gUser!.photoUrl);
                                 setState(() {
                                   showProgress = false;
                                 });

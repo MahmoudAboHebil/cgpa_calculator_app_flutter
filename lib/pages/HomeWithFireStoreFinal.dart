@@ -2256,9 +2256,8 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
         stream: _usersInfo!.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            // showSpinner = true;
+            return ContentAppBar(0.000, 0, 0, '', '', '');
           } else if (snapshot.hasData) {
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
@@ -2268,10 +2267,14 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
                 imageURL = userInfo['image'];
               }
             }
+            // showSpinner = false;
+
             return ContentAppBar(widget.cgpa, widget.earnCredit,
                 widget.totalCredit, email, name, imageURL);
+          } else {
+            // showSpinner = true;
+            return ContentAppBar(0.000, 0, 0, '', '', '');
           }
-          return Container();
         },
       );
     } else {
