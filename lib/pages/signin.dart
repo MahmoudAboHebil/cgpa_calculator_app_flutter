@@ -372,33 +372,36 @@ class _ContentState extends State<Content> {
                   style: TextStyle(color: Color(0xffce2029), fontSize: 18),
                 ),
               ),
+              SizedBox(
+                height: 10,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.facebook,
-                    color: Color(0xff4562a7),
-                    size: 50,
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    height: 43,
-                    width: 43,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
+                  Visibility(
+                    visible: false,
+                    child: Icon(
+                      Icons.facebook,
                       color: Color(0xff4562a7),
-                    ),
-                    child: FaIcon(
-                      FontAwesomeIcons.twitter,
-                      color: Color(0xffb8c8d1),
-                      size: 25,
+                      size: 50,
                     ),
                   ),
-                  SizedBox(
-                    width: 20,
+                  Visibility(
+                    visible: false,
+                    child: Container(
+                      height: 43,
+                      width: 43,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Color(0xff4562a7),
+                      ),
+                      child: FaIcon(
+                        FontAwesomeIcons.twitter,
+                        color: Color(0xffb8c8d1),
+                        size: 25,
+                      ),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () async {

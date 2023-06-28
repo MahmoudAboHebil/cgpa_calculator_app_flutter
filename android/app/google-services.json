@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "817203375246-d8ju3jgi6u89099e6j79hjcseebabp5f.apps.googleusercontent.com",
+          "client_id": "817203375246-fh0og8bn1n31vhjl649bjjs4u0t0rmto.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.MahAboHebil.cgp_calculator",
+            "certificate_hash": "8d5f4b17e620593f09dc157763f79e9a486a9a71"
+          }
+        },
+        {
+          "client_id": "817203375246-6csfuas0533r1a5fbtc2f36fr1q545on.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,7 +35,36 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "817203375246-d8ju3jgi6u89099e6j79hjcseebabp5f.apps.googleusercontent.com",
+              "client_id": "817203375246-6csfuas0533r1a5fbtc2f36fr1q545on.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817203375246:android:a3c8e92a9274e83523eddf",
+        "android_client_info": {
+          "package_name": "com.mahabohebil.cgpacalculator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "817203375246-6csfuas0533r1a5fbtc2f36fr1q545on.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-tlgMDxaJ9n6TvBJo2u4uo4PgB_C2OWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "817203375246-6csfuas0533r1a5fbtc2f36fr1q545on.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

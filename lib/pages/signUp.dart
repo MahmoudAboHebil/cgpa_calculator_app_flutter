@@ -8,6 +8,8 @@ import 'package:cgp_calculator/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'HomeWithFireStoreFinal.dart';
+import 'package:provider/provider.dart';
+import 'package:cgp_calculator/authServieses.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -15,6 +17,42 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Color(0xffb8c8d1),
+      child: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Scaffold(
+            backgroundColor: Color(0xffb8c8d1),
+            body: StreamBuilder(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasData) {
+                  return HomePageFin();
+                }
+
+                return ContentSignUp();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ContentSignUp extends StatefulWidget {
+  @override
+  State<ContentSignUp> createState() => _ContentSignUpState();
+}
+
+class _ContentSignUpState extends State<ContentSignUp> {
   // final _formKey = GlobalKey<FormState>();
   File? image;
 
@@ -491,46 +529,63 @@ class _SignUpPageState extends State<SignUpPage> {
                                 color: Color(0xffce2029), fontSize: 18),
                           ),
                         ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.facebook,
-                              color: Color(0xff4562a7),
-                              size: 50,
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              height: 43,
-                              width: 43,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
+                            Visibility(
+                              visible: false,
+                              child: Icon(
+                                Icons.facebook,
                                 color: Color(0xff4562a7),
-                              ),
-                              child: FaIcon(
-                                FontAwesomeIcons.twitter,
-                                color: Color(0xffb8c8d1),
-                                size: 25,
+                                size: 50,
                               ),
                             ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              height: 43,
-                              width: 43,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                color: Color(0xff4562a7),
+                            Visibility(
+                              visible: false,
+                              child: Container(
+                                height: 43,
+                                width: 43,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Color(0xff4562a7),
+                                ),
+                                child: FaIcon(
+                                  FontAwesomeIcons.twitter,
+                                  color: Color(0xffb8c8d1),
+                                  size: 25,
+                                ),
                               ),
-                              child: FaIcon(
-                                FontAwesomeIcons.googlePlusG,
-                                color: Color(0xffb8c8d1),
-                                size: 25,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                final prov = Provider.of<AuthServer>(context,
+                                    listen: false);
+                                // await prov.googleLogout();
+                                setState(() {
+                                  showProgress = true;
+                                });
+                                await prov.googleLogin();
+                                setState(() {
+                                  showProgress = false;
+                                });
+                              },
+                              child: Container(
+                                height: 43,
+                                width: 43,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Color(0xff4562a7),
+                                ),
+                                child: FaIcon(
+                                  FontAwesomeIcons.googlePlusG,
+                                  color: Color(0xffb8c8d1),
+                                  size: 25,
+                                ),
                               ),
                             ),
                           ],
