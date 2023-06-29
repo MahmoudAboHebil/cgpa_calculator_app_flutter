@@ -442,9 +442,10 @@ class _ContentState extends State<Content> {
                         showProgress = true;
                       });
                       await prov.googleLogin();
-
-                      addUserInfo(prov.gUser!.email, prov.gUser!.displayName,
-                          prov.gUser!.photoUrl);
+                      if (prov.gUser != null) {
+                        addUserInfo(prov.gUser!.email, prov.gUser!.displayName,
+                            prov.gUser!.photoUrl);
+                      }
 
                       setState(() {
                         showProgress = false;

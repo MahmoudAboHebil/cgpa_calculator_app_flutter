@@ -99,6 +99,7 @@
 //   int earnCredit = 0;
 //   int totalCredit = 0;
 //   bool flag = true;
+//   bool calcFlag = true;
 //   // bool showSpinner2 = true;
 //   callBackChangeList(int index, bool value, remove) {
 //     setState(() {
@@ -119,9 +120,10 @@
 //       showSpinner = true;
 //       allSemesters.clear();
 //     });
-//     print('##############VVVVVVVVVVVV');
-//     print(allSemesters);
 //     getCurrentUser();
+//     // Future.delayed(Duration(seconds: 3), () {
+//     //   calcCGPA();
+//     // });
 //   }
 //
 //   static Future<bool> checkExist(String docID) async {
@@ -246,8 +248,13 @@
 //               if (isChangeList.isEmpty) {
 //                 isChangeList = [false];
 //               }
+//               Future.delayed(Duration.zero, () {
+//                 calcCGPA();
+//               });
 //               flag = false;
 //             }
+//
+//             print(allSemesters.length);
 //
 //             return AnimatedList(
 //               shrinkWrap: true,
@@ -255,24 +262,23 @@
 //               initialItemCount: allSemesters.length,
 //               key: _keySemester,
 //               itemBuilder: (context, index, animation) {
-//                 print(allSemesters);
 //                 return SizeTransition(
 //                   sizeFactor: animation,
 //                   key: UniqueKey(),
 //                   child: allSemesters.isNotEmpty
 //                       ? SemesterFin(
-//                           allSemesters[index],
-//                           allSemesters[index][0][0],
-//                           index,
-//                           () {
-//                             // setState(() {
-//                             //   calcCGPA();
-//                             // });
-//                           },
-//                           _keySemester,
-//                           isChangeList[index],
-//                           callBackChangeList,
-//                         )
+//                     allSemesters[index],
+//                     allSemesters[index][0][0],
+//                     index,
+//                         () {
+//                       setState(() {
+//                         calcCGPA();
+//                       });
+//                     },
+//                     _keySemester,
+//                     isChangeList[index],
+//                     callBackChangeList,
+//                   )
 //                       : Container(),
 //                 );
 //               },
@@ -323,7 +329,7 @@
 //       // String second = DateTime.now().second.toString();
 //       // String semestDateID = '$year-$month-$day-$hour-$minute-$second';
 //       int insertIndex =
-//           allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
+//       allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
 //
 //       var uniqueId = uuid.v1();
 //       allSemesters.add([
@@ -448,25 +454,25 @@
 //                     children: [
 //                       Flexible(
 //                           child: Stack(
-//                         children: [
-//                           ScrollConfiguration(
-//                               behavior: MyBehavior(),
-//                               child: ListView(
-//                                 shrinkWrap: true,
-//                                 children: [
-//                                   AppBarHomeFin(
-//                                     CGPA,
-//                                     earnCredit,
-//                                     totalCredit,
-//                                   ),
-//                                   showSpinner ? Container() : Content(),
-//                                   SizedBox(
-//                                     height: 50,
-//                                   )
-//                                 ],
-//                               ))
-//                         ],
-//                       ))
+//                             children: [
+//                               ScrollConfiguration(
+//                                   behavior: MyBehavior(),
+//                                   child: ListView(
+//                                     shrinkWrap: true,
+//                                     children: [
+//                                       AppBarHomeFin(
+//                                         CGPA,
+//                                         earnCredit,
+//                                         totalCredit,
+//                                       ),
+//                                       showSpinner ? Container() : Content(),
+//                                       SizedBox(
+//                                         height: 50,
+//                                       )
+//                                     ],
+//                                   ))
+//                             ],
+//                           ))
 //                     ],
 //                   ),
 //                 ),
@@ -512,7 +518,7 @@
 //
 // class _SemesterFinState extends State<SemesterFin> {
 //   final _keyAniListCourses = GlobalKey<AnimatedListState>();
-//   late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
+//   // late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
 //   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 //   var uuid = Uuid();
 //
@@ -540,19 +546,11 @@
 //   @override
 //   void initState() {
 //     super.initState();
-//     // print('################hereee');
 //     setState(() {
-//       // List valList=[];
-//       // for(List course in widget.semesterCourses){
-//       //   if(course[6] !='')
-//       // }
 //       listOfCoursesInSemester = widget.semesterCourses;
-//       _courseKeys = List.generate(widget.semesterCourses.length, (index) {
-//         var uuid = Uuid();
-//         var uniqueId = uuid.v1();
-//         return GlobalObjectKey<_CourseFinState>(uniqueId);
-//       });
-//       // calcGPA();
+//       if (!widget.isChanged) {
+//         calcGPA();
+//       }
 //     });
 //   }
 //
@@ -627,8 +625,8 @@
 //         }
 //
 //         if ((course[4] == null ||
-//                 course[4].isEmpty ||
-//                 course[4].trim().isEmpty) &&
+//             course[4].isEmpty ||
+//             course[4].trim().isEmpty) &&
 //             course[5] == 'two') {
 //           setState(() {
 //             errorTypeGrade.add(1);
@@ -684,11 +682,11 @@
 //           .add([widget.semesterId, null, null, null, null, 'one', uniqueId]);
 //       allSemesters[widget.index] = listOfCoursesInSemester;
 //     });
-//     _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
-//       var uuid = Uuid();
-//       var uniqueId = uuid.v1();
-//       return GlobalObjectKey<_CourseFinState>(uniqueId);
-//     });
+//     // _courseKeys = List.generate(listOfCoursesInSemester.length, (index) {
+//     //   var uuid = Uuid();
+//     //   var uniqueId = uuid.v1();
+//     //   return GlobalObjectKey<_CourseFinState>(uniqueId);
+//     // });
 //     int insertIndex = listOfCoursesInSemester.isEmpty
 //         ? listOfCoursesInSemester.length
 //         : listOfCoursesInSemester.length - 1;
@@ -703,22 +701,20 @@
 //   void deleteSemester() {
 //     setState(() {
 //       List deletedSemest = allSemesters.removeAt(widget.index);
-//       widget.ChangeList(widget.index, false, true);
 //
-//       deleteSemesterFromDB(widget.semesterId);
-//       print('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
-//       print(widget.semesterId);
 //       widget._allSemestersKey.currentState!.removeItem(widget.index,
-//           (context, animation) {
-//         return SlideTransition(
-//           position: animation.drive(_offset),
-//           child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
-//               () {}, widget._allSemestersKey, false, () {}),
-//         );
-//       }, duration: Duration(milliseconds: 400));
+//               (context, animation) {
+//             return SlideTransition(
+//               position: animation.drive(_offset),
+//               child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
+//                       () {}, widget._allSemestersKey, false, () {}),
+//             );
+//           }, duration: Duration(milliseconds: 250));
 //
-//       // widget.calcCGPA();
+//       widget.calcCGPA();
 //     });
+//     deleteSemesterFromDB(widget.semesterId);
+//     widget.ChangeList(widget.index, false, true);
 //   }
 //
 //   void calcGPA() {
@@ -854,40 +850,40 @@
 //                       ),
 //                       emptyField != null
 //                           ? Text(
-//                               '$emptyField',
-//                               style:
-//                                   TextStyle(fontSize: 14, color: Colors.white),
-//                               maxLines: 1,
-//                               overflow: TextOverflow.ellipsis,
-//                             )
+//                         '$emptyField',
+//                         style:
+//                         TextStyle(fontSize: 14, color: Colors.white),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       )
 //                           : SizedBox(
-//                               width: 0,
-//                               height: 0,
-//                             ),
+//                         width: 0,
+//                         height: 0,
+//                       ),
 //                       creditMoreThanThree != null
 //                           ? Text(
-//                               '$creditMoreThanThree',
-//                               style:
-//                                   TextStyle(fontSize: 14, color: Colors.white),
-//                               maxLines: 1,
-//                               overflow: TextOverflow.ellipsis,
-//                             )
+//                         '$creditMoreThanThree',
+//                         style:
+//                         TextStyle(fontSize: 14, color: Colors.white),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       )
 //                           : SizedBox(
-//                               width: 0,
-//                               height: 0,
-//                             ),
+//                         width: 0,
+//                         height: 0,
+//                       ),
 //                       creditEqZero != null
 //                           ? Text(
-//                               '$creditEqZero',
-//                               style:
-//                                   TextStyle(fontSize: 14, color: Colors.white),
-//                               maxLines: 1,
-//                               overflow: TextOverflow.ellipsis,
-//                             )
+//                         '$creditEqZero',
+//                         style:
+//                         TextStyle(fontSize: 14, color: Colors.white),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       )
 //                           : SizedBox(
-//                               width: 0,
-//                               height: 0,
-//                             ),
+//                         width: 0,
+//                         height: 0,
+//                       ),
 //                     ],
 //                   ),
 //                 ),
@@ -996,6 +992,27 @@
 //   @override
 //   void dispose() {
 //     super.dispose();
+//   }
+//
+//   void collectDate() {
+//     for (List courseList in listOfCoursesInSemester) {
+//       var semesterID = courseList[0];
+//       var name = courseList[1];
+//       var credit = courseList[2];
+//       var selectedValue1 = courseList[3];
+//       var selectedValue2 = courseList[4];
+//       var type = courseList[5];
+//       var courseID = courseList[6];
+//       var val = type == 'one' ? false : true;
+//
+//       if (val) {
+//         updateData(semesterID, courseID, name, credit, selectedValue1,
+//             selectedValue2, 'two');
+//       } else {
+//         updateData(
+//             semesterID, courseID, name, credit, selectedValue1, null, 'one');
+//       }
+//     }
 //   }
 //
 //   @override
@@ -1126,7 +1143,7 @@
 //                           border: Border.all(color: Colors.white, width: 2)),
 //                       child: Padding(
 //                         padding:
-//                             EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+//                         EdgeInsets.symmetric(horizontal: 10, vertical: 15),
 //                         child: Text(
 //                           'Course Name',
 //                           style: TextStyle(
@@ -1200,11 +1217,10 @@
 //                     listOfCoursesInSemester,
 //                     callBackToUpdateTheCoursesList,
 //                     callbackIsChanged,
-//                     () {
-//                       // widget.calcCGPA();
+//                         () {
+//                       widget.calcCGPA();
 //                     },
 //                     _keyAniListCourses,
-//                     key: _courseKeys[index],
 //                   ),
 //                 );
 //               },
@@ -1234,7 +1250,7 @@
 //                         border: Border.all(color: Colors.white, width: 2)),
 //                     child: Padding(
 //                       padding:
-//                           EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+//                       EdgeInsets.symmetric(horizontal: 30, vertical: 15),
 //                       child: Text(
 //                         'Add Course',
 //                         style: TextStyle(
@@ -1247,79 +1263,74 @@
 //                 ),
 //                 widget.isChanged
 //                     ? GestureDetector(
-//                         onTap: () {
-//                           FocusManager.instance.primaryFocus?.unfocus();
+//                   onTap: () {
+//                     FocusManager.instance.primaryFocus?.unfocus();
 //
-//                           findErrors();
-//                           if (emptyField == null &&
-//                               creditEqZero == null &&
-//                               creditMoreThanThree == null) {
-//                             // calcGPA();
-//                             // widget.calcCGPA();
-//                             // Display();
-//                             for (int i = 0;
-//                                 i < listOfCoursesInSemester.length;
-//                                 i++) {
-//                               _courseKeys[i].currentState!.collectDate();
-//                             }
-//                             setState(() {
-//                               widget.isChanged = false;
-//                               widget.ChangeList(widget.index, false, false);
-//                             });
-//                           } else {
-//                             message();
-//                           }
-//                           setState(() {
-//                             emptyField = null;
-//                             creditMoreThanThree = null;
-//                             creditEqZero = null;
-//                             errorTypeGrade.clear();
-//                             errorTypeCredit.clear();
-//                             errorTypeName.clear();
-//                           });
-//                         },
-//                         child: Container(
-//                           alignment: Alignment.center,
-//                           margin: widget.isChanged
-//                               ? EdgeInsets.all(0)
-//                               : EdgeInsets.only(right: 20),
-//                           decoration: BoxDecoration(
-//                               color: Color(0xff4562a7),
-//                               borderRadius:
-//                                   BorderRadius.all(Radius.circular(20)),
-//                               border:
-//                                   Border.all(color: Colors.white, width: 2)),
-//                           child: Padding(
-//                             padding: EdgeInsets.symmetric(
-//                                 horizontal: 30, vertical: 15),
-//                             child: Text(
-//                               'Calc GPA',
-//                               style: TextStyle(
-//                                 color: Colors.white,
-//                                 fontSize: 15,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       )
-//                     : GestureDetector(
-//                         onTap: () {
-//                           setState(() {
-//                             widget.isChanged = true;
-//                             widget.ChangeList(widget.index, true, false);
-//                           });
-//                         },
-//                         child: AbsorbPointer(
-//                           child: Container(
-//                             margin: EdgeInsets.only(right: 18),
-//                             child: Icon(
-//                               Icons.arrow_back_ios_new,
-//                               color: Color(0xff004d60),
-//                               size: 26,
-//                             ),
-//                           ),
+//                     findErrors();
+//                     if (emptyField == null &&
+//                         creditEqZero == null &&
+//                         creditMoreThanThree == null) {
+//                       collectDate();
+//                       calcGPA();
+//                       widget.calcCGPA();
+//                       setState(() {
+//                         widget.isChanged = false;
+//                         widget.ChangeList(widget.index, false, false);
+//                       });
+//                     } else {
+//                       message();
+//                     }
+//                     setState(() {
+//                       emptyField = null;
+//                       creditMoreThanThree = null;
+//                       creditEqZero = null;
+//                       errorTypeGrade.clear();
+//                       errorTypeCredit.clear();
+//                       errorTypeName.clear();
+//                     });
+//                   },
+//                   child: Container(
+//                     alignment: Alignment.center,
+//                     margin: widget.isChanged
+//                         ? EdgeInsets.all(0)
+//                         : EdgeInsets.only(right: 20),
+//                     decoration: BoxDecoration(
+//                         color: Color(0xff4562a7),
+//                         borderRadius:
+//                         BorderRadius.all(Radius.circular(20)),
+//                         border:
+//                         Border.all(color: Colors.white, width: 2)),
+//                     child: Padding(
+//                       padding: EdgeInsets.symmetric(
+//                           horizontal: 30, vertical: 15),
+//                       child: Text(
+//                         'Calc GPA',
+//                         style: TextStyle(
+//                           color: Colors.white,
+//                           fontSize: 15,
 //                         ),
 //                       ),
+//                     ),
+//                   ),
+//                 )
+//                     : GestureDetector(
+//                   onTap: () {
+//                     setState(() {
+//                       widget.isChanged = true;
+//                       widget.ChangeList(widget.index, true, false);
+//                     });
+//                   },
+//                   child: AbsorbPointer(
+//                     child: Container(
+//                       margin: EdgeInsets.only(right: 18),
+//                       child: Icon(
+//                         Icons.arrow_back_ios_new,
+//                         color: Color(0xff004d60),
+//                         size: 26,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
 //               ],
 //             ),
 //           ],
@@ -1419,28 +1430,6 @@
 //       }
 //     });
 //     validationMethod();
-//   }
-//
-//   void collectDate() {
-//     // print(sav)
-//     // bool pressDelete = Provider.of<MyData>(context, listen: false).delete;
-//     var name = _controller_Name.text;
-//     var credit = _controller_Credit.text;
-//     setState(() {
-//       selectedValue2 = widget.courseList[4];
-//     });
-//     if (valideName &&
-//         valideCredit &&
-//         selectedValue1 != null &&
-//         !pressDeleteCourse) {
-//       if (val) {
-//         updateData(semesterID, courseID, name, credit, selectedValue1,
-//             selectedValue2, 'two');
-//       } else {
-//         updateData(
-//             semesterID, courseID, name, credit, selectedValue1, null, 'one');
-//       }
-//     }
 //   }
 //
 //   void _onFocusNameChange() {
@@ -1613,26 +1602,26 @@
 //       // addCourseInDB(semesterID, courseID, null, null, null, null, 'one');
 //       print('theListAfterUpdate:${widget.listCoursesInSemester}');
 //       allSemesters[widget.semesterIndex][widget.index] =
-//           widget.listCoursesInSemester[widget.index];
+//       widget.listCoursesInSemester[widget.index];
 //       widget.CallBackUpdateList(widget.listCoursesInSemester);
 //     } else {
 //       List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
 //       widget.CallBackUpdateList(widget.listCoursesInSemester);
 //       widget._keyAniSemest.currentState!.removeItem(widget.index,
-//           (context, animation) {
-//         return SizeTransition(
-//           sizeFactor: animation,
-//           child: CourseFin(
-//               widget.index,
-//               widget.semesterIndex,
-//               deletedCourse,
-//               widget.listCoursesInSemester,
-//               widget.CallBackUpdateList,
-//               () {},
-//               () {},
-//               widget._keyAniSemest),
-//         );
-//       }, duration: Duration(milliseconds: 300));
+//               (context, animation) {
+//             return SizeTransition(
+//               sizeFactor: animation,
+//               child: CourseFin(
+//                   widget.index,
+//                   widget.semesterIndex,
+//                   deletedCourse,
+//                   widget.listCoursesInSemester,
+//                   widget.CallBackUpdateList,
+//                       () {},
+//                       () {},
+//                   widget._keyAniSemest),
+//             );
+//           }, duration: Duration(milliseconds: 300));
 //       Future.delayed(Duration(milliseconds: 310), () {
 //         deleteCourseFromDB(courseID);
 //         print('deletedCourse:$deletedCourse');
@@ -1644,9 +1633,9 @@
 //       pressDeleteCourse = false;
 //     });
 //
-//     // Future.delayed(Duration(milliseconds: 320), () {
-//     //   widget.calcCGPA();
-//     // });
+//     Future.delayed(Duration(milliseconds: 320), () {
+//       widget.calcCGPA();
+//     });
 //
 // //###############################################################
 //     // if (widget.allSemesterss.length == 1 &&
@@ -1705,228 +1694,8 @@
 //       children: [
 //         val
 //             ? Row(
-//                 children: [
-//                   GestureDetector(
-//                       onTap: () {
-//                         FocusManager.instance.primaryFocus?.unfocus();
-//                       },
-//                       child: DropdownButtonHideUnderline(
-//                         child: DropdownButton2(
-//                           onMenuStateChange: (value) {
-//                             errorGrade();
-//                           },
-//                           customButton: Container(
-//                             width: 45,
-//                             height: 31,
-//                             decoration: BoxDecoration(
-//                               color: Colors.transparent,
-//                               border: Border(
-//                                   bottom: BorderSide(
-//                                       color: selectedValueIs1Null
-//                                           ? Color(0xffce2029)
-//                                           : Colors.white,
-//                                       width: 1)),
-//                             ),
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 selectedValue1 == null
-//                                     ? Text(
-//                                         '1 st',
-//                                         style: TextStyle(
-//                                             color: Colors.grey, fontSize: 18),
-//                                       )
-//                                     : Text(
-//                                         '$selectedValue1',
-//                                         style: TextStyle(
-//                                           fontSize: 18,
-//                                           color: Color(0xff4562a7),
-//                                         ),
-//                                       ),
-//                               ],
-//                             ),
-//                           ),
-//                           items: items
-//                               .map((item) => DropdownMenuItem<String>(
-//                                     value: item,
-//                                     child: Center(
-//                                       child: Container(
-//                                         alignment: Alignment.center,
-//                                         width: 45,
-//                                         height: 80,
-//                                         decoration: BoxDecoration(
-//                                             border: Border(
-//                                           bottom: BorderSide(
-//                                               color: Colors.white, width: 1),
-//                                         )),
-//                                         child: Text(
-//                                           item,
-//                                           style: const TextStyle(
-//                                             fontSize: 18,
-//                                             color: Color(0xff4562a7),
-//                                           ),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ))
-//                               .toList(),
-//                           value: selectedValue1,
-//                           key: ValueKey(selectedValue1),
-//                           onChanged: (value) {
-//                             setState(() {
-//                               selectedValue1 = value as String;
-//                               widget.courseList[3] = selectedValue1;
-//                               if (value.isNotEmpty) {
-//                                 widget.listCoursesInSemester[widget.index][3] =
-//                                     value;
-//                               } else {
-//                                 widget.listCoursesInSemester[widget.index][3] =
-//                                     null;
-//                               }
-//                               widget.CallBackUpdateList(
-//                                   widget.listCoursesInSemester);
-//                               widget.CallBackUpdateChange();
-//
-//                               errorGrade();
-//                             });
-//                           },
-//                           dropdownStyleData: DropdownStyleData(
-//                             maxHeight: 200,
-//                             width: 60,
-//                             padding: null,
-//                             elevation: 2,
-//                             decoration: BoxDecoration(
-//                               borderRadius: BorderRadius.only(
-//                                   bottomLeft: Radius.circular(10),
-//                                   bottomRight: Radius.circular(10)),
-//                               color: Color(0xffb8c8d1),
-//                               // boxShadow: [
-//                               //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-//                               // ],
-//                             ),
-//                             offset: const Offset(0, 0),
-//                             scrollbarTheme: ScrollbarThemeData(
-//                               radius: const Radius.circular(40),
-//                               thickness: MaterialStateProperty.all(0),
-//                               thumbVisibility: MaterialStateProperty.all(false),
-//                             ),
-//                           ),
-//                         ),
-//                       )),
-//                   SizedBox(
-//                     width: 5,
-//                   ),
-//                   GestureDetector(
-//                     onTap: () {
-//                       FocusManager.instance.primaryFocus?.unfocus();
-//                     },
-//                     child: DropdownButtonHideUnderline(
-//                       child: DropdownButton2(
-//                         onMenuStateChange: (value) {
-//                           errorGrade();
-//                         },
-//                         customButton: Container(
-//                           width: 45,
-//                           height: 31,
-//                           decoration: BoxDecoration(
-//                             color: Colors.transparent,
-//                             border: Border(
-//                                 bottom: BorderSide(
-//                                     color: selectedValueIs2Null
-//                                         ? Color(0xffce2029)
-//                                         : Colors.white,
-//                                     width: 1)),
-//                           ),
-//                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               selectedValue2 == null
-//                                   ? Text(
-//                                       '2 sd',
-//                                       style: TextStyle(
-//                                           color: Colors.grey, fontSize: 18),
-//                                     )
-//                                   : Text(
-//                                       '$selectedValue2',
-//                                       style: TextStyle(
-//                                         fontSize: 18,
-//                                         color: Color(0xff4562a7),
-//                                       ),
-//                                     ),
-//                             ],
-//                           ),
-//                         ),
-//                         items: items
-//                             .map((item) => DropdownMenuItem<String>(
-//                                   value: item,
-//                                   child: Center(
-//                                     child: Container(
-//                                       alignment: Alignment.center,
-//                                       width: 45,
-//                                       height: 80,
-//                                       decoration: BoxDecoration(
-//                                           border: Border(
-//                                         bottom: BorderSide(
-//                                             color: Colors.white, width: 1),
-//                                       )),
-//                                       child: Text(
-//                                         item,
-//                                         style: const TextStyle(
-//                                           fontSize: 18,
-//                                           color: Color(0xff4562a7),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ))
-//                             .toList(),
-//                         value: selectedValue2,
-//                         key: ValueKey(selectedValue2),
-//                         onChanged: (value) {
-//                           setState(() {
-//                             selectedValue2 = value as String;
-//                             widget.courseList[4] = selectedValue2;
-//                             if (value.isNotEmpty) {
-//                               widget.listCoursesInSemester[widget.index][4] =
-//                                   value;
-//                             } else {
-//                               widget.listCoursesInSemester[widget.index][4] =
-//                                   null;
-//                             }
-//                             widget.CallBackUpdateList(
-//                                 widget.listCoursesInSemester);
-//
-//                             errorGrade();
-//                             widget.CallBackUpdateChange();
-//                           });
-//                         },
-//                         dropdownStyleData: DropdownStyleData(
-//                           maxHeight: 200,
-//                           width: 60,
-//                           padding: null,
-//                           elevation: 2,
-//                           decoration: BoxDecoration(
-//                             borderRadius: BorderRadius.only(
-//                                 bottomLeft: Radius.circular(10),
-//                                 bottomRight: Radius.circular(10)),
-//                             color: Color(0xffb8c8d1),
-//                             // boxShadow: [
-//                             //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-//                             // ],
-//                           ),
-//                           offset: const Offset(-10, 0),
-//                           scrollbarTheme: ScrollbarThemeData(
-//                             radius: const Radius.circular(40),
-//                             thickness: MaterialStateProperty.all(0),
-//                             thumbVisibility: MaterialStateProperty.all(false),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   )
-//                 ],
-//               )
-//             : GestureDetector(
+//           children: [
+//             GestureDetector(
 //                 onTap: () {
 //                   FocusManager.instance.primaryFocus?.unfocus();
 //                 },
@@ -1936,7 +1705,8 @@
 //                       errorGrade();
 //                     },
 //                     customButton: Container(
-//                       width: 95,
+//                       width: 45,
+//                       height: 31,
 //                       decoration: BoxDecoration(
 //                         color: Colors.transparent,
 //                         border: Border(
@@ -1947,55 +1717,47 @@
 //                                 width: 1)),
 //                       ),
 //                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.end,
+//                         mainAxisAlignment: MainAxisAlignment.center,
 //                         children: [
 //                           selectedValue1 == null
 //                               ? Text(
-//                                   'Grade',
-//                                   style: TextStyle(
-//                                       color: Colors.grey, fontSize: 18),
-//                                 )
+//                             '1 st',
+//                             style: TextStyle(
+//                                 color: Colors.grey, fontSize: 18),
+//                           )
 //                               : Text(
-//                                   '$selectedValue1',
-//                                   style: TextStyle(
-//                                     fontSize: 18,
-//                                     color: Color(0xff4562a7),
-//                                   ),
-//                                 ),
-//                           Padding(
-//                             padding: EdgeInsets.only(left: 0),
-//                             child: Icon(
-//                               Icons.keyboard_arrow_down_rounded,
-//                               size: 30,
+//                             '$selectedValue1',
+//                             style: TextStyle(
+//                               fontSize: 18,
 //                               color: Color(0xff4562a7),
 //                             ),
-//                           )
+//                           ),
 //                         ],
 //                       ),
 //                     ),
 //                     items: items
 //                         .map((item) => DropdownMenuItem<String>(
-//                               value: item,
-//                               child: Center(
-//                                 child: Container(
-//                                   alignment: Alignment.center,
-//                                   width: 45,
-//                                   height: 80,
-//                                   decoration: BoxDecoration(
-//                                       border: Border(
-//                                     bottom: BorderSide(
-//                                         color: Colors.white, width: 1),
-//                                   )),
-//                                   child: Text(
-//                                     item,
-//                                     style: const TextStyle(
-//                                       fontSize: 18,
-//                                       color: Color(0xff4562a7),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                             ))
+//                       value: item,
+//                       child: Center(
+//                         child: Container(
+//                           alignment: Alignment.center,
+//                           width: 45,
+//                           height: 80,
+//                           decoration: BoxDecoration(
+//                               border: Border(
+//                                 bottom: BorderSide(
+//                                     color: Colors.white, width: 1),
+//                               )),
+//                           child: Text(
+//                             item,
+//                             style: const TextStyle(
+//                               fontSize: 18,
+//                               color: Color(0xff4562a7),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ))
 //                         .toList(),
 //                     value: selectedValue1,
 //                     key: ValueKey(selectedValue1),
@@ -2004,19 +1766,22 @@
 //                         selectedValue1 = value as String;
 //                         widget.courseList[3] = selectedValue1;
 //                         if (value.isNotEmpty) {
-//                           widget.listCoursesInSemester[widget.index][3] = value;
+//                           widget.listCoursesInSemester[widget.index][3] =
+//                               value;
 //                         } else {
-//                           widget.listCoursesInSemester[widget.index][3] = null;
+//                           widget.listCoursesInSemester[widget.index][3] =
+//                           null;
 //                         }
-//                         widget.CallBackUpdateList(widget.listCoursesInSemester);
+//                         widget.CallBackUpdateList(
+//                             widget.listCoursesInSemester);
+//                         widget.CallBackUpdateChange();
 //
 //                         errorGrade();
-//                         widget.CallBackUpdateChange();
 //                       });
 //                     },
 //                     dropdownStyleData: DropdownStyleData(
 //                       maxHeight: 200,
-//                       width: 70,
+//                       width: 60,
 //                       padding: null,
 //                       elevation: 2,
 //                       decoration: BoxDecoration(
@@ -2028,7 +1793,7 @@
 //                         //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
 //                         // ],
 //                       ),
-//                       offset: const Offset(20, 0),
+//                       offset: const Offset(0, 0),
 //                       scrollbarTheme: ScrollbarThemeData(
 //                         radius: const Radius.circular(40),
 //                         thickness: MaterialStateProperty.all(0),
@@ -2036,8 +1801,232 @@
 //                       ),
 //                     ),
 //                   ),
+//                 )),
+//             SizedBox(
+//               width: 5,
+//             ),
+//             GestureDetector(
+//               onTap: () {
+//                 FocusManager.instance.primaryFocus?.unfocus();
+//               },
+//               child: DropdownButtonHideUnderline(
+//                 child: DropdownButton2(
+//                   onMenuStateChange: (value) {
+//                     errorGrade();
+//                   },
+//                   customButton: Container(
+//                     width: 45,
+//                     height: 31,
+//                     decoration: BoxDecoration(
+//                       color: Colors.transparent,
+//                       border: Border(
+//                           bottom: BorderSide(
+//                               color: selectedValueIs2Null
+//                                   ? Color(0xffce2029)
+//                                   : Colors.white,
+//                               width: 1)),
+//                     ),
+//                     child: Row(
+//                       mainAxisAlignment: MainAxisAlignment.center,
+//                       children: [
+//                         selectedValue2 == null
+//                             ? Text(
+//                           '2 sd',
+//                           style: TextStyle(
+//                               color: Colors.grey, fontSize: 18),
+//                         )
+//                             : Text(
+//                           '$selectedValue2',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Color(0xff4562a7),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                   items: items
+//                       .map((item) => DropdownMenuItem<String>(
+//                     value: item,
+//                     child: Center(
+//                       child: Container(
+//                         alignment: Alignment.center,
+//                         width: 45,
+//                         height: 80,
+//                         decoration: BoxDecoration(
+//                             border: Border(
+//                               bottom: BorderSide(
+//                                   color: Colors.white, width: 1),
+//                             )),
+//                         child: Text(
+//                           item,
+//                           style: const TextStyle(
+//                             fontSize: 18,
+//                             color: Color(0xff4562a7),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ))
+//                       .toList(),
+//                   value: selectedValue2,
+//                   key: ValueKey(selectedValue2),
+//                   onChanged: (value) {
+//                     setState(() {
+//                       selectedValue2 = value as String;
+//                       widget.courseList[4] = selectedValue2;
+//                       if (value.isNotEmpty) {
+//                         widget.listCoursesInSemester[widget.index][4] =
+//                             value;
+//                       } else {
+//                         widget.listCoursesInSemester[widget.index][4] =
+//                         null;
+//                       }
+//                       widget.CallBackUpdateList(
+//                           widget.listCoursesInSemester);
+//
+//                       errorGrade();
+//                       widget.CallBackUpdateChange();
+//                     });
+//                   },
+//                   dropdownStyleData: DropdownStyleData(
+//                     maxHeight: 200,
+//                     width: 60,
+//                     padding: null,
+//                     elevation: 2,
+//                     decoration: BoxDecoration(
+//                       borderRadius: BorderRadius.only(
+//                           bottomLeft: Radius.circular(10),
+//                           bottomRight: Radius.circular(10)),
+//                       color: Color(0xffb8c8d1),
+//                       // boxShadow: [
+//                       //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+//                       // ],
+//                     ),
+//                     offset: const Offset(-10, 0),
+//                     scrollbarTheme: ScrollbarThemeData(
+//                       radius: const Radius.circular(40),
+//                       thickness: MaterialStateProperty.all(0),
+//                       thumbVisibility: MaterialStateProperty.all(false),
+//                     ),
+//                   ),
 //                 ),
 //               ),
+//             )
+//           ],
+//         )
+//             : GestureDetector(
+//           onTap: () {
+//             FocusManager.instance.primaryFocus?.unfocus();
+//           },
+//           child: DropdownButtonHideUnderline(
+//             child: DropdownButton2(
+//               onMenuStateChange: (value) {
+//                 errorGrade();
+//               },
+//               customButton: Container(
+//                 width: 95,
+//                 decoration: BoxDecoration(
+//                   color: Colors.transparent,
+//                   border: Border(
+//                       bottom: BorderSide(
+//                           color: selectedValueIs1Null
+//                               ? Color(0xffce2029)
+//                               : Colors.white,
+//                           width: 1)),
+//                 ),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.end,
+//                   children: [
+//                     selectedValue1 == null
+//                         ? Text(
+//                       'Grade',
+//                       style: TextStyle(
+//                           color: Colors.grey, fontSize: 18),
+//                     )
+//                         : Text(
+//                       '$selectedValue1',
+//                       style: TextStyle(
+//                         fontSize: 18,
+//                         color: Color(0xff4562a7),
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: EdgeInsets.only(left: 0),
+//                       child: Icon(
+//                         Icons.keyboard_arrow_down_rounded,
+//                         size: 30,
+//                         color: Color(0xff4562a7),
+//                       ),
+//                     )
+//                   ],
+//                 ),
+//               ),
+//               items: items
+//                   .map((item) => DropdownMenuItem<String>(
+//                 value: item,
+//                 child: Center(
+//                   child: Container(
+//                     alignment: Alignment.center,
+//                     width: 45,
+//                     height: 80,
+//                     decoration: BoxDecoration(
+//                         border: Border(
+//                           bottom: BorderSide(
+//                               color: Colors.white, width: 1),
+//                         )),
+//                     child: Text(
+//                       item,
+//                       style: const TextStyle(
+//                         fontSize: 18,
+//                         color: Color(0xff4562a7),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ))
+//                   .toList(),
+//               value: selectedValue1,
+//               key: ValueKey(selectedValue1),
+//               onChanged: (value) {
+//                 setState(() {
+//                   selectedValue1 = value as String;
+//                   widget.courseList[3] = selectedValue1;
+//                   if (value.isNotEmpty) {
+//                     widget.listCoursesInSemester[widget.index][3] = value;
+//                   } else {
+//                     widget.listCoursesInSemester[widget.index][3] = null;
+//                   }
+//                   widget.CallBackUpdateList(widget.listCoursesInSemester);
+//
+//                   errorGrade();
+//                   widget.CallBackUpdateChange();
+//                 });
+//               },
+//               dropdownStyleData: DropdownStyleData(
+//                 maxHeight: 200,
+//                 width: 70,
+//                 padding: null,
+//                 elevation: 2,
+//                 decoration: BoxDecoration(
+//                   borderRadius: BorderRadius.only(
+//                       bottomLeft: Radius.circular(10),
+//                       bottomRight: Radius.circular(10)),
+//                   color: Color(0xffb8c8d1),
+//                   // boxShadow: [
+//                   //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
+//                   // ],
+//                 ),
+//                 offset: const Offset(20, 0),
+//                 scrollbarTheme: ScrollbarThemeData(
+//                   radius: const Radius.circular(40),
+//                   thickness: MaterialStateProperty.all(0),
+//                   thumbVisibility: MaterialStateProperty.all(false),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
 //         GestureDetector(
 //           onTap: () {
 //             setState(() {
@@ -2164,7 +2153,7 @@
 //                       enabledBorder: UnderlineInputBorder(
 //                         borderSide: BorderSide(
 //                             color:
-//                                 valideName ? Colors.white : Color(0xffce2029)),
+//                             valideName ? Colors.white : Color(0xffce2029)),
 //                       ),
 //                       focusedBorder: UnderlineInputBorder(
 //                         borderSide: BorderSide(
@@ -2212,7 +2201,7 @@
 //                   focusedBorder: UnderlineInputBorder(
 //                     borderSide: BorderSide(
 //                       color:
-//                           valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
+//                       valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
 //                     ),
 //                   ),
 //                 ),
@@ -2269,7 +2258,7 @@
 //                         MaterialPageRoute(
 //                           builder: (context) => Siginin(),
 //                         ),
-//                         (route) => true,
+//                             (route) => true,
 //                       );
 //                     },
 //                     child: Icon(
@@ -2353,7 +2342,7 @@
 //                         LinearPercentIndicator(
 //                           width: 250,
 //                           lineHeight: 15,
-//                           percent: 0.5,
+//                           percent: widget.cgpa / 4,
 //                           backgroundColor: Colors.grey.shade400,
 //                           progressColor: Color(0xff4562a7),
 //                           animation: true,

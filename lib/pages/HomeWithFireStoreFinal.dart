@@ -2255,10 +2255,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
       return StreamBuilder(
         stream: _usersInfo!.snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // showSpinner = true;
-            return ContentAppBar(0.000, 0, 0, '', '', '');
-          } else if (snapshot.hasData) {
+          if (snapshot.hasData) {
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
               if (userInfo['email'] == loggedInUser!.email) {
