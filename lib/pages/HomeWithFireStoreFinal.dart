@@ -453,6 +453,8 @@ class _HomePageFinState extends State<HomePageFin> {
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
                 backgroundColor: Color(0xffb8c8d1),
+                drawer: NavigationDrawer(),
+                appBar: AppBar(),
                 body: ModalProgressHUD(
                   inAsyncCall: showSpinner,
                   child: Column(
@@ -500,6 +502,15 @@ class _HomePageFinState extends State<HomePageFin> {
         ),
       ),
     );
+  }
+}
+
+class NavigationDrawer extends StatelessWidget {
+  const NavigationDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer();
   }
 }
 
@@ -2281,7 +2292,7 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
   }
 }
 
-class ContentAppBar extends StatelessWidget {
+class ContentAppBar extends StatefulWidget {
   double cgpa;
   int earnCredit;
   int totalCredit;
@@ -2293,12 +2304,39 @@ class ContentAppBar extends StatelessWidget {
       this.name, this.imageURL);
 
   @override
+  State<ContentAppBar> createState() => _ContentAppBarState();
+}
+
+class _ContentAppBarState extends State<ContentAppBar> {
+  Future<String?> openDialogSitting() => showDialog(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              insetPadding: EdgeInsets.all(20),
+              contentPadding: EdgeInsets.all(0),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              content: Container(
+                height: 300,
+                width: 100,
+                color: Colors.red,
+              ),
+            );
+          },
+        ),
+      );
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           height: 180,
-          padding: EdgeInsets.fromLTRB(10, 30, 10, 10),
+          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -2310,25 +2348,26 @@ class ContentAppBar extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              name.isNotEmpty
+              widget.name.isNotEmpty
                   ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        imageURL.isEmpty
+                        widget.imageURL.isEmpty
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image.asset(
                                   'images/user3.png',
-                                  width: 50,
-                                  height: 50,
+                                  width: 70,
+                                  height: 70,
                                   fit: BoxFit.cover,
                                 ),
                               )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Image.network(
-                                  imageURL,
-                                  width: 50,
-                                  height: 50,
+                                  widget.imageURL,
+                                  width: 70,
+                                  height: 70,
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -2338,26 +2377,48 @@ class ContentAppBar extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name),
-                            Text(email),
+                            Container(
+                              width: 200,
+                              alignment: Alignment.center,
+                              child: Text(
+                                widget.name,
+                                maxLines: 2,
+                                // textAlign: TextAlign.,
+                                style: TextStyle(
+                                  color: Color(0xff004d60),
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            // Text(email),
                           ],
                         ),
                         GestureDetector(
-                          onTap: () async {
-                            final prov =
-                                Provider.of<AuthServer>(context, listen: false);
-                            await prov.googleLogout();
-
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Siginin(),
-                              ),
-                              (route) => true,
-                            );
+                          onTap: () {
+                            // openDialogSitting();
                           },
-                          child: Text('logout'),
+                          child: Icon(
+                            Icons.settings,
+                            color: Color(0xff4562a7),
+                            size: 25,
+                          ),
                         ),
+                        // GestureDetector(
+                        //   onTap: () async {
+                        //     final prov =
+                        //         Provider.of<AuthServer>(context, listen: false);
+                        //     await prov.googleLogout();
+                        //
+                        //     Navigator.pushAndRemoveUntil(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) => Siginin(),
+                        //       ),
+                        //       (route) => true,
+                        //     );
+                        //   },
+                        //   child: Text('logout'),
+                        // ),
                       ],
                     )
                   : CircularProgressIndicator(),
@@ -2386,7 +2447,7 @@ class ContentAppBar extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.only(left: 20),
                               child: Text(
-                                '${cgpa.toStringAsFixed(3)}',
+                                '${widget.cgpa.toStringAsFixed(3)}',
                                 style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 20,
@@ -2398,7 +2459,7 @@ class ContentAppBar extends StatelessWidget {
                         LinearPercentIndicator(
                           width: 250,
                           lineHeight: 15,
-                          percent: cgpa / 4,
+                          percent: widget.cgpa / 4,
                           backgroundColor: Colors.grey.shade400,
                           progressColor: Color(0xff4562a7),
                           animation: true,
@@ -2424,7 +2485,7 @@ class ContentAppBar extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          '$earnCredit / $totalCredit',
+                          '${widget.earnCredit} / ${widget.totalCredit}',
                           style: TextStyle(
                             color: Color(0xff004d60),
                             fontSize: 20,
