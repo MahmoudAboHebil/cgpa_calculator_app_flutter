@@ -2310,55 +2310,57 @@ class ContentAppBar extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Row(
-                children: [
-                  imageURL.isEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.asset(
-                            'images/user3.png',
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            imageURL,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
+              name.isNotEmpty
+                  ? Row(
+                      children: [
+                        imageURL.isEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  'images/user3.png',
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  imageURL,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                        SizedBox(
+                          width: 10,
                         ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name),
-                      Text(email),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      final prov =
-                          Provider.of<AuthServer>(context, listen: false);
-                      await prov.googleLogout();
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name),
+                            Text(email),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            final prov =
+                                Provider.of<AuthServer>(context, listen: false);
+                            await prov.googleLogout();
 
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Siginin(),
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Siginin(),
+                              ),
+                              (route) => true,
+                            );
+                          },
+                          child: Text('logout'),
                         ),
-                        (route) => true,
-                      );
-                    },
-                    child: Text('logout'),
-                  ),
-                ],
-              ),
+                      ],
+                    )
+                  : CircularProgressIndicator(),
               Row(
                 children: [
                   Padding(
@@ -2440,64 +2442,3 @@ class ContentAppBar extends StatelessWidget {
     );
   }
 }
-
-// Row(
-// children: [
-// GestureDetector(
-// onTap: () async {
-// final prov =
-// Provider.of<AuthServer>(context, listen: false);
-// await prov.googleLogout();
-//
-// Navigator.pushAndRemoveUntil(
-// context,
-// MaterialPageRoute(
-// builder: (context) => Siginin(),
-// ),
-// (route) => true,
-// );
-// },
-// child: Icon(
-// Icons.arrow_back_ios_new,
-// color: Color(0xff4562a7),
-// size: 30,
-// ),
-// ),
-// Padding(
-// padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-// child: Text(
-// 'Back',
-// style: TextStyle(
-// color: Color(0xffce2029),
-// fontSize: 15,
-// ),
-// ),
-// ),
-// Text(
-// 'CGPA Calculator',
-// style: TextStyle(
-// color: Color(0xff004d60),
-// fontSize: 20,
-// ),
-// ),
-// SizedBox(
-// width: 65,
-// ),
-// Padding(
-// padding: EdgeInsets.only(right: 10, left: 10),
-// child: Icon(
-// Icons.lightbulb_rounded,
-// color: Color(0xff4562a7),
-// size: 25,
-// ),
-// ),
-// Icon(
-// Icons.settings,
-// color: Color(0xff4562a7),
-// size: 25,
-// ),
-// ],
-// ),
-// SizedBox(
-// height: 25,
-// ),
