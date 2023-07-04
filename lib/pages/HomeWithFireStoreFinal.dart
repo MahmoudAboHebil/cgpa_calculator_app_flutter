@@ -7,6 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
+import 'package:cgp_calculator/authServieses.dart';
+import 'signin.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -2343,25 +2346,14 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         fontSize: 15,
                       ),
                     ),
-                    // GestureDetector(
-                    //   onTap: () async {
-                    //     final prov =
-                    //         Provider.of<AuthServer>(context, listen: false);
-                    //     await prov.googleLogout();
-                    //
-                    //     Navigator.pushAndRemoveUntil(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => Siginin(),
-                    //       ),
-                    //       (route) => true,
-                    //     );
-                    //   },
-                    //   child: Text('logout'),
-                    // ),
                   ],
                 )
-              : CircularProgressIndicator();
+              : Center(
+                  child: Text(
+                    'Loading .... ',
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
+                );
         },
       );
     } else {
@@ -2381,6 +2373,43 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               color: Color(0xff4562a7),
               child: headerContent(),
               padding: EdgeInsets.all(20),
+            ),
+            Container(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.home_outlined),
+                    title: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePageFin(),
+                              ));
+                        },
+                        child: Text('Home')),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.logout_outlined),
+                    title: GestureDetector(
+                        onTap: () async {
+                          final prov =
+                              Provider.of<AuthServer>(context, listen: false);
+                          await prov.googleLogout();
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Siginin(),
+                            ),
+                            (route) => true,
+                          );
+                        },
+                        child: Text('Logout')),
+                  ),
+                ],
+              ),
             )
           ],
         ),
