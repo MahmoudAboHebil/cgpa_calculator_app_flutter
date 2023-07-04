@@ -15,6 +15,7 @@ import 'profilePage.dart';
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
 // ToDo:  the calcCPA button disappear when adding a new semester (done - but there is a Special case when removing a course)
+// ToDo:  profile sitting  (done - but there is no implementation for Department field in DB )
 class MyBehavior extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(
