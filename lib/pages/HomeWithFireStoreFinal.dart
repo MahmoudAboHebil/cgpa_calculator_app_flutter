@@ -1,4 +1,3 @@
-import 'package:cgp_calculator/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -8,8 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
-import 'package:cgp_calculator/authServieses.dart';
-import 'package:provider/provider.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -543,15 +540,6 @@ class MyCustomAppBar extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class NavigationDrawer extends StatelessWidget {
-  const NavigationDrawer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer();
   }
 }
 
@@ -2273,6 +2261,134 @@ class _CourseFinState extends State<CourseFin> {
   }
 }
 
+class NavigationDrawer extends StatefulWidget {
+  const NavigationDrawer({super.key});
+
+  @override
+  State<NavigationDrawer> createState() => _NavigationDrawerState();
+}
+
+class _NavigationDrawerState extends State<NavigationDrawer> {
+  String email = '';
+  String name = '';
+  String imageURL = '';
+
+  CollectionReference? _usersInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+  }
+
+  Widget headerContent() {
+    if (_usersInfo != null && loggedInUser != null) {
+      return StreamBuilder(
+        stream: _usersInfo!.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            for (int i = 0; i < snapshot.data!.docs.length; i++) {
+              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
+              if (userInfo['email'] == loggedInUser!.email) {
+                email = userInfo['email'];
+                name = userInfo['name'];
+                imageURL = userInfo['image'];
+              }
+            }
+            // showSpinner = false;
+          }
+
+          return name.isNotEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    imageURL.isEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(
+                              'images/user3.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.network(
+                              imageURL,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      email,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      ),
+                    ),
+                    // GestureDetector(
+                    //   onTap: () async {
+                    //     final prov =
+                    //         Provider.of<AuthServer>(context, listen: false);
+                    //     await prov.googleLogout();
+                    //
+                    //     Navigator.pushAndRemoveUntil(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => Siginin(),
+                    //       ),
+                    //       (route) => true,
+                    //     );
+                    //   },
+                    //   child: Text('logout'),
+                    // ),
+                  ],
+                )
+              : CircularProgressIndicator();
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 200,
+              color: Color(0xff4562a7),
+              child: headerContent(),
+              padding: EdgeInsets.all(20),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class AppBarHomeFin extends StatefulWidget {
   double cgpa;
   int earnCredit;
@@ -2289,66 +2405,6 @@ class _AppBarHomeFinState extends State<AppBarHomeFin> {
     await FirebaseAuth.instance.signOut();
   }
 
-  CollectionReference? _usersInfo;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
-    });
-  }
-
-  String email = '';
-  String name = '';
-  String imageURL = '';
-  @override
-  Widget build(BuildContext context) {
-    if (_usersInfo != null && loggedInUser != null) {
-      return StreamBuilder(
-        stream: _usersInfo!.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            for (int i = 0; i < snapshot.data!.docs.length; i++) {
-              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
-              if (userInfo['email'] == loggedInUser!.email) {
-                email = userInfo['email'];
-                name = userInfo['name'];
-                imageURL = userInfo['image'];
-              }
-            }
-            // showSpinner = false;
-
-            return ContentAppBar(widget.cgpa, widget.earnCredit,
-                widget.totalCredit, email, name, imageURL);
-          } else {
-            // showSpinner = true;
-            return ContentAppBar(0.000, 0, 0, '', '', '');
-          }
-        },
-      );
-    } else {
-      return Container();
-    }
-  }
-}
-
-class ContentAppBar extends StatefulWidget {
-  double cgpa;
-  int earnCredit;
-  int totalCredit;
-  String email;
-  String name;
-  String imageURL;
-
-  ContentAppBar(this.cgpa, this.earnCredit, this.totalCredit, this.email,
-      this.name, this.imageURL);
-
-  @override
-  State<ContentAppBar> createState() => _ContentAppBarState();
-}
-
-class _ContentAppBarState extends State<ContentAppBar> {
   Future<String?> openDialogSitting() => showDialog(
         context: context,
         builder: (context) => StatefulBuilder(
@@ -2378,82 +2434,6 @@ class _ContentAppBarState extends State<ContentAppBar> {
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            // widget.name.isNotEmpty
-            //     ? Row(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           widget.imageURL.isEmpty
-            //               ? ClipRRect(
-            //                   borderRadius: BorderRadius.circular(20),
-            //                   child: Image.asset(
-            //                     'images/user3.png',
-            //                     width: 70,
-            //                     height: 70,
-            //                     fit: BoxFit.cover,
-            //                   ),
-            //                 )
-            //               : ClipRRect(
-            //                   borderRadius: BorderRadius.circular(10),
-            //                   child: Image.network(
-            //                     widget.imageURL,
-            //                     width: 70,
-            //                     height: 70,
-            //                     fit: BoxFit.cover,
-            //                   ),
-            //                 ),
-            //           SizedBox(
-            //             width: 10,
-            //           ),
-            //           Column(
-            //             crossAxisAlignment: CrossAxisAlignment.start,
-            //             children: [
-            //               Container(
-            //                 width: 200,
-            //                 alignment: Alignment.center,
-            //                 child: Text(
-            //                   widget.name,
-            //                   maxLines: 2,
-            //                   // textAlign: TextAlign.,
-            //                   style: TextStyle(
-            //                     color: Color(0xff004d60),
-            //                     fontSize: 20,
-            //                   ),
-            //                 ),
-            //               ),
-            //               // Text(email),
-            //             ],
-            //           ),
-            //           GestureDetector(
-            //             onTap: () {
-            //               // openDialogSitting();
-            //             },
-            //             child: Icon(
-            //               Icons.settings,
-            //               color: Color(0xff4562a7),
-            //               size: 25,
-            //             ),
-            //           ),
-            //           // GestureDetector(
-            //           //   onTap: () async {
-            //           //     final prov =
-            //           //         Provider.of<AuthServer>(context, listen: false);
-            //           //     await prov.googleLogout();
-            //           //
-            //           //     Navigator.pushAndRemoveUntil(
-            //           //       context,
-            //           //       MaterialPageRoute(
-            //           //         builder: (context) => Siginin(),
-            //           //       ),
-            //           //       (route) => true,
-            //           //     );
-            //           //   },
-            //           //   child: Text('logout'),
-            //           // ),
-            //         ],
-            //       )
-            //     : CircularProgressIndicator(),
-            //
-
             Row(
               children: [
                 Padding(
