@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/authServieses.dart';
 import 'signin.dart';
+import 'profilePage.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -2454,18 +2455,19 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         },
                         child: Text('Home')),
                   ),
-                  // ListTile(
-                  //   leading: Icon(Icons.person_rounded),
-                  //   title: GestureDetector(
-                  //       onTap: () {
-                  //         // Navigator.push(
-                  //         //     context,
-                  //         //     MaterialPageRoute(
-                  //         //       builder: (context) => HomePageFin(),
-                  //         //     ));
-                  //       },
-                  //       child: Text('Profile')),
-                  // ),
+                  ListTile(
+                    leading: Icon(Icons.person_rounded),
+                    title: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    Profile(email, name, imageURL),
+                              ));
+                        },
+                        child: Text('Profile')),
+                  ),
                   ListTile(
                     leading: Icon(Icons.logout_outlined),
                     title: GestureDetector(
