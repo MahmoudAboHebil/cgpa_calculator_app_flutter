@@ -2286,6 +2286,32 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     });
   }
 
+  Future showImageDealog() async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        contentPadding: EdgeInsets.all(0),
+        alignment: Alignment.center,
+        content: Container(
+          height: 300,
+          width: 300,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                imageURL,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget headerContent() {
     if (_usersInfo != null && loggedInUser != null) {
       return StreamBuilder(
@@ -2308,23 +2334,61 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     imageURL.isEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: Image.asset(
-                              'images/user3.png',
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
+                        ? Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.all(10),
+                                alignment: Alignment.center,
+                                height: 120,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                    color: Color(0xff4562a7),
+                                    // Color(0xff4562a7)
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(200)),
+                                    border: Border.all(
+                                        color: Colors.white54, width: 4)),
+                              ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.asset(
+                                  'images/user3.png',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            ],
                           )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: Image.network(
-                              imageURL,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
+                        : Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.all(10),
+                                alignment: Alignment.center,
+                                height: 120,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                    color: Color(0xff4562a7),
+                                    // Color(0xff4562a7)
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(200)),
+                                    border: Border.all(
+                                        color: Colors.white54, width: 4)),
+                              ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.network(
+                                  imageURL,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            ],
                           ),
                     SizedBox(
                       width: 10,
@@ -2369,10 +2433,10 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: 200,
+              height: 220,
               color: Color(0xff4562a7),
               child: headerContent(),
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(10),
             ),
             Container(
               padding: EdgeInsets.all(24),
@@ -2390,6 +2454,18 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         },
                         child: Text('Home')),
                   ),
+                  // ListTile(
+                  //   leading: Icon(Icons.person_rounded),
+                  //   title: GestureDetector(
+                  //       onTap: () {
+                  //         // Navigator.push(
+                  //         //     context,
+                  //         //     MaterialPageRoute(
+                  //         //       builder: (context) => HomePageFin(),
+                  //         //     ));
+                  //       },
+                  //       child: Text('Profile')),
+                  // ),
                   ListTile(
                     leading: Icon(Icons.logout_outlined),
                     title: GestureDetector(
