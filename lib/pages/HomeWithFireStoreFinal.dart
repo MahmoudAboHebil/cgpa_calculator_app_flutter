@@ -454,12 +454,12 @@ class _HomePageFinState extends State<HomePageFin> {
             child: Scaffold(
                 backgroundColor: Color(0xffb8c8d1),
                 drawer: NavigationDrawer(),
-                appBar: AppBar(),
                 body: ModalProgressHUD(
                   inAsyncCall: showSpinner,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      MyCustomAppBar(100, CGPA, earnCredit, totalCredit),
                       Flexible(
                           child: Stack(
                         children: [
@@ -468,11 +468,6 @@ class _HomePageFinState extends State<HomePageFin> {
                               child: ListView(
                                 shrinkWrap: true,
                                 children: [
-                                  AppBarHomeFin(
-                                    CGPA,
-                                    earnCredit,
-                                    totalCredit,
-                                  ),
                                   showSpinner ? Container() : Content(),
                                   SizedBox(
                                     height: 50,
@@ -500,6 +495,52 @@ class _HomePageFinState extends State<HomePageFin> {
                 )),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class MyCustomAppBar extends StatelessWidget {
+  final double height;
+  double cgpa;
+  int earnCredit;
+  int totalCredit;
+
+  MyCustomAppBar(this.height, this.cgpa, this.earnCredit, this.totalCredit);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      padding: EdgeInsets.only(top: 10),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+        border: Border.all(color: Colors.grey, width: 2),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            child: IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: Color(0xff4562a7),
+                size: 28,
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+          AppBarHomeFin(
+            cgpa,
+            earnCredit,
+            totalCredit,
+          ),
+        ],
       ),
     );
   }
@@ -2334,170 +2375,160 @@ class _ContentAppBarState extends State<ContentAppBar> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 180,
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20)),
-            border: Border.all(color: Colors.white54, width: 2),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              widget.name.isNotEmpty
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        widget.imageURL.isEmpty
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.asset(
-                                  'images/user3.png',
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  widget.imageURL,
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 200,
-                              alignment: Alignment.center,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // widget.name.isNotEmpty
+            //     ? Row(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           widget.imageURL.isEmpty
+            //               ? ClipRRect(
+            //                   borderRadius: BorderRadius.circular(20),
+            //                   child: Image.asset(
+            //                     'images/user3.png',
+            //                     width: 70,
+            //                     height: 70,
+            //                     fit: BoxFit.cover,
+            //                   ),
+            //                 )
+            //               : ClipRRect(
+            //                   borderRadius: BorderRadius.circular(10),
+            //                   child: Image.network(
+            //                     widget.imageURL,
+            //                     width: 70,
+            //                     height: 70,
+            //                     fit: BoxFit.cover,
+            //                   ),
+            //                 ),
+            //           SizedBox(
+            //             width: 10,
+            //           ),
+            //           Column(
+            //             crossAxisAlignment: CrossAxisAlignment.start,
+            //             children: [
+            //               Container(
+            //                 width: 200,
+            //                 alignment: Alignment.center,
+            //                 child: Text(
+            //                   widget.name,
+            //                   maxLines: 2,
+            //                   // textAlign: TextAlign.,
+            //                   style: TextStyle(
+            //                     color: Color(0xff004d60),
+            //                     fontSize: 20,
+            //                   ),
+            //                 ),
+            //               ),
+            //               // Text(email),
+            //             ],
+            //           ),
+            //           GestureDetector(
+            //             onTap: () {
+            //               // openDialogSitting();
+            //             },
+            //             child: Icon(
+            //               Icons.settings,
+            //               color: Color(0xff4562a7),
+            //               size: 25,
+            //             ),
+            //           ),
+            //           // GestureDetector(
+            //           //   onTap: () async {
+            //           //     final prov =
+            //           //         Provider.of<AuthServer>(context, listen: false);
+            //           //     await prov.googleLogout();
+            //           //
+            //           //     Navigator.pushAndRemoveUntil(
+            //           //       context,
+            //           //       MaterialPageRoute(
+            //           //         builder: (context) => Siginin(),
+            //           //       ),
+            //           //       (route) => true,
+            //           //     );
+            //           //   },
+            //           //   child: Text('logout'),
+            //           // ),
+            //         ],
+            //       )
+            //     : CircularProgressIndicator(),
+            //
+
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10),
                               child: Text(
-                                widget.name,
-                                maxLines: 2,
-                                // textAlign: TextAlign.,
-                                style: TextStyle(
-                                  color: Color(0xff004d60),
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                            // Text(email),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            // openDialogSitting();
-                          },
-                          child: Icon(
-                            Icons.settings,
-                            color: Color(0xff4562a7),
-                            size: 25,
-                          ),
-                        ),
-                        // GestureDetector(
-                        //   onTap: () async {
-                        //     final prov =
-                        //         Provider.of<AuthServer>(context, listen: false);
-                        //     await prov.googleLogout();
-                        //
-                        //     Navigator.pushAndRemoveUntil(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => Siginin(),
-                        //       ),
-                        //       (route) => true,
-                        //     );
-                        //   },
-                        //   child: Text('logout'),
-                        // ),
-                      ],
-                    )
-                  : CircularProgressIndicator(),
-              Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Text(
-                                  'CGPA',
-                                  style: TextStyle(
-                                      color: Color(0xff4562a7),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 20),
-                              child: Text(
-                                '${widget.cgpa.toStringAsFixed(3)}',
+                                'CGPA',
                                 style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ],
-                        ),
-                        LinearPercentIndicator(
-                          width: 250,
-                          lineHeight: 15,
-                          percent: widget.cgpa / 4,
-                          backgroundColor: Colors.grey.shade400,
-                          progressColor: Color(0xff4562a7),
-                          animation: true,
-                          barRadius: Radius.circular(10),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10, top: 20),
-                        child: Text(
-                          'Total Credits',
-                          style: TextStyle(
-                            color: Color(0xff004d60),
-                            fontSize: 20,
                           ),
-                        ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: Text(
+                              '${widget.cgpa.toStringAsFixed(3)}',
+                              style: TextStyle(
+                                  color: Color(0xff4562a7),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Text(
-                          '${widget.earnCredit} / ${widget.totalCredit}',
-                          style: TextStyle(
-                            color: Color(0xff004d60),
-                            fontSize: 20,
-                          ),
-                        ),
-                      )
+                      LinearPercentIndicator(
+                        width: 230,
+                        lineHeight: 15,
+                        percent: widget.cgpa / 4,
+                        backgroundColor: Colors.grey.shade400,
+                        progressColor: Color(0xff4562a7),
+                        animation: true,
+                        barRadius: Radius.circular(10),
+                      ),
                     ],
                   ),
-                ],
-              )
-            ],
-          ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 0, top: 20),
+                      child: Text(
+                        'Total Credits',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 0),
+                      child: Text(
+                        '${widget.earnCredit} / ${widget.totalCredit}',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            )
+          ],
         ),
       ],
     );
