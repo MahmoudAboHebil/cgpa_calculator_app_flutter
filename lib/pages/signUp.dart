@@ -93,6 +93,90 @@ class _ContentSignUpState extends State<ContentSignUp> {
     );
   }
 
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      clipBehavior: Clip.none,
+      elevation: 0,
+      content: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Color(0xff4562a7),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 48,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Oops Error!',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      Text(
+                        errorMassage,
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+              bottom: 25,
+              left: 20,
+              child: ClipRRect(
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: Colors.red.shade200,
+                      size: 17,
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+              top: -20,
+              left: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                  ),
+                  Positioned(
+                      top: 5,
+                      child: Icon(
+                        Icons.clear_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ))
+                ],
+              )),
+        ],
+      ),
+    ));
+  }
+
   bool pressed = false;
   final _auth = FirebaseAuth.instance;
   final _controller1 = TextEditingController();
@@ -104,6 +188,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
   String email = '';
   String password = '';
   bool showProgress = false;
+  String errorMassage = '';
 
   @override
   void initState() {
@@ -510,9 +595,11 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                         String imageURL =
                                             await referenceImageToUpload
                                                 .getDownloadURL();
-                                        addUserInfo(email, nameOrID, imageURL);
+                                        addUserInfo(email.toLowerCase(),
+                                            nameOrID, imageURL);
                                       } else {
-                                        addUserInfo(email, nameOrID, '');
+                                        addUserInfo(
+                                            email.toLowerCase(), nameOrID, '');
                                       }
                                       Navigator.pushAndRemoveUntil(
                                         context,
@@ -526,8 +613,12 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                       _controller3.clear();
                                       _controller4.clear();
                                     }
-                                  } catch (e) {
-                                    print(e);
+                                  } on FirebaseAuthException catch (error) {
+                                    setState(() {
+                                      showProgress = false;
+                                      errorMassage = error.message!;
+                                      message();
+                                    });
                                   }
                                 }
                               },
@@ -600,7 +691,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                 });
                                 await prov.googleLogin();
                                 addUserInfo(
-                                    prov.gUser!.email,
+                                    prov.gUser!.email.toLowerCase(),
                                     prov.gUser!.displayName,
                                     prov.gUser!.photoUrl);
                                 setState(() {

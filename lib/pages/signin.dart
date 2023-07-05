@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'HomeWithFireStoreFinal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'forgetPasswordPage.dart';
 
 class Siginin extends StatefulWidget {
   @override
@@ -70,6 +70,7 @@ class _ContentState extends State<Content> {
   bool remember = true;
   bool pressed = false;
   bool showProgress = false;
+  String errorMassage = '';
   void setDataCheckUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (remember) {
@@ -83,6 +84,90 @@ class _ContentState extends State<Content> {
         // print(_controller2.text);
       }
     }
+  }
+
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      clipBehavior: Clip.none,
+      elevation: 0,
+      content: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Color(0xff4562a7),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 48,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Oops Error!',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      Text(
+                        errorMassage,
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+              bottom: 25,
+              left: 20,
+              child: ClipRRect(
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: Colors.red.shade200,
+                      size: 17,
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+              top: -20,
+              left: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                  ),
+                  Positioned(
+                      top: 5,
+                      child: Icon(
+                        Icons.clear_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ))
+                ],
+              )),
+        ],
+      ),
+    ));
   }
 
   void setRememberMy(String email, String password) async {
@@ -307,18 +392,18 @@ class _ContentState extends State<Content> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SignUpPage(),
+                            builder: (context) => ForgetPassword(),
                           ));
                     },
                     child: Text(
-                      'Sign Up',
+                      'Forgot Password?',
                       style: TextStyle(color: Color(0xffce2029), fontSize: 15),
                     ),
                   ),
                 ],
               ),
               SizedBox(
-                height: 20,
+                height: 40,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,8 +450,18 @@ class _ContentState extends State<Content> {
                           setState(() {
                             showProgress = false;
                           });
-                        } catch (e) {
-                          print(e);
+                        } on FirebaseAuthException catch (error) {
+                          setState(() {
+                            if (error.message ==
+                                'There is no user record corresponding to this identifier. The user may have been deleted.') {
+                              errorMassage =
+                                  'There is no user record with that email';
+                            } else {
+                              errorMassage = error.message!;
+                            }
+                            showProgress = false;
+                            message();
+                          });
                         }
 
                         // ScaffoldMessenger.of(context).showSnackBar(
@@ -393,7 +488,26 @@ class _ContentState extends State<Content> {
                 ],
               ),
               SizedBox(
-                height: 270,
+                height: 20,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignUpPage(),
+                        ));
+                  },
+                  child: Text(
+                    'Sign Up',
+                    style: TextStyle(color: Color(0xffce2029), fontSize: 18),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 230,
               ),
               Align(
                 alignment: Alignment.center,
@@ -443,8 +557,8 @@ class _ContentState extends State<Content> {
                       });
                       await prov.googleLogin();
                       if (prov.gUser != null) {
-                        addUserInfo(prov.gUser!.email, prov.gUser!.displayName,
-                            prov.gUser!.photoUrl);
+                        addUserInfo(prov.gUser!.email.toLowerCase(),
+                            prov.gUser!.displayName, prov.gUser!.photoUrl);
                       }
 
                       setState(() {

@@ -373,8 +373,8 @@ class _ProfileState extends State<Profile> {
                               }
                               if (image != null ||
                                   _controller1.text != widget.name) {
-                                addUserInfo(widget.email, _controller1.text,
-                                    widget.imageURL);
+                                addUserInfo(widget.email.toLowerCase(),
+                                    _controller1.text, widget.imageURL);
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

@@ -2325,6 +2325,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               if (userInfo['email'] == loggedInUser!.email) {
                 email = userInfo['email'];
                 name = userInfo['name'];
+                print('#########################################');
+                print(name);
                 imageURL = userInfo['image'];
               }
             }
