@@ -2104,7 +2104,7 @@ class _CourseFinState extends State<CourseFin> {
           },
           child: AbsorbPointer(
             child: Container(
-              margin: EdgeInsets.only(left: 8, top: 5),
+              margin: EdgeInsets.only(left: 8, top: 0),
               height: 18,
               width: 18,
               alignment: Alignment.center,
@@ -2166,96 +2166,159 @@ class _CourseFinState extends State<CourseFin> {
                       });
                     });
                   },
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: Color(0xffce2029),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 0),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Color(0xffce2029),
+                    ),
                   ),
                 ),
                 Container(
                   width: 125,
-                  height: 18,
-                  margin: EdgeInsets.only(top: 4, left: 10),
-                  child: TextField(
-                    controller: _controller_Name,
-                    textAlign: TextAlign.center,
-                    focusNode: _focusName,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xff004d60),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        errorGrade();
-                        widget.courseList[1] = value;
-                        name = value;
-                        if (value.isNotEmpty) {
-                          widget.listCoursesInSemester[widget.index][1] = value;
-                        } else {
-                          widget.listCoursesInSemester[widget.index][1] = null;
-                        }
-                        // widget.CallBackUpdateList(widget.listCoursesInSemester);
-                        selectedValueIs1Null;
-                        selectedValueIs2Null;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Enter Course',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
+                  height: 28,
+                  margin: EdgeInsets.only(top: 0, left: 10),
+                  // padding: EdgeInsets.,
+                  decoration: BoxDecoration(
+                      border: Border(
+                    bottom: _focusName.hasFocus
+                        ? BorderSide(
+                            color: valideName
+                                ? Color(0xff4562a7)
+                                : Color(0xffce2029),
+                          )
+                        : BorderSide(
                             color:
                                 valideName ? Colors.white : Color(0xffce2029)),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: valideName
-                              ? Color(0xff4562a7)
-                              : Color(0xffce2029),
+                  )),
+                  // padding: EdgeInsets.only(bottom: 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: _controller_Name,
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.bottom,
+                        focusNode: _focusName,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xff004d60),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            errorGrade();
+                            widget.courseList[1] = value;
+                            name = value;
+                            if (value.isNotEmpty) {
+                              widget.listCoursesInSemester[widget.index][1] =
+                                  value;
+                            } else {
+                              widget.listCoursesInSemester[widget.index][1] =
+                                  null;
+                            }
+                            // widget.CallBackUpdateList(widget.listCoursesInSemester);
+                            selectedValueIs1Null;
+                            selectedValueIs2Null;
+                          });
+                        },
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          hintText: 'Enter Course',
+                          hintStyle:
+                              TextStyle(color: Colors.grey, fontSize: 18),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  width: 0, color: Colors.transparent)
+                              // borderSide: BorderSide(
+                              //   color:
+                              //       valideName ? Colors.white : Color(0xffce2029)),
+                              ),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  width: 0, color: Colors.transparent)
+
+                              // borderSide: BorderSide(
+                              //   color: valideName
+                              //       ? Color(0xff4562a7)
+                              //       : Color(0xffce2029),
+                              // ),
+                              ),
                         ),
                       ),
-                    ),
+                      SizedBox(
+                        height: 0.5,
+                      )
+                    ],
                   ),
                 ),
               ],
             ),
             Container(
               width: 60,
-              height: 18,
-              margin: EdgeInsets.only(bottom: 0.4),
-              child: TextField(
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                controller: _controller_Credit,
-                focusNode: _focusCredit,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  setState(() {
-                    credit = value;
-                    if (value.isNotEmpty) {
-                      widget.listCoursesInSemester[widget.index][2] = value;
-                    } else {
-                      widget.listCoursesInSemester[widget.index][2] = null;
-                    }
-                  });
-                },
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xff4562a7),
-                ),
-                decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                  hintText: 'Credit',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: valideCredit ? Colors.white : Color(0xffce2029)),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color:
-                          valideCredit ? Color(0xff4562a7) : Color(0xffce2029),
+              // height: 34,
+              height: 28,
+              // margin: EdgeInsets.only(top: 8),
+              decoration: BoxDecoration(
+                  border: Border(
+                bottom: _focusCredit.hasFocus
+                    ? BorderSide(
+                        color:
+                            valideName ? Color(0xff4562a7) : Color(0xffce2029),
+                      )
+                    : BorderSide(
+                        color: valideName ? Colors.white : Color(0xffce2029)),
+              )),
+              child: Column(
+                children: [
+                  TextField(
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    controller: _controller_Credit,
+                    focusNode: _focusCredit,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        credit = value;
+                        if (value.isNotEmpty) {
+                          widget.listCoursesInSemester[widget.index][2] = value;
+                        } else {
+                          widget.listCoursesInSemester[widget.index][2] = null;
+                        }
+                      });
+                    },
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xff4562a7),
+                    ),
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                      hintText: 'Credit',
+                      enabledBorder: UnderlineInputBorder(
+                          // borderSide: BorderSide(
+                          //     color: valideCredit
+                          //         ? Colors.white
+                          //         : Color(0xffce2029)),
+                          borderSide:
+                              BorderSide(width: 0, color: Colors.transparent)),
+                      focusedBorder: UnderlineInputBorder(
+                          // borderSide: BorderSide(
+                          //   color: valideCredit
+                          //       ? Color(0xff4562a7)
+                          //       : Color(0xffce2029),
+                          // ),
+                          borderSide:
+                              BorderSide(width: 0, color: Colors.transparent)),
                     ),
                   ),
-                ),
+                  SizedBox(
+                    height: 1,
+                  )
+                ],
               ),
             ),
             gradeContainer()
