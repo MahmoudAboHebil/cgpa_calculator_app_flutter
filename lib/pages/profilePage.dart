@@ -23,7 +23,7 @@ class _ProfileState extends State<Profile> {
   TextEditingController _controller1 = TextEditingController();
   TextEditingController _controller2 = TextEditingController();
   File? image;
-
+  bool imageDelete = false;
   Future pickImage(ImageSource source) async {
     try {
       final image = await ImagePicker().pickImage(source: source);
@@ -189,6 +189,8 @@ class _ProfileState extends State<Profile> {
                                               color: Color(0xff004d60),
                                             ),
                                           ),
+                                          // alignment: Alignment.center,
+
                                           actions: [
                                             TextButton(
                                               child: Text("Camera",
@@ -210,6 +212,29 @@ class _ProfileState extends State<Profile> {
                                                 Navigator.pop(context);
                                               },
                                             ),
+                                            widget.imageURL.isNotEmpty ||
+                                                    image != null
+                                                ? SizedBox(
+                                                    width: 20,
+                                                  )
+                                                : SizedBox(),
+                                            widget.imageURL.isNotEmpty ||
+                                                    image != null
+                                                ? TextButton(
+                                                    child: Text("delete",
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xffce2029))),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        imageDelete = true;
+                                                        image = null;
+                                                        widget.imageURL = '';
+                                                      });
+                                                      Navigator.pop(context);
+                                                    },
+                                                  )
+                                                : SizedBox()
                                           ]),
                                     );
                                   },
@@ -371,8 +396,27 @@ class _ProfileState extends State<Profile> {
                                   widget.imageURL = imageURL;
                                 });
                               }
+                              if (imageDelete) {
+                                try {
+                                  Reference referenceRoot =
+                                      FirebaseStorage.instance.ref();
+                                  Reference referenceDirImage =
+                                      referenceRoot.child('images');
+                                  Reference referenceImage =
+                                      referenceDirImage.child(widget.email);
+                                  await referenceImage.delete();
+                                } on FirebaseException catch (error) {
+                                  print(
+                                      '##########################################################');
+                                  print(error.message!);
+                                  // setState(() {
+                                  //
+                                  // });
+                                }
+                              }
                               if (image != null ||
-                                  _controller1.text != widget.name) {
+                                  _controller1.text != widget.name ||
+                                  imageDelete) {
                                 addUserInfo(widget.email.toLowerCase(),
                                     _controller1.text, widget.imageURL);
                                 Navigator.pushAndRemoveUntil(
