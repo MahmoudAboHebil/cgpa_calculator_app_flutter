@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:cgp_calculator/authServieses.dart';
 import 'signin.dart';
 import 'profilePage.dart';
+import 'expectTheCGPAPage.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -2551,6 +2552,21 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                           );
                         },
                         child: Text('Logout')),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.lightbulb_rounded,
+                    ),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ExpectTheCGPAPage(),
+                            ),
+                          );
+                        },
+                        child: Text('Predict')),
                   ),
                 ],
               ),
