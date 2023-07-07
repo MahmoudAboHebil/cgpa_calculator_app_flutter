@@ -1423,6 +1423,7 @@ class _CourseFinState extends State<CourseFin> {
   late TextEditingController _controller_Credit;
   FocusNode _focusName = FocusNode();
   FocusNode _focusCredit = FocusNode();
+  FocusNode _focusGrade = FocusNode();
 
   late String? selectedValue1;
   late String? selectedValue2;
@@ -1460,6 +1461,7 @@ class _CourseFinState extends State<CourseFin> {
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
     _focusName.addListener(_onFocusNameChange);
     _focusCredit.addListener(_onFocusCreditChange);
+    _focusGrade.addListener(_onFocusGradeChange);
 
     setState(() {
       semesterID = widget.courseList[0];
@@ -1493,8 +1495,13 @@ class _CourseFinState extends State<CourseFin> {
       } else {
         widget.listCoursesInSemester[widget.index][1] = null;
       }
-      widget.CallBackUpdateList(widget.listCoursesInSemester);
-      widget.CallBackUpdateChange();
+      if (!_focusCredit.hasFocus && !_focusGrade.hasFocus) {
+        print(
+            '_onFocus  Name Change jffffffffffffffffffffffffffffffffffffffffffff');
+
+        widget.CallBackUpdateList(widget.listCoursesInSemester);
+        widget.CallBackUpdateChange();
+      }
     }
     errorGrade();
     validationMethod();
@@ -1509,8 +1516,25 @@ class _CourseFinState extends State<CourseFin> {
       } else {
         widget.listCoursesInSemester[widget.index][2] = null;
       }
-      widget.CallBackUpdateList(widget.listCoursesInSemester);
-      widget.CallBackUpdateChange();
+      if (!_focusName.hasFocus && !_focusGrade.hasFocus) {
+        print(
+            '_onFocus  Credit   Change jffffffffffffffffffffffffffffffffffffffffffff');
+        widget.CallBackUpdateList(widget.listCoursesInSemester);
+        widget.CallBackUpdateChange();
+      }
+    }
+  }
+
+  void _onFocusGradeChange() {
+    if (_focusGrade.hasFocus) {
+    } else {
+      // Future.delayed(D)
+      if (!_focusName.hasFocus && !_focusCredit.hasFocus) {
+        print(
+            '_onFocus  Grade   Change jffffffffffffffffffffffffffffffffffffffffffff');
+        widget.CallBackUpdateList(widget.listCoursesInSemester);
+        widget.CallBackUpdateChange();
+      }
     }
   }
 
@@ -1969,6 +1993,10 @@ class _CourseFinState extends State<CourseFin> {
               )
             : GestureDetector(
                 onTap: () {
+                  // _focusName.unfocus();
+                  // _focusCredit.unfocus();
+                  print('heeeeeeeeeeeeeeeeeeeeeeee');
+
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 child: DropdownButtonHideUnderline(
@@ -2039,6 +2067,8 @@ class _CourseFinState extends State<CourseFin> {
                             ))
                         .toList(),
                     value: selectedValue1,
+                    // openWithLongPress: true,
+                    focusNode: _focusGrade,
                     key: ValueKey(selectedValue1),
                     onChanged: (value) {
                       setState(() {
@@ -2139,12 +2169,17 @@ class _CourseFinState extends State<CourseFin> {
     _focusName.dispose();
     _focusCredit.removeListener(_onFocusCreditChange);
     _focusCredit.dispose();
+    _focusGrade.removeListener(_onFocusGradeChange);
+    _focusGrade.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     errorGrade();
     validationMethod();
+    // if (_focusCredit.hasFocus || _focusName.hasFocus) {
+    //   _focusGrade.unfocus();
+    // }
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -2265,11 +2300,12 @@ class _CourseFinState extends State<CourseFin> {
                   border: Border(
                 bottom: _focusCredit.hasFocus
                     ? BorderSide(
-                        color:
-                            valideName ? Color(0xff4562a7) : Color(0xffce2029),
+                        color: valideCredit
+                            ? Color(0xff4562a7)
+                            : Color(0xffce2029),
                       )
                     : BorderSide(
-                        color: valideName ? Colors.white : Color(0xffce2029)),
+                        color: valideCredit ? Colors.white : Color(0xffce2029)),
               )),
               child: Column(
                 children: [

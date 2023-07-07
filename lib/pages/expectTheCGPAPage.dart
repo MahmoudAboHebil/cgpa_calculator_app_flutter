@@ -8,27 +8,67 @@ class ExpectTheCGPAPage extends StatefulWidget {
 }
 
 class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
+  TextEditingController _contr_curr_CGPA = TextEditingController();
+  TextEditingController _contr_curr_credits = TextEditingController();
+  TextEditingController _contr_Semest_GPA = TextEditingController();
+  TextEditingController _contr_semest_credits = TextEditingController();
+  double newCGPA = 0.0000;
+
+  void calcPredictCGPA() {
+    String currCGPA = _contr_curr_CGPA.text;
+    String currCredits = _contr_curr_credits.text;
+    String semestGPA = _contr_Semest_GPA.text;
+    String semestCredits = _contr_semest_credits.text;
+    if (currCredits.isNotEmpty &&
+        currCGPA.isNotEmpty &&
+        semestCredits.isNotEmpty &&
+        semestGPA.isNotEmpty) {
+      try {
+        double currPoints = double.parse(currCGPA) * double.parse(currCredits);
+        double semestPoints =
+            double.parse(semestGPA) * double.parse(semestCredits);
+
+        setState(() {
+          if ((double.parse(currCredits) +
+                  double.parse(semestCredits) +
+                  double.parse(currCGPA) +
+                  double.parse(semestGPA)) ==
+              0) {
+            print('herrrrrrrrrrrrrrrrrrrrr');
+            newCGPA = 0.000;
+          } else {
+            newCGPA = (currPoints + semestPoints) /
+                (double.parse(currCredits) + double.parse(semestCredits));
+          }
+
+          if (newCGPA > 4.0) {
+            newCGPA = 4.0;
+          }
+        });
+      } catch (error) {
+        print(error);
+        setState(() {
+          newCGPA = 0.000;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    calcPredictCGPA();
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Container(
-            // decoration: BoxDecoration(
-            //   gradient: LinearGradient(
-            //     begin: Alignment.topCenter,
-            //     end: Alignment.bottomCenter,
-            //     colors: [Color(0xff1E5162), Color(0xff296E85)],
-            //   ),
-            // ),
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
 
               // backgroundColor: Colors.transparent,
               appBar: AppBar(
-                backgroundColor: Color(0xff4562a7),
+                backgroundColor: Colors.blueGrey,
                 leading: GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
@@ -86,6 +126,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                         width: 150,
                                         height: 75,
                                         child: TextField(
+                                          controller: _contr_curr_CGPA,
                                           textAlign: TextAlign.center,
                                           inputFormatters: [
                                             FilteringTextInputFormatter.allow(
@@ -126,6 +167,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                         width: 150,
                                         height: 75,
                                         child: TextField(
+                                          controller: _contr_curr_credits,
                                           inputFormatters: [
                                             FilteringTextInputFormatter
                                                 .digitsOnly
@@ -174,6 +216,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                         width: 150,
                                         height: 75,
                                         child: TextField(
+                                          controller: _contr_Semest_GPA,
                                           inputFormatters: [
                                             FilteringTextInputFormatter.allow(
                                                 RegExp(r"[0-9.]")),
@@ -214,6 +257,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                         width: 150,
                                         height: 75,
                                         child: TextField(
+                                          controller: _contr_semest_credits,
                                           inputFormatters: [
                                             FilteringTextInputFormatter
                                                 .digitsOnly
@@ -282,10 +326,10 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                             ),
                             CircularPercentIndicator(
                               radius: 80,
-                              percent: 0.75,
+                              percent: (newCGPA / 4),
                               lineWidth: 10,
                               center: Text(
-                                '3.5',
+                                '${newCGPA.toStringAsFixed(3)}',
                                 style: TextStyle(
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold,
