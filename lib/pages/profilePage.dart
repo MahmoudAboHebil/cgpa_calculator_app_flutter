@@ -409,9 +409,6 @@ class _ProfileState extends State<Profile> {
                                   print(
                                       '##########################################################');
                                   print(error.message!);
-                                  // setState(() {
-                                  //
-                                  // });
                                 }
                               }
                               if (image != null ||

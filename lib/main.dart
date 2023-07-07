@@ -6,6 +6,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/welcome.dart';
 import 'pages/HomeGI.dart';
 import 'authServieses.dart';
+import 'package:cgp_calculator/pages/expectTheCGPAPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
             textSelectionTheme: TextSelectionThemeData(
                 selectionColor: Colors.transparent,
                 selectionHandleColor: Colors.transparent)),
-        home: WelcomePage(),
+        home: ExpectTheCGPAPage(),
       ),
     );
   }
