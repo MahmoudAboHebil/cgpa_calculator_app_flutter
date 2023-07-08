@@ -132,8 +132,90 @@ class SemesterWithSGPA extends StatefulWidget {
 }
 
 class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
+  final _controller_SGPA = TextEditingController();
+  final _controller_Credits = TextEditingController();
+  bool isCreditsValide = true;
+  bool isSGPAValide = true;
+  FocusNode _focusSGPA = FocusNode();
+  FocusNode _focusCredits = FocusNode();
+  @override
+  void initState() {
+    _focusSGPA.addListener(_onFocusSGPAChange);
+    _focusCredits.addListener(_onFocusCreditsChange);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _focusSGPA.removeListener(_onFocusSGPAChange);
+    _focusSGPA.dispose();
+    _focusCredits.removeListener(_onFocusCreditsChange);
+    _focusCredits.dispose();
+  }
+
+  void _onFocusSGPAChange() {
+    setState(() {});
+    validationMethod();
+  }
+
+  void _onFocusCreditsChange() {
+    setState(() {});
+    validationMethod();
+  }
+
+  String? get _errorSGPA {
+    var SGPA = _controller_SGPA.text ?? '';
+    var credits = _controller_Credits.text ?? '';
+
+    if ((credits.isNotEmpty && credits.trim().isNotEmpty)) {
+      if (SGPA.isEmpty || SGPA.trim().isEmpty) {
+        return '';
+      }
+    }
+    return null;
+  }
+
+  String? get _errorCredits {
+    var SGPA = _controller_SGPA.text ?? '';
+    var credits = _controller_Credits.text ?? '';
+
+    if ((SGPA.isNotEmpty && SGPA.trim().isNotEmpty)) {
+      if (credits.isEmpty || credits.trim().isEmpty) {
+        return '';
+      }
+    }
+    return null;
+  }
+
+  void validationMethod() {
+    if (_errorSGPA != null) {
+      setState(() {
+        isSGPAValide = false;
+      });
+    } else {
+      setState(() {
+        isSGPAValide = true;
+      });
+    }
+
+    if (_errorCredits != null) {
+      setState(() {
+        isCreditsValide = false;
+      });
+    } else {
+      setState(() {
+        isCreditsValide = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // _errorCredits!;
+    // _errorSGPA!;
+    validationMethod();
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
       child: Container(
@@ -169,35 +251,42 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                   // padding: EdgeInsets.,
                   decoration: BoxDecoration(
                       border: Border(
-                    bottom:
-
-                        // _focusName.hasFocus
-                        //     ? BorderSide(
-                        //   color: valideName
-                        //       ? Color(0xff4562a7)
-                        //       : Color(0xffce2029),
-                        // )
-                        //     :
-
-                        BorderSide(
-                            color: true ? Colors.white : Color(0xffce2029)),
+                    bottom: _focusSGPA.hasFocus
+                        ? BorderSide(
+                            color: isSGPAValide
+                                ? Color(0xff4562a7)
+                                : Color(0xffce2029),
+                          )
+                        : BorderSide(
+                            color: isSGPAValide
+                                ? Colors.white
+                                : Color(0xffce2029)),
                   )),
                   // padding: EdgeInsets.only(bottom: 4),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextField(
+                        controller: _controller_SGPA,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.bottom,
+                        focusNode: _focusSGPA,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                        ],
+                        keyboardType: TextInputType.number,
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xff004d60),
                         ),
                         onChanged: (value) {
-                          setState(() {});
+                          setState(() {
+                            validationMethod();
+                          });
                         },
                         maxLines: 1,
                         decoration: InputDecoration(
+                          // errorText: _errorSGPA,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
                           hintText: 'Enter SGPA',
@@ -226,29 +315,36 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
               // margin: EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
                   border: Border(
-                bottom:
-                    // _focusCredit.hasFocus
-                    //     ? BorderSide(
-                    //   color: valideCredit
-                    //       ? Color(0xff4562a7)
-                    //       : Color(0xffce2029),
-                    // )
-                    //     :
-                    BorderSide(color: true ? Colors.white : Color(0xffce2029)),
+                bottom: _focusCredits.hasFocus
+                    ? BorderSide(
+                        color: isCreditsValide
+                            ? Color(0xff4562a7)
+                            : Color(0xffce2029),
+                      )
+                    : BorderSide(
+                        color:
+                            isCreditsValide ? Colors.white : Color(0xffce2029)),
               )),
               child: Column(
                 children: [
                   TextField(
+                    controller: _controller_Credits,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textAlign: TextAlign.center,
+                    focusNode: _focusCredits,
                     keyboardType: TextInputType.number,
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      setState(() {
+                        validationMethod();
+                      });
+                    },
                     style: TextStyle(
                       fontSize: 18,
                       color: Color(0xff4562a7),
                     ),
                     maxLines: 1,
                     decoration: InputDecoration(
+                      // errorText: _errorCredits,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
