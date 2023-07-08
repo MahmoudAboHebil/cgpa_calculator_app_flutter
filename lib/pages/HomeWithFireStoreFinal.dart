@@ -107,6 +107,8 @@ class _HomePageFinState extends State<HomePageFin> {
   bool _visible = true;
   double CGPA = 0.0;
   int earnCredit = 0;
+  double CGPAPage2 = 0.0;
+  int totalCreditPage2 = 0;
   int totalCredit = 0;
   bool flag = true;
   bool calcFlag = true;
@@ -118,6 +120,13 @@ class _HomePageFinState extends State<HomePageFin> {
       } else {
         isChangeList[index] = value;
       }
+    });
+  }
+
+  callBackPage2(double cgpa, int credits) {
+    setState(() {
+      CGPAPage2 = cgpa;
+      totalCreditPage2 = credits;
     });
   }
 
@@ -466,7 +475,10 @@ class _HomePageFinState extends State<HomePageFin> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    MyCustomAppBar(100, CGPA, earnCredit, totalCredit),
+                    _visible
+                        ? MyCustomAppBar(100, CGPA, earnCredit, totalCredit)
+                        : MyCustomAppBar(
+                            100, CGPAPage2, totalCreditPage2, totalCreditPage2),
                     Expanded(
                       child: PageView(
                         scrollDirection: Axis.horizontal,
@@ -498,7 +510,7 @@ class _HomePageFinState extends State<HomePageFin> {
                                   ))
                             ],
                           ),
-                          WithSemester(),
+                          WithSemester(callBackPage2),
                         ],
                       ),
                     )

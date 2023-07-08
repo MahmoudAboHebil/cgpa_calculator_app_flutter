@@ -2,13 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class WithSemester extends StatefulWidget {
-  const WithSemester({super.key});
+  Function callBack;
+
+  WithSemester(this.callBack);
 
   @override
   State<WithSemester> createState() => _WithSemesterState();
 }
 
+List allSemesters = [1];
+final _keySemester = GlobalKey<AnimatedListState>();
+Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
+
 class _WithSemesterState extends State<WithSemester> {
+  void addSemester() {
+    setState(() {
+      allSemesters.add(1);
+    });
+    int insertIndex =
+        allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
+
+    _keySemester.currentState!
+        .insertItem(insertIndex, duration: Duration(milliseconds: 300));
+  }
+
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   Future.delayed(Duration.zero, () {
+  //     widget.callBack(3.5, 33);
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -91,11 +117,22 @@ class _WithSemesterState extends State<WithSemester> {
                   ),
                 ],
               ),
-              SemesterWithSGPA(),
-              SemesterWithSGPA(),
+              AnimatedList(
+                shrinkWrap: true,
+                key: _keySemester,
+                itemBuilder: (context, index, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    key: UniqueKey(),
+                    child: SemesterWithSGPA(index),
+                  );
+                },
+                initialItemCount: allSemesters.length,
+              ),
               GestureDetector(
                 onTap: () {
                   FocusManager.instance.primaryFocus?.unfocus();
+                  addSemester();
                 },
                 child: Container(
                   alignment: Alignment.center,
@@ -125,7 +162,9 @@ class _WithSemesterState extends State<WithSemester> {
 }
 
 class SemesterWithSGPA extends StatefulWidget {
-  const SemesterWithSGPA({super.key});
+  int index;
+
+  SemesterWithSGPA(this.index);
 
   @override
   State<SemesterWithSGPA> createState() => _SemesterWithSGPAState();
@@ -211,6 +250,20 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
     }
   }
 
+  void deleteSemester() {
+    if (allSemesters.length != 1) {
+      setState(() {
+        allSemesters.removeAt(widget.index);
+        _keySemester.currentState!.removeItem(widget.index,
+            (context, animation) {
+          return SlideTransition(
+              position: animation.drive(_offset),
+              child: SemesterWithSGPA(widget.index));
+        }, duration: Duration(milliseconds: 300));
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // _errorCredits!;
@@ -229,11 +282,8 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                 GestureDetector(
                   onTap: () {
                     FocusManager.instance.primaryFocus?.unfocus();
-                    // widget.CallBackUpdateChange();
                     setState(() {
-                      Future.delayed(Duration(milliseconds: 100), () {
-                        // widget.calcCGPA();
-                      });
+                      deleteSemester();
                     });
                   },
                   child: Padding(
@@ -368,7 +418,7 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
               decoration: BoxDecoration(
                   border: Border(bottom: BorderSide(color: Colors.white))),
               child: Text(
-                'Semester 1',
+                'Semester ${widget.index + 1}',
                 style: TextStyle(fontSize: 20, color: Colors.grey),
               ),
             ),
