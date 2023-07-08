@@ -12,6 +12,7 @@ import 'package:cgp_calculator/authServieses.dart';
 import 'signin.dart';
 import 'profilePage.dart';
 import 'expectTheCGPAPage.dart';
+import 'withSemesterPage.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -26,6 +27,9 @@ class MyBehavior extends ScrollBehavior {
 }
 
 bool showSpinner = true;
+final _pageViewController = PageController();
+Duration _kDuration = Duration(milliseconds: 300);
+Curve _kCurve = Curves.ease;
 
 List allSemesters = [
   // // semester one
@@ -455,53 +459,103 @@ class _HomePageFinState extends State<HomePageFin> {
           child: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
-                backgroundColor: Color(0xffb8c8d1),
-                drawer: NavigationDrawer(),
-                body: ModalProgressHUD(
-                  inAsyncCall: showSpinner,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MyCustomAppBar(100, CGPA, earnCredit, totalCredit),
-                      Flexible(
-                          child: Stack(
+              backgroundColor: Color(0xffb8c8d1),
+              drawer: NavigationDrawer(),
+              body: ModalProgressHUD(
+                inAsyncCall: showSpinner,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MyCustomAppBar(100, CGPA, earnCredit, totalCredit),
+                    Expanded(
+                      child: PageView(
+                        scrollDirection: Axis.horizontal,
+                        controller: _pageViewController,
+                        onPageChanged: (page) {
+                          setState(() {
+                            if (page == 1) {
+                              _visible = false;
+                            } else {
+                              _visible = true;
+                            }
+                          });
+                        },
                         children: [
-                          ScrollConfiguration(
-                              behavior: MyBehavior(),
-                              child: ListView(
-                                shrinkWrap: true,
-                                children: [
-                                  showSpinner ? Container() : Content(),
-                                  SizedBox(
-                                    height: 50,
-                                  )
-                                ],
-                              ))
+                          Stack(
+                            children: [
+                              ScrollConfiguration(
+                                  behavior: MyBehavior(),
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    children: [
+                                      showSpinner ? Container() : Content(),
+                                      SizedBox(
+                                        height: 50,
+                                      )
+                                    ],
+                                  ))
+                            ],
+                          ),
+                          WithSemester(),
                         ],
-                      ))
-                    ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              floatingActionButton: Visibility(
+                visible: _visible,
+                child: FloatingActionButton(
+                  backgroundColor: Color(0xff4562a7),
+                  onPressed: () async {
+                    // calcCGPA();
+                    addSemester();
+                  },
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
                   ),
                 ),
-                floatingActionButton: Visibility(
-                  visible: _visible,
-                  child: FloatingActionButton(
-                    backgroundColor: Color(0xff4562a7),
-                    onPressed: () async {
-                      // calcCGPA();
-                      addSemester();
-                    },
-                    child: Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  ),
-                )),
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+// class pageButton extends StatelessWidget {
+//   String text;
+//   Color textColor;
+//   Color parentColor;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       child: Container(
+//         padding: EdgeInsets.all(10.0),
+//         margin: EdgeInsets.only(top: 20, bottom: 10),
+//         decoration: BoxDecoration(
+//           color: parentColor,
+//           borderRadius: BorderRadius.all(
+//             Radius.circular(5.0),
+//           ),
+//         ),
+//         child: Center(
+//           child: Text(text,style: TextStyle(
+//             fontSize: 20,
+//             color: textColor,
+//           ),),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   pageButton(this.text, this.textColor, this.parentColor);
+// }
 
 class MyCustomAppBar extends StatelessWidget {
   final double height;
@@ -523,26 +577,36 @@ class MyCustomAppBar extends StatelessWidget {
             bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
         border: Border.all(color: Colors.grey, width: 2),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
         children: [
-          Container(
-            child: IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: Color(0xff4562a7),
-                size: 28,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.menu,
+                    color: Color(0xff4562a7),
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
               ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
+              AppBarHomeFin(
+                cgpa,
+                earnCredit,
+                totalCredit,
+              ),
+            ],
           ),
-          AppBarHomeFin(
-            cgpa,
-            earnCredit,
-            totalCredit,
-          ),
+          // Row(
+          //   children: [
+          //     pageButton('Page1',Colors.grey,Colors.white54),
+          //     pageButton('Page1',Colors.grey,Colors.white54),
+          //   ],
+          // )
         ],
       ),
     );
@@ -2603,6 +2667,16 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                           );
                         },
                         child: Text('Predict')),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.school_sharp),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.pop(context);
+                          _pageViewController.nextPage(
+                              duration: _kDuration, curve: _kCurve);
+                        },
+                        child: Text('With Semester')),
                   ),
                 ],
               ),

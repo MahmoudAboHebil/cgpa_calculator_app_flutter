@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/welcome.dart';
 import 'authServieses.dart';
+import 'package:cgp_calculator/pages/withSemesterPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
