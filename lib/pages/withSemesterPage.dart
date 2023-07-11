@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+import 'HomeWithFireStoreFinal.dart';
+
+// TODO: the  UI done
+// TODO: you need to add to DB
 
 class WithSemester extends StatefulWidget {
   final Function callBack;
@@ -22,7 +26,8 @@ Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 
 class _WithSemesterState extends State<WithSemester> {
   bool isChanged = false;
-
+  double cgpa = 0.0;
+  int totCredits = 0;
   isValueChanged() {
     setState(() {
       isChanged = true;
@@ -43,12 +48,144 @@ class _WithSemesterState extends State<WithSemester> {
         .insertItem(insertIndex, duration: Duration(milliseconds: 300));
   }
 
+  void calcCGPA() {
+    double totalPoints = 0;
+    int totalCredits = 0;
+    for (List semest in allSemesters) {
+      if (semest[0] != null && semest[1] != null) {
+        double semestPoints = semest[0] * semest[1];
+        setState(() {
+          totalPoints = totalPoints + semestPoints;
+          totalCredits = (totalCredits + semest[1]) as int;
+        });
+      }
+    }
+
+    if (totalPoints != 0 && totalCredits != 0) {
+      setState(() {
+        totCredits = totalCredits;
+        cgpa = totalPoints / totalCredits;
+      });
+    } else {
+      setState(() {
+        totCredits = 0;
+        cgpa = 0;
+      });
+    }
+  }
+
+  bool isValidate() {
+    List<bool> list = [true];
+    for (List course in allSemesters) {
+      if (course[0] == null && course[1] == null) {
+      } else {
+        if (course[0] == null || course[1] == null) {
+          setState(() {
+            list.add(false);
+          });
+        }
+      }
+    }
+    bool isThereEmptyField = list.contains(false);
+
+    return !isThereEmptyField;
+  }
+
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      clipBehavior: Clip.none,
+      elevation: 0,
+      content: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Color(0xff4562a7),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 48,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Oops Error!',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      Text(
+                        'there is an empty field',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+              bottom: 25,
+              left: 20,
+              child: ClipRRect(
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: Colors.red.shade200,
+                      size: 17,
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+              top: -20,
+              left: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                  ),
+                  Positioned(
+                      top: 5,
+                      child: Icon(
+                        Icons.clear_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ))
+                ],
+              )),
+        ],
+      ),
+    ));
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    calcCGPA();
     Future.delayed(Duration.zero, () {
-      widget.callBack(3.5, 33);
+      setState(() {
+        calcCGPA();
+      });
+      widget.callBack(cgpa, totCredits);
     });
 
     // _semestersKeys = List.generate(allSemesters.length, (index) {
@@ -61,126 +198,35 @@ class _WithSemesterState extends State<WithSemester> {
     setState(() {
       isChanged;
     });
-    return SingleChildScrollView(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 30, horizontal: 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 5,
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  // height: 50,
-                  width: 145,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'SGPA',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
+    return ScrollConfiguration(
+      behavior: MyBehavior(),
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 5,
                   ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.symmetric(horizontal: 10),
-
-                  // height: 50,
-                  width: 80,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'Credits',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  // height: 50,
-
-                  width: 120,
-                  decoration: BoxDecoration(
-                      color: Color(0xffeaf1ed),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    child: Text(
-                      'Semester',
-                      style: TextStyle(
-                        color: Color(0xff004d60),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            AnimatedList(
-              shrinkWrap: true,
-              key: _keySemester,
-              itemBuilder: (context, index, animation) {
-                // print(allSemesters);
-                return SizeTransition(
-                  // key: ObjectKey(allSemesters[index][0].toString()),
-
-                  sizeFactor: animation,
-                  key: ObjectKey(allSemesters[index][2]),
-
-                  child: SemesterWithSGPA(
-                    index,
-                    allSemesters[index][0],
-                    allSemesters[index][1],
-                    isValueChanged,
-                  ),
-                );
-              },
-              initialItemCount: allSemesters.length,
-            ),
-            Row(
-              mainAxisAlignment:
-                  isChanged ? MainAxisAlignment.center : MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    // FocusManager.instance.primaryFocus?.unfocus();
-                    addSemester();
-                  },
-                  child: Container(
+                  Container(
                     alignment: Alignment.center,
-                    margin: isChanged
-                        ? EdgeInsets.only(right: 30)
-                        : EdgeInsets.only(right: 85),
+                    // height: 50,
+                    width: 145,
                     decoration: BoxDecoration(
                         color: Color(0xffeaf1ed),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                         border: Border.all(color: Colors.white, width: 2)),
                     child: Padding(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                       child: Text(
-                        'Add semester',
+                        'SGPA',
                         style: TextStyle(
                           color: Color(0xff004d60),
                           fontSize: 15,
@@ -188,58 +234,163 @@ class _WithSemesterState extends State<WithSemester> {
                       ),
                     ),
                   ),
-                ),
-                isChanged
-                    ? GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isChanged = false;
-                          });
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          margin: isChanged
-                              ? EdgeInsets.all(0)
-                              : EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                              color: Color(0xff4562a7),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              border:
-                                  Border.all(color: Colors.white, width: 2)),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            child: Text(
-                              'Calc GPA',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
+                  Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.symmetric(horizontal: 10),
+
+                    // height: 50,
+                    width: 80,
+                    decoration: BoxDecoration(
+                        color: Color(0xffeaf1ed),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white, width: 2)),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                      child: Text(
+                        'Credits',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    // height: 50,
+
+                    width: 120,
+                    decoration: BoxDecoration(
+                        color: Color(0xffeaf1ed),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white, width: 2)),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                      child: Text(
+                        'Semester',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              AnimatedList(
+                shrinkWrap: true,
+                key: _keySemester,
+                physics: ScrollPhysics(),
+                itemBuilder: (context, index, animation) {
+                  // print(allSemesters);
+                  return SizeTransition(
+                    // key: ObjectKey(allSemesters[index][0].toString()),
+
+                    sizeFactor: animation,
+                    key: ObjectKey(allSemesters[index][2]),
+
+                    child: SemesterWithSGPA(
+                      index,
+                      allSemesters[index][0],
+                      allSemesters[index][1],
+                      isValueChanged,
+                    ),
+                  );
+                },
+                initialItemCount: allSemesters.length,
+              ),
+              Row(
+                mainAxisAlignment: isChanged
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // FocusManager.instance.primaryFocus?.unfocus();
+                      addSemester();
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      margin: isChanged
+                          ? EdgeInsets.only(right: 30)
+                          : EdgeInsets.only(right: 85),
+                      decoration: BoxDecoration(
+                          color: Color(0xffeaf1ed),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: Colors.white, width: 2)),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        child: Text(
+                          'Add semester',
+                          style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  isChanged
+                      ? GestureDetector(
+                          onTap: () {
+                            if (isValidate()) {
+                              setState(() {
+                                calcCGPA();
+                                isChanged = false;
+                              });
+                              widget.callBack(cgpa, totCredits);
+                            } else {
+                              message();
+                            }
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            margin: isChanged
+                                ? EdgeInsets.all(0)
+                                : EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(
+                                color: Color(0xff4562a7),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                border:
+                                    Border.all(color: Colors.white, width: 2)),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
+                              child: Text(
+                                'Calc GPA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isChanged = true;
+                            });
+                          },
+                          child: AbsorbPointer(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 18),
+                              child: Icon(
+                                Icons.arrow_back_ios_new,
+                                color: Color(0xff004d60),
+                                size: 26,
                               ),
                             ),
                           ),
                         ),
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isChanged = true;
-                          });
-                        },
-                        child: AbsorbPointer(
-                          child: Container(
-                            margin: EdgeInsets.only(right: 18),
-                            child: Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Color(0xff004d60),
-                              size: 26,
-                            ),
-                          ),
-                        ),
-                      ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -431,7 +582,11 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                         ],
                         onChanged: (val) {
                           setState(() {
-                            allSemesters[widget.index][0] = double.parse(val);
+                            if (val.isNotEmpty) {
+                              allSemesters[widget.index][0] = double.parse(val);
+                            } else {
+                              allSemesters[widget.index][0] = null;
+                            }
                             widget.callBackchanged();
                             validationMethod();
                           });
@@ -498,7 +653,11 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                     maxLines: 1,
                     onChanged: (val) {
                       setState(() {
-                        allSemesters[widget.index][1] = int.parse(val);
+                        if (val.isNotEmpty) {
+                          allSemesters[widget.index][1] = int.parse(val);
+                        } else {
+                          allSemesters[widget.index][1] = null;
+                        }
 
                         widget.callBackchanged();
                         validationMethod();
