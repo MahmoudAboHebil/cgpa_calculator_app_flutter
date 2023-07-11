@@ -29,7 +29,6 @@ class MyBehavior extends ScrollBehavior {
 bool showSpinner = true;
 Duration _kDuration = Duration(milliseconds: 300);
 Curve _kCurve = Curves.ease;
-
 List allSemesters = [
   // // semester one
   // [
@@ -44,7 +43,7 @@ List allSemesters = [
 ];
 User? loggedInUser;
 CollectionReference? _courses;
-CollectionReference? _semesters;
+CollectionReference? semestersRef;
 
 void addCourseInDB(int semestID, String courseId, String? name, String? credit,
     String? grade1, String? grade2, String type) async {
@@ -136,7 +135,7 @@ class _HomePageFinState extends State<HomePageFin> {
     super.initState();
     setState(() {
       _courses = null;
-      _semesters = null;
+      semestersRef = null;
       loggedInUser = null;
       showSpinner = true;
       allSemesters.clear();
@@ -205,7 +204,7 @@ class _HomePageFinState extends State<HomePageFin> {
           .collection('UsersCourses')
           .doc('${user.email}')
           .collection('courses');
-      _semesters = FirebaseFirestore.instance
+      semestersRef = FirebaseFirestore.instance
           .collection('UsersSemesters')
           .doc('${user.email}')
           .collection('Semesters');
@@ -229,7 +228,7 @@ class _HomePageFinState extends State<HomePageFin> {
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
-            _semesters = FirebaseFirestore.instance
+            semestersRef = FirebaseFirestore.instance
                 .collection('UsersSemesters')
                 .doc('${user.email}')
                 .collection('Semesters');
@@ -539,7 +538,7 @@ class _HomePageFinState extends State<HomePageFin> {
                                   ))
                             ],
                           ),
-                          WithSemester(callBackPage2, _semesters, loggedInUser),
+                          WithSemester(callBackPage2),
                         ],
                       ),
                     )

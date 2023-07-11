@@ -1,25 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+import 'HomeWithFireStoreFinal.dart';
 // TODO: the  UI done
 // TODO: you need to add to DB
 
-class MyBehavior extends ScrollBehavior {
-  @override
-  Widget buildOverscrollIndicator(
-      BuildContext context, Widget child, ScrollableDetails details) {
-    return child;
-  }
-}
-
 class WithSemester extends StatefulWidget {
   final Function callBack;
-  final CollectionReference? semestersRef;
-  final User? loggedInUser;
-  WithSemester(this.callBack, this.semestersRef, this.loggedInUser);
+  WithSemester(this.callBack);
 
   @override
   State<WithSemester> createState() => _WithSemesterState();
@@ -247,7 +237,7 @@ class _WithSemesterState extends State<WithSemester> {
       double? SGPA, int? Credits, String semesterId, int semesterIndex) async {
     await FirebaseFirestore.instance
         .collection('UsersSemesters')
-        .doc('${widget.loggedInUser!.email}')
+        .doc('${loggedInUser!.email}')
         .collection('Semesters')
         .doc(semesterId)
         .set({
@@ -259,9 +249,9 @@ class _WithSemesterState extends State<WithSemester> {
   }
 
   Widget Content() {
-    if (widget.semestersRef != null) {
+    if (semestersRef != null) {
       return StreamBuilder(
-        stream: widget.semestersRef!.snapshots(),
+        stream: semestersRef!.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
           if (streamSnapshot.hasData) {
             List<int> keys = [];
@@ -318,7 +308,6 @@ class _WithSemesterState extends State<WithSemester> {
                     allSemesters2[index][2],
                     isValueChanged,
                     updataCGPA,
-                    widget.semestersRef,
                   ),
                 );
               },
@@ -336,8 +325,7 @@ class _WithSemesterState extends State<WithSemester> {
 
   void collectDate() {
     for (List semest in allSemesters2) {
-      updateData(
-          widget.semestersRef, semest[0], semest[1], semest[2], semest[3]);
+      updateData(semestersRef, semest[0], semest[1], semest[2], semest[3]);
     }
   }
 
@@ -532,17 +520,9 @@ class SemesterWithSGPA extends StatefulWidget {
   final String semesterId;
   final Function callBackchanged;
   final Function callBackUpdateCGPA;
-  final CollectionReference? semestersRef;
 
-  SemesterWithSGPA(
-      this.index,
-      this.indexDB,
-      this.SGPA,
-      this.credits,
-      this.semesterId,
-      this.callBackchanged,
-      this.callBackUpdateCGPA,
-      this.semestersRef,
+  SemesterWithSGPA(this.index, this.indexDB, this.SGPA, this.credits,
+      this.semesterId, this.callBackchanged, this.callBackUpdateCGPA,
       {Key? key})
       : super(key: key);
 
@@ -639,12 +619,12 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
   }
 
   void deleteSemesterFromDB(String semesterId) async {
-    await widget.semestersRef!.get().then((QuerySnapshot querySnapshot) {
+    await semestersRef!.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         final DocumentSnapshot course = doc;
         if (course['semesterId'] == semesterId) {
           String id = course.id;
-          widget.semestersRef!.doc(id).delete();
+          semestersRef!.doc(id).delete();
         }
       });
     });
@@ -659,14 +639,14 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
           return SlideTransition(
               position: animation.drive(_offset),
               child: SemesterWithSGPA(
-                  widget.index,
-                  widget.indexDB,
-                  widget.SGPA,
-                  widget.credits,
-                  widget.semesterId,
-                  () {},
-                  () {},
-                  widget.semestersRef));
+                widget.index,
+                widget.indexDB,
+                widget.SGPA,
+                widget.credits,
+                widget.semesterId,
+                () {},
+                () {},
+              ));
         }, duration: Duration(milliseconds: 300));
       });
       deleteSemesterFromDB(widget.semesterId);
@@ -680,8 +660,7 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
         widget.indexDB,
       ];
 
-      updateData(
-          widget.semestersRef, null, null, widget.semesterId, widget.indexDB);
+      updateData(semestersRef, null, null, widget.semesterId, widget.indexDB);
     }
     widget.callBackUpdateCGPA();
   }
