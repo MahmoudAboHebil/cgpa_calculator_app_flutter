@@ -109,6 +109,24 @@ class _ProfileState extends State<Profile> {
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
+                leading: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePageFin(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(left: 10, top: 5),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                ),
                 elevation: 0,
               ),
               body: ModalProgressHUD(
@@ -416,15 +434,19 @@ class _ProfileState extends State<Profile> {
                                   imageDelete) {
                                 addUserInfo(widget.email.toLowerCase(),
                                     _controller1.text, widget.imageURL);
-                                Navigator.pushAndRemoveUntil(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => WelcomePage(),
                                   ),
-                                  (route) => true,
                                 );
                               } else {
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomePageFin(),
+                                  ),
+                                );
                               }
 
                               // add department if it changed

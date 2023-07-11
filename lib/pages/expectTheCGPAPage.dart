@@ -1,3 +1,5 @@
+import 'package:cgp_calculator/pages/HomeWithFireStoreFinal.dart';
+import 'package:cgp_calculator/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -71,7 +73,12 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                 backgroundColor: Colors.blueGrey,
                 leading: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePageFin(),
+                      ),
+                    );
                   },
                   child: Container(
                     margin: EdgeInsets.only(left: 10, top: 5),

@@ -27,7 +27,6 @@ class MyBehavior extends ScrollBehavior {
 }
 
 bool showSpinner = true;
-final _pageViewController = PageController();
 Duration _kDuration = Duration(milliseconds: 300);
 Curve _kCurve = Curves.ease;
 
@@ -101,6 +100,7 @@ class HomePageFin extends StatefulWidget {
 
 class _HomePageFinState extends State<HomePageFin> {
   final _keySemester = GlobalKey<AnimatedListState>();
+  final _pageViewController = PageController();
   final _auth = FirebaseAuth.instance;
   List<bool> isChangeList = [];
   List keySemesters = [];
@@ -498,7 +498,7 @@ class _HomePageFinState extends State<HomePageFin> {
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
-              drawer: NavigationDrawer(),
+              drawer: NavigationDrawer(_pageViewController),
               body: ModalProgressHUD(
                 inAsyncCall: showSpinner,
                 child: Column(
@@ -2478,7 +2478,9 @@ class _CourseFinState extends State<CourseFin> {
 }
 
 class NavigationDrawer extends StatefulWidget {
-  const NavigationDrawer({super.key});
+  PageController pageViewController;
+
+  NavigationDrawer(this.pageViewController);
 
   @override
   State<NavigationDrawer> createState() => _NavigationDrawerState();
@@ -2661,7 +2663,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     leading: Icon(Icons.home_outlined),
                     title: GestureDetector(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => HomePageFin(),
@@ -2673,7 +2675,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     leading: Icon(Icons.person_rounded),
                     title: GestureDetector(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
@@ -2690,12 +2692,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                               Provider.of<AuthServer>(context, listen: false);
                           await prov.googleLogout();
 
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Siginin(),
                             ),
-                            (route) => true,
                           );
                         },
                         child: Text('Logout')),
@@ -2706,7 +2707,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     ),
                     title: GestureDetector(
                         onTap: () async {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ExpectTheCGPAPage(),
@@ -2719,9 +2720,9 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     leading: Icon(Icons.school_sharp),
                     title: GestureDetector(
                         onTap: () async {
-                          Navigator.pop(context);
-                          _pageViewController.nextPage(
-                              duration: _kDuration, curve: _kCurve);
+                          Scaffold.of(context).closeDrawer();
+                          widget.pageViewController
+                              .nextPage(duration: _kDuration, curve: _kCurve);
                         },
                         child: Text('With Semester')),
                   ),
