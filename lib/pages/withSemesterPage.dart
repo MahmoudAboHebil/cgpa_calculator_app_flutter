@@ -1,36 +1,65 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-import 'HomeWithFireStoreFinal.dart';
-
 // TODO: the  UI done
 // TODO: you need to add to DB
 
+class MyBehavior extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
+}
+
 class WithSemester extends StatefulWidget {
   final Function callBack;
-
-  WithSemester(this.callBack);
+  final CollectionReference? semestersRef;
+  final User? loggedInUser;
+  WithSemester(this.callBack, this.semestersRef, this.loggedInUser);
 
   @override
   State<WithSemester> createState() => _WithSemesterState();
 }
 
-List<List> allSemesters = [
-  [2.35, 11, '1'],
-  [null, null, 'o4'],
-  [2.35, 11, '5'],
+List<List> allSemesters2 = [
+  // [2.35, 11, '1'],
+  // [null, null, 'o4'],
+  // [2.35, 11, '5'],
 ];
 
 final _keySemester = GlobalKey<AnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 
+void updateData(CollectionReference? ref, double? SGPA, int? Credits,
+    String semesterId, int semesterIndex) async {
+  await ref!.doc(semesterId).set({
+    'semesterId': semesterId,
+    'semesterIndex': semesterIndex,
+    'SGPA': SGPA,
+    'Credits': Credits,
+  });
+}
+
 class _WithSemesterState extends State<WithSemester> {
   bool isChanged = false;
   double cgpa = 0.0;
   int totCredits = 0;
+
   isValueChanged() {
     setState(() {
       isChanged = true;
+    });
+  }
+
+  updataCGPA() {
+    setState(() {
+      calcCGPA();
+      cgpa;
+      totCredits;
     });
   }
 
@@ -39,11 +68,11 @@ class _WithSemesterState extends State<WithSemester> {
     var uniqueId = uuid.v1();
 
     setState(() {
-      allSemesters.add([null, null, uniqueId]);
+      allSemesters2.add([null, null, uniqueId, maxSemester + 1]);
     });
     int insertIndex =
-        allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
-
+        allSemesters2.isEmpty ? allSemesters2.length : allSemesters2.length - 1;
+    addSemestInDB(null, null, uniqueId, maxSemester + 1);
     _keySemester.currentState!
         .insertItem(insertIndex, duration: Duration(milliseconds: 300));
   }
@@ -51,7 +80,7 @@ class _WithSemesterState extends State<WithSemester> {
   void calcCGPA() {
     double totalPoints = 0;
     int totalCredits = 0;
-    for (List semest in allSemesters) {
+    for (List semest in allSemesters2) {
       if (semest[0] != null && semest[1] != null) {
         double semestPoints = semest[0] * semest[1];
         setState(() {
@@ -72,11 +101,17 @@ class _WithSemesterState extends State<WithSemester> {
         cgpa = 0;
       });
     }
+    setState(() {
+      if (cgpa > 4.0) {
+        cgpa = 4.0;
+      }
+    });
+    widget.callBack(cgpa, totCredits);
   }
 
   bool isValidate() {
     List<bool> list = [true];
-    for (List course in allSemesters) {
+    for (List course in allSemesters2) {
       if (course[0] == null && course[1] == null) {
       } else {
         if (course[0] == null || course[1] == null) {
@@ -179,18 +214,131 @@ class _WithSemesterState extends State<WithSemester> {
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
 
-    calcCGPA();
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        calcCGPA();
-      });
-      widget.callBack(cgpa, totCredits);
+  int maxSemester = 0;
+  bool flag = true;
+  List getSemesterCourses(int ID, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+    List semest = [];
+    // List<List> allSemesters = [
+    //   [2.35, 11, '1'],
+    //   [null, null, 'o4'],
+    //   [2.35, 11, '5'],
+    // ];
+
+    for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+      final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+      if (course['semesterIndex'] == ID && course.id != 'init') {
+        semest = [
+          course['SGPA'],
+          course['Credits'],
+          course['semesterId'],
+          course['semesterIndex'],
+        ];
+      }
+    }
+    print('in method ');
+    print(semest);
+    // print(courses);
+    return semest;
+  }
+
+  void addSemestInDB(
+      double? SGPA, int? Credits, String semesterId, int semesterIndex) async {
+    await FirebaseFirestore.instance
+        .collection('UsersSemesters')
+        .doc('${widget.loggedInUser!.email}')
+        .collection('Semesters')
+        .doc(semesterId)
+        .set({
+      'semesterId': semesterId,
+      'semesterIndex': semesterIndex,
+      'SGPA': SGPA,
+      'Credits': Credits,
     });
+  }
 
-    // _semestersKeys = List.generate(allSemesters.length, (index) {
-    //   return GlobalObjectKey<_SemesterWithSGPAState>(index);
-    // });
+  Widget Content() {
+    if (widget.semestersRef != null) {
+      return StreamBuilder(
+        stream: widget.semestersRef!.snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+          if (streamSnapshot.hasData) {
+            List<int> keys = [];
+            for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+              final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+              keys.add(course['semesterIndex']);
+            }
+
+            maxSemester = keys.max;
+            keys = keys.toSet().toList();
+            keys.sort();
+            keys.remove(-1);
+            print('3#33333333333 keys  3333333333333333333');
+            print(keys);
+            if (flag) {
+              for (int i = 0; i < keys.length; i++) {
+                if (allSemesters2.length < keys.length) {
+                  allSemesters2
+                      .add(getSemesterCourses(keys[i], streamSnapshot));
+                }
+              }
+              if (allSemesters2.isEmpty) {
+                allSemesters2 = [
+                  [
+                    null,
+                    null,
+                    'firstSemest',
+                    1,
+                  ]
+                ];
+                addSemestInDB(null, null, 'firstSemest', 1);
+              }
+              Future.delayed(Duration.zero, () {
+                calcCGPA();
+              });
+              flag = false;
+            }
+            return AnimatedList(
+              shrinkWrap: true,
+              key: _keySemester,
+              physics: ScrollPhysics(),
+              itemBuilder: (context, index, animation) {
+                print(allSemesters2);
+                return SizeTransition(
+                  // key: ObjectKey(allSemesters[index][0].toString()),
+
+                  sizeFactor: animation,
+                  key: ObjectKey(allSemesters2[index][2]),
+                  child: SemesterWithSGPA(
+                    index,
+                    allSemesters2[index][3],
+                    allSemesters2[index][0],
+                    allSemesters2[index][1],
+                    allSemesters2[index][2],
+                    isValueChanged,
+                    updataCGPA,
+                    widget.semestersRef,
+                  ),
+                );
+              },
+              initialItemCount: allSemesters2.length,
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  void collectDate() {
+    for (List semest in allSemesters2) {
+      updateData(
+          widget.semestersRef, semest[0], semest[1], semest[2], semest[3]);
+    }
   }
 
   @override
@@ -279,28 +427,7 @@ class _WithSemesterState extends State<WithSemester> {
                   ),
                 ],
               ),
-              AnimatedList(
-                shrinkWrap: true,
-                key: _keySemester,
-                physics: ScrollPhysics(),
-                itemBuilder: (context, index, animation) {
-                  // print(allSemesters);
-                  return SizeTransition(
-                    // key: ObjectKey(allSemesters[index][0].toString()),
-
-                    sizeFactor: animation,
-                    key: ObjectKey(allSemesters[index][2]),
-
-                    child: SemesterWithSGPA(
-                      index,
-                      allSemesters[index][0],
-                      allSemesters[index][1],
-                      isValueChanged,
-                    ),
-                  );
-                },
-                initialItemCount: allSemesters.length,
-              ),
+              Content(),
               Row(
                 mainAxisAlignment: isChanged
                     ? MainAxisAlignment.center
@@ -341,7 +468,7 @@ class _WithSemesterState extends State<WithSemester> {
                                 calcCGPA();
                                 isChanged = false;
                               });
-                              widget.callBack(cgpa, totCredits);
+                              collectDate();
                             } else {
                               message();
                             }
@@ -399,11 +526,23 @@ class _WithSemesterState extends State<WithSemester> {
 
 class SemesterWithSGPA extends StatefulWidget {
   final int index;
+  final int indexDB;
   final double? SGPA;
   final int? credits;
+  final String semesterId;
   final Function callBackchanged;
+  final Function callBackUpdateCGPA;
+  final CollectionReference? semestersRef;
 
-  SemesterWithSGPA(this.index, this.SGPA, this.credits, this.callBackchanged,
+  SemesterWithSGPA(
+      this.index,
+      this.indexDB,
+      this.SGPA,
+      this.credits,
+      this.semesterId,
+      this.callBackchanged,
+      this.callBackUpdateCGPA,
+      this.semestersRef,
       {Key? key})
       : super(key: key);
 
@@ -499,24 +638,52 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
     }
   }
 
+  void deleteSemesterFromDB(String semesterId) async {
+    await widget.semestersRef!.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        final DocumentSnapshot course = doc;
+        if (course['semesterId'] == semesterId) {
+          String id = course.id;
+          widget.semestersRef!.doc(id).delete();
+        }
+      });
+    });
+  }
+
   void deleteSemester() {
-    if (allSemesters.length != 1) {
+    if (allSemesters2.length != 1) {
       setState(() {
-        allSemesters.removeAt(widget.index);
-        widget.callBackchanged();
-        // _semestersKeys.removeAt(widget.index);
-        // widget.key ==
-        //     List.generate(allSemesters.length,
-        //         (index) => GlobalObjectKey<FormState>(index));
+        allSemesters2.removeAt(widget.index);
         _keySemester.currentState!.removeItem(widget.index,
             (context, animation) {
           return SlideTransition(
               position: animation.drive(_offset),
               child: SemesterWithSGPA(
-                  widget.index, widget.SGPA, widget.credits, () {}));
+                  widget.index,
+                  widget.indexDB,
+                  widget.SGPA,
+                  widget.credits,
+                  widget.semesterId,
+                  () {},
+                  () {},
+                  widget.semestersRef));
         }, duration: Duration(milliseconds: 300));
       });
+      deleteSemesterFromDB(widget.semesterId);
+    } else {
+      _controller_Credits.text = '';
+      _controller_SGPA.text = '';
+      allSemesters2[widget.index] = [
+        null,
+        null,
+        widget.semesterId,
+        widget.indexDB,
+      ];
+
+      updateData(
+          widget.semestersRef, null, null, widget.semesterId, widget.indexDB);
     }
+    widget.callBackUpdateCGPA();
   }
 
   @override
@@ -536,9 +703,11 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // FocusManager.instance.primaryFocus?.unfocus();
+                    FocusManager.instance.primaryFocus?.unfocus();
                     setState(() {
-                      deleteSemester();
+                      Future.delayed(Duration(milliseconds: 100), () {
+                        deleteSemester();
+                      });
                     });
                   },
                   child: Padding(
@@ -583,9 +752,10 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                         onChanged: (val) {
                           setState(() {
                             if (val.isNotEmpty) {
-                              allSemesters[widget.index][0] = double.parse(val);
+                              allSemesters2[widget.index][0] =
+                                  double.parse(val);
                             } else {
-                              allSemesters[widget.index][0] = null;
+                              allSemesters2[widget.index][0] = null;
                             }
                             widget.callBackchanged();
                             validationMethod();
@@ -654,9 +824,9 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                     onChanged: (val) {
                       setState(() {
                         if (val.isNotEmpty) {
-                          allSemesters[widget.index][1] = int.parse(val);
+                          allSemesters2[widget.index][1] = int.parse(val);
                         } else {
-                          allSemesters[widget.index][1] = null;
+                          allSemesters2[widget.index][1] = null;
                         }
 
                         widget.callBackchanged();

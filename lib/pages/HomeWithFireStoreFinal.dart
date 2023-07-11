@@ -45,6 +45,7 @@ List allSemesters = [
 ];
 User? loggedInUser;
 CollectionReference? _courses;
+CollectionReference? _semesters;
 
 void addCourseInDB(int semestID, String courseId, String? name, String? credit,
     String? grade1, String? grade2, String type) async {
@@ -135,9 +136,11 @@ class _HomePageFinState extends State<HomePageFin> {
     super.initState();
     setState(() {
       _courses = null;
+      _semesters = null;
       loggedInUser = null;
       showSpinner = true;
       allSemesters.clear();
+      allSemesters2.clear();
     });
     getCurrentUser();
     // Future.delayed(Duration(seconds: 3), () {
@@ -181,12 +184,31 @@ class _HomePageFinState extends State<HomePageFin> {
       'type': 'one',
       'id': 'init',
     });
+    await FirebaseFirestore.instance
+        .collection('UsersSemesters')
+        .doc('${user.email}')
+        .set({'email': '${user.email}'});
 
+    await FirebaseFirestore.instance
+        .collection('UsersSemesters')
+        .doc('${user.email}')
+        .collection('Semesters')
+        .doc('init')
+        .set({
+      'semesterId': 'first',
+      'semesterIndex': -1,
+      'SGPA': null,
+      'Credits': null,
+    });
     setState(() {
       _courses = FirebaseFirestore.instance
           .collection('UsersCourses')
           .doc('${user.email}')
           .collection('courses');
+      _semesters = FirebaseFirestore.instance
+          .collection('UsersSemesters')
+          .doc('${user.email}')
+          .collection('Semesters');
     });
   }
 
@@ -207,6 +229,10 @@ class _HomePageFinState extends State<HomePageFin> {
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
+            _semesters = FirebaseFirestore.instance
+                .collection('UsersSemesters')
+                .doc('${user.email}')
+                .collection('Semesters');
           }
         });
         // print(loggedInUser!.email);
@@ -441,6 +467,9 @@ class _HomePageFinState extends State<HomePageFin> {
         } else {
           CGPA = (totalPointsOfSemest / totalCredit_without_SU);
         }
+        if (CGPA > 4.0) {
+          CGPA = 4.0;
+        }
       });
     } else {
       print('################## Empty CGPA#################');
@@ -510,7 +539,7 @@ class _HomePageFinState extends State<HomePageFin> {
                                   ))
                             ],
                           ),
-                          WithSemester(callBackPage2),
+                          WithSemester(callBackPage2, _semesters, loggedInUser),
                         ],
                       ),
                     )
