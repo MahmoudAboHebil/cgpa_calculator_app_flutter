@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyData extends ChangeNotifier {
   bool isChanged = false;
+  // bool isChangedSemester = false;
   bool validName = false;
   bool validCredit = false;
   bool validGrade = false;
@@ -13,6 +14,10 @@ class MyData extends ChangeNotifier {
     isChanged = value;
     notifyListeners();
   }
+  // void isChangedSemesterF(bool value) {
+  //   isChangedSemester = value;
+  //   notifyListeners();
+  // }
 
   void changeDelete(bool value) {
     delete = value;

@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/welcome.dart';
 import 'authServieses.dart';
 import 'package:cgp_calculator/pages/withSemesterPage.dart';
+import 'providerBrain.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,15 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AuthServer>(
-      create: (context) => AuthServer(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthServer>(
+          create: (context) => AuthServer(),
+        ),
+        ChangeNotifierProvider<MyData>(
+          create: (context) => MyData(),
+        )
+      ],
       child: MaterialApp(
         theme: ThemeData().copyWith(
             textSelectionTheme: TextSelectionThemeData(

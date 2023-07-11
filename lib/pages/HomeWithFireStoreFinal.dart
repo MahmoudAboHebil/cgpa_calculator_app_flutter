@@ -283,7 +283,7 @@ class _HomePageFinState extends State<HomePageFin> {
               itemBuilder: (context, index, animation) {
                 return SizeTransition(
                   sizeFactor: animation,
-                  key: UniqueKey(),
+                  key: ObjectKey(allSemesters[index][0][0]),
                   child: allSemesters.isNotEmpty
                       ? SemesterFin(
                           allSemesters[index],
@@ -1337,7 +1337,7 @@ class _SemesterFinState extends State<SemesterFin> {
               itemBuilder: (context, index, animation) {
                 return SizeTransition(
                   sizeFactor: animation,
-                  key: UniqueKey(),
+                  key: ObjectKey(listOfCoursesInSemester[index][6]),
                   child: CourseFin(
                     index,
                     widget.index,
@@ -2144,7 +2144,7 @@ class _CourseFinState extends State<CourseFin> {
                         .toList(),
                     value: selectedValue1,
                     // openWithLongPress: true,
-                    focusNode: _focusGrade,
+                    // focusNode: _focusGrade,
                     key: ValueKey(selectedValue1),
                     onChanged: (value) {
                       setState(() {
@@ -2311,7 +2311,7 @@ class _CourseFinState extends State<CourseFin> {
                         controller: _controller_Name,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.bottom,
-                        focusNode: _focusName,
+                        // focusNode: _focusName,
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xff004d60),
@@ -2328,6 +2328,10 @@ class _CourseFinState extends State<CourseFin> {
                               widget.listCoursesInSemester[widget.index][1] =
                                   null;
                             }
+                            widget.CallBackUpdateList(
+                                widget.listCoursesInSemester);
+                            widget.CallBackUpdateChange();
+
                             // widget.CallBackUpdateList(widget.listCoursesInSemester);
                             selectedValueIs1Null;
                             selectedValueIs2Null;
@@ -2388,7 +2392,7 @@ class _CourseFinState extends State<CourseFin> {
                   TextField(
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     controller: _controller_Credit,
-                    focusNode: _focusCredit,
+                    // focusNode: _focusCredit,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
@@ -2399,6 +2403,8 @@ class _CourseFinState extends State<CourseFin> {
                         } else {
                           widget.listCoursesInSemester[widget.index][2] = null;
                         }
+                        widget.CallBackUpdateList(widget.listCoursesInSemester);
+                        widget.CallBackUpdateChange();
                       });
                     },
                     style: TextStyle(

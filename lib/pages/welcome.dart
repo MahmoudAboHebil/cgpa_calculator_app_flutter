@@ -16,7 +16,8 @@ class _WelcomePageState extends State<WelcomePage> {
           backgroundColor: Color(0xffb8c8d1),
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 150),
-            child: Column(
+            child: ListView(
+              shrinkWrap: true,
               children: [
                 Center(
                   child: Image.asset(
@@ -25,25 +26,23 @@ class _WelcomePageState extends State<WelcomePage> {
                     width: 250,
                   ),
                 ),
-                Flexible(
-                  child: RichText(
-                    maxLines: 2,
-                    text: TextSpan(children: [
-                      TextSpan(
-                          text: 'A simple way to find the best with CGPA App  ',
-                          style: TextStyle(
-                              color: Color(0xff004d60),
-                              fontSize: 26,
-                              wordSpacing: 2,
-                              height: 1.4)),
-                      WidgetSpan(
-                          child: Icon(
-                        Icons.rocket_launch,
-                        size: 25,
-                        color: Color(0xff6e1783),
-                      )),
-                    ]),
-                  ),
+                RichText(
+                  maxLines: 2,
+                  text: TextSpan(children: [
+                    TextSpan(
+                        text: 'A simple way to find the best with CGPA App  ',
+                        style: TextStyle(
+                            color: Color(0xff004d60),
+                            fontSize: 26,
+                            wordSpacing: 2,
+                            height: 1.4)),
+                    WidgetSpan(
+                        child: Icon(
+                      Icons.rocket_launch,
+                      size: 25,
+                      color: Color(0xff6e1783),
+                    )),
+                  ]),
                 ),
                 SizedBox(
                   height: 50,

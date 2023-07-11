@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 
 class WithSemester extends StatefulWidget {
-  Function callBack;
+  final Function callBack;
 
   WithSemester(this.callBack);
 
@@ -10,14 +11,30 @@ class WithSemester extends StatefulWidget {
   State<WithSemester> createState() => _WithSemesterState();
 }
 
-List allSemesters = [1];
+List<List> allSemesters = [
+  [2.35, 11, '1'],
+  [null, null, 'o4'],
+  [2.35, 11, '5'],
+];
+
 final _keySemester = GlobalKey<AnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 
 class _WithSemesterState extends State<WithSemester> {
-  void addSemester() {
+  bool isChanged = false;
+
+  isValueChanged() {
     setState(() {
-      allSemesters.add(1);
+      isChanged = true;
+    });
+  }
+
+  void addSemester() {
+    var uuid = Uuid();
+    var uniqueId = uuid.v1();
+
+    setState(() {
+      allSemesters.add([null, null, uniqueId]);
     });
     int insertIndex =
         allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
@@ -26,135 +43,203 @@ class _WithSemesterState extends State<WithSemester> {
         .insertItem(insertIndex, duration: Duration(milliseconds: 300));
   }
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   Future.delayed(Duration.zero, () {
-  //     widget.callBack(3.5, 33);
-  //   });
-  // }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      widget.callBack(3.5, 33);
+    });
+
+    // _semestersKeys = List.generate(allSemesters.length, (index) {
+    //   return GlobalObjectKey<_SemesterWithSGPAState>(index);
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      isChanged;
+    });
     return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
       physics: const AlwaysScrollableScrollPhysics(),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 30, horizontal: 0),
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    // height: 50,
-                    width: 145,
-                    decoration: BoxDecoration(
-                        color: Color(0xffeaf1ed),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white, width: 2)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                      child: Text(
-                        'SGPA',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(horizontal: 10),
-
-                    // height: 50,
-                    width: 80,
-                    decoration: BoxDecoration(
-                        color: Color(0xffeaf1ed),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white, width: 2)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                      child: Text(
-                        'Credits',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    // height: 50,
-
-                    width: 120,
-                    decoration: BoxDecoration(
-                        color: Color(0xffeaf1ed),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white, width: 2)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                      child: Text(
-                        'Semester',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              AnimatedList(
-                shrinkWrap: true,
-                key: _keySemester,
-                itemBuilder: (context, index, animation) {
-                  return SizeTransition(
-                    sizeFactor: animation,
-                    key: UniqueKey(),
-                    child: SemesterWithSGPA(index),
-                  );
-                },
-                initialItemCount: allSemesters.length,
-              ),
-              GestureDetector(
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  addSemester();
-                },
-                child: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 5,
+                ),
+                Container(
                   alignment: Alignment.center,
-                  width: 200,
+                  // height: 50,
+                  width: 145,
                   decoration: BoxDecoration(
-                      color: Color(0xff4562a7),
+                      color: Color(0xffeaf1ed),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: Colors.white, width: 2)),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                     child: Text(
-                      'Add semester',
+                      'SGPA',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                        color: Color(0xff004d60),
+                        fontSize: 15,
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+                Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+
+                  // height: 50,
+                  width: 80,
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                    child: Text(
+                      'Credits',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  // height: 50,
+
+                  width: 120,
+                  decoration: BoxDecoration(
+                      color: Color(0xffeaf1ed),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                    child: Text(
+                      'Semester',
+                      style: TextStyle(
+                        color: Color(0xff004d60),
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            AnimatedList(
+              shrinkWrap: true,
+              key: _keySemester,
+              itemBuilder: (context, index, animation) {
+                // print(allSemesters);
+                return SizeTransition(
+                  // key: ObjectKey(allSemesters[index][0].toString()),
+
+                  sizeFactor: animation,
+                  key: ObjectKey(allSemesters[index][2]),
+
+                  child: SemesterWithSGPA(
+                    index,
+                    allSemesters[index][0],
+                    allSemesters[index][1],
+                    isValueChanged,
+                  ),
+                );
+              },
+              initialItemCount: allSemesters.length,
+            ),
+            Row(
+              mainAxisAlignment:
+                  isChanged ? MainAxisAlignment.center : MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    // FocusManager.instance.primaryFocus?.unfocus();
+                    addSemester();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    margin: isChanged
+                        ? EdgeInsets.only(right: 30)
+                        : EdgeInsets.only(right: 85),
+                    decoration: BoxDecoration(
+                        color: Color(0xffeaf1ed),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white, width: 2)),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      child: Text(
+                        'Add semester',
+                        style: TextStyle(
+                          color: Color(0xff004d60),
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                isChanged
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isChanged = false;
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          margin: isChanged
+                              ? EdgeInsets.all(0)
+                              : EdgeInsets.only(right: 20),
+                          decoration: BoxDecoration(
+                              color: Color(0xff4562a7),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              border:
+                                  Border.all(color: Colors.white, width: 2)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            child: Text(
+                              'Calc GPA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isChanged = true;
+                          });
+                        },
+                        child: AbsorbPointer(
+                          child: Container(
+                            margin: EdgeInsets.only(right: 18),
+                            child: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Color(0xff004d60),
+                              size: 26,
+                            ),
+                          ),
+                        ),
+                      ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -162,25 +247,38 @@ class _WithSemesterState extends State<WithSemester> {
 }
 
 class SemesterWithSGPA extends StatefulWidget {
-  int index;
+  final int index;
+  final double? SGPA;
+  final int? credits;
+  final Function callBackchanged;
 
-  SemesterWithSGPA(this.index);
+  SemesterWithSGPA(this.index, this.SGPA, this.credits, this.callBackchanged,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<SemesterWithSGPA> createState() => _SemesterWithSGPAState();
 }
 
 class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
-  final _controller_SGPA = TextEditingController();
-  final _controller_Credits = TextEditingController();
+  final TextEditingController _controller_SGPA = TextEditingController();
+  final TextEditingController _controller_Credits = TextEditingController();
+
   bool isCreditsValide = true;
   bool isSGPAValide = true;
   FocusNode _focusSGPA = FocusNode();
   FocusNode _focusCredits = FocusNode();
+
   @override
   void initState() {
     _focusSGPA.addListener(_onFocusSGPAChange);
     _focusCredits.addListener(_onFocusCreditsChange);
+    if (widget.SGPA != null) {
+      _controller_SGPA.text = widget.SGPA.toString();
+    }
+    if (widget.credits != null) {
+      _controller_Credits.text = widget.credits.toString();
+    }
 
     super.initState();
   }
@@ -188,6 +286,8 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
   @override
   void dispose() {
     super.dispose();
+    _controller_SGPA.dispose();
+    _controller_Credits.dispose();
     _focusSGPA.removeListener(_onFocusSGPAChange);
     _focusSGPA.dispose();
     _focusCredits.removeListener(_onFocusCreditsChange);
@@ -196,17 +296,15 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
 
   void _onFocusSGPAChange() {
     setState(() {});
-    validationMethod();
   }
 
   void _onFocusCreditsChange() {
     setState(() {});
-    validationMethod();
   }
 
   String? get _errorSGPA {
-    var SGPA = _controller_SGPA.text ?? '';
-    var credits = _controller_Credits.text ?? '';
+    var SGPA = _controller_SGPA.text;
+    var credits = _controller_Credits.text;
 
     if ((credits.isNotEmpty && credits.trim().isNotEmpty)) {
       if (SGPA.isEmpty || SGPA.trim().isEmpty) {
@@ -217,8 +315,8 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
   }
 
   String? get _errorCredits {
-    var SGPA = _controller_SGPA.text ?? '';
-    var credits = _controller_Credits.text ?? '';
+    var SGPA = _controller_SGPA.text;
+    var credits = _controller_Credits.text;
 
     if ((SGPA.isNotEmpty && SGPA.trim().isNotEmpty)) {
       if (credits.isEmpty || credits.trim().isEmpty) {
@@ -254,11 +352,17 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
     if (allSemesters.length != 1) {
       setState(() {
         allSemesters.removeAt(widget.index);
+        widget.callBackchanged();
+        // _semestersKeys.removeAt(widget.index);
+        // widget.key ==
+        //     List.generate(allSemesters.length,
+        //         (index) => GlobalObjectKey<FormState>(index));
         _keySemester.currentState!.removeItem(widget.index,
             (context, animation) {
           return SlideTransition(
               position: animation.drive(_offset),
-              child: SemesterWithSGPA(widget.index));
+              child: SemesterWithSGPA(
+                  widget.index, widget.SGPA, widget.credits, () {}));
         }, duration: Duration(milliseconds: 300));
       });
     }
@@ -281,7 +385,7 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
+                    // FocusManager.instance.primaryFocus?.unfocus();
                     setState(() {
                       deleteSemester();
                     });
@@ -316,24 +420,27 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      TextField(
+                      TextFormField(
                         controller: _controller_SGPA,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.bottom,
-                        focusNode: _focusSGPA,
+                        // focusNode: _focusSGPA,
+                        // autofocus: true,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                         ],
+                        onChanged: (val) {
+                          setState(() {
+                            allSemesters[widget.index][0] = double.parse(val);
+                            widget.callBackchanged();
+                            validationMethod();
+                          });
+                        },
                         keyboardType: TextInputType.number,
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xff004d60),
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            validationMethod();
-                          });
-                        },
                         maxLines: 1,
                         decoration: InputDecoration(
                           // errorText: _errorSGPA,
@@ -377,22 +484,27 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
               )),
               child: Column(
                 children: [
-                  TextField(
+                  TextFormField(
                     controller: _controller_Credits,
+                    // autofocus: true,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textAlign: TextAlign.center,
-                    focusNode: _focusCredits,
+                    // focusNode: _focusCredits,
                     keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        validationMethod();
-                      });
-                    },
                     style: TextStyle(
                       fontSize: 18,
                       color: Color(0xff4562a7),
                     ),
                     maxLines: 1,
+                    onChanged: (val) {
+                      setState(() {
+                        allSemesters[widget.index][1] = int.parse(val);
+
+                        widget.callBackchanged();
+                        validationMethod();
+                      });
+                    },
+
                     decoration: InputDecoration(
                       // errorText: _errorCredits,
                       isDense: true,
@@ -426,6 +538,5 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
         ),
       ),
     );
-    ;
   }
 }
