@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import 'HomeWithFireStoreFinal.dart';
 // TODO: the  UI done
-// TODO: you need to add to DB
+// TODO: you need to add to DB(done)
 
 class WithSemester extends StatefulWidget {
   final Function callBack;
@@ -99,8 +99,8 @@ class _WithSemesterState extends State<WithSemester> {
     widget.callBack(cgpa, totCredits);
   }
 
-  bool isValidate() {
-    List<bool> list = [true];
+  List isValidate() {
+    List list = [true];
     for (List course in allSemesters2) {
       if (course[0] == null && course[1] == null) {
       } else {
@@ -109,14 +109,19 @@ class _WithSemesterState extends State<WithSemester> {
             list.add(false);
           });
         }
+        if (course[0] == -1 || course[1] == -1) {
+          setState(() {
+            list.add(-1);
+          });
+        }
       }
     }
-    bool isThereEmptyField = list.contains(false);
 
-    return !isThereEmptyField;
+    return list;
   }
 
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message(
+      bool isThereEmptyField, bool isThereError) {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
       behavior: SnackBarBehavior.floating,
@@ -145,12 +150,24 @@ class _WithSemesterState extends State<WithSemester> {
                         'Oops Error!',
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      Text(
-                        'there is an empty field',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )
+                      isThereEmptyField
+                          ? Text(
+                              'there is an empty field',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(),
+                      isThereError
+                          ? Text(
+                              'Input Error',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(),
                     ],
                   ),
                 ),
@@ -451,14 +468,18 @@ class _WithSemesterState extends State<WithSemester> {
                   isChanged
                       ? GestureDetector(
                           onTap: () {
-                            if (isValidate()) {
+                            bool isThereEmptyField =
+                                isValidate().contains(false);
+                            bool isThereError = isValidate().contains(-1);
+
+                            if (!isThereError && !isThereEmptyField) {
                               setState(() {
                                 calcCGPA();
                                 isChanged = false;
                               });
                               collectDate();
                             } else {
-                              message();
+                              message(isThereEmptyField, isThereError);
                             }
                           },
                           child: Container(
@@ -580,6 +601,14 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
       if (SGPA.isEmpty || SGPA.trim().isEmpty) {
         return '';
       }
+      try {
+        double va = double.parse(SGPA);
+        if (va == -1) {
+          return '';
+        }
+      } catch (error) {
+        return '';
+      }
     }
     return null;
   }
@@ -590,6 +619,14 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
 
     if ((SGPA.isNotEmpty && SGPA.trim().isNotEmpty)) {
       if (credits.isEmpty || credits.trim().isEmpty) {
+        return '';
+      }
+      try {
+        int va = int.parse(credits);
+        if (va == -1) {
+          return '';
+        }
+      } catch (error) {
         return '';
       }
     }
@@ -731,8 +768,13 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                         onChanged: (val) {
                           setState(() {
                             if (val.isNotEmpty) {
-                              allSemesters2[widget.index][0] =
-                                  double.parse(val);
+                              double? va;
+                              try {
+                                va = double.parse(val);
+                              } catch (error) {
+                                va = -1;
+                              }
+                              allSemesters2[widget.index][0] = va;
                             } else {
                               allSemesters2[widget.index][0] = null;
                             }
@@ -803,7 +845,13 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                     onChanged: (val) {
                       setState(() {
                         if (val.isNotEmpty) {
-                          allSemesters2[widget.index][1] = int.parse(val);
+                          int? va;
+                          try {
+                            va = int.parse(val);
+                          } catch (error) {
+                            va = -1;
+                          }
+                          allSemesters2[widget.index][1] = va;
                         } else {
                           allSemesters2[widget.index][1] = null;
                         }
