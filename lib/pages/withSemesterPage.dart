@@ -15,11 +15,7 @@ class WithSemester extends StatefulWidget {
   State<WithSemester> createState() => _WithSemesterState();
 }
 
-List<List> allSemesters2 = [
-  // [2.35, 11, '1'],
-  // [null, null, 'o4'],
-  // [2.35, 11, '5'],
-];
+List<List> allSemesters2 = [];
 
 final _keySemester = GlobalKey<AnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));

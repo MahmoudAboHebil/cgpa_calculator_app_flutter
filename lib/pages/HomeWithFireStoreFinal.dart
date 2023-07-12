@@ -13,6 +13,7 @@ import 'signin.dart';
 import 'profilePage.dart';
 import 'expectTheCGPAPage.dart';
 import 'withSemesterPage.dart';
+import 'reviewPage.dart';
 
 //test
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -2724,6 +2725,19 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                               .nextPage(duration: _kDuration, curve: _kCurve);
                         },
                         child: Text('With Semester')),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.reviews),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReviewPage(allSemesters),
+                            ),
+                          );
+                        },
+                        child: Text('Review')),
                   ),
                 ],
               ),
