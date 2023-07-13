@@ -2672,6 +2672,44 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         child: Text('Home')),
                   ),
                   ListTile(
+                    leading: Icon(Icons.school_sharp),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Scaffold.of(context).closeDrawer();
+                          widget.pageViewController
+                              .nextPage(duration: _kDuration, curve: _kCurve);
+                        },
+                        child: Text('With Semester')),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.lightbulb_rounded,
+                    ),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ExpectTheCGPAPage(),
+                            ),
+                          );
+                        },
+                        child: Text('Fast')),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.reviews),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReviewPage(allSemesters),
+                            ),
+                          );
+                        },
+                        child: Text('Review')),
+                  ),
+                  ListTile(
                     leading: Icon(Icons.person_rounded),
                     title: GestureDetector(
                         onTap: () {
@@ -2687,57 +2725,23 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                   ListTile(
                     leading: Icon(Icons.logout_outlined),
                     title: GestureDetector(
-                        onTap: () async {
-                          final prov =
-                              Provider.of<AuthServer>(context, listen: false);
-                          await prov.googleLogout();
+                      onTap: () async {
+                        final prov =
+                            Provider.of<AuthServer>(context, listen: false);
+                        await prov.googleLogout();
 
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Siginin(),
-                            ),
-                          );
-                        },
-                        child: Text('Logout')),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.lightbulb_rounded,
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Siginin(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
-                    title: GestureDetector(
-                        onTap: () async {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ExpectTheCGPAPage(),
-                            ),
-                          );
-                        },
-                        child: Text('Predict')),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.school_sharp),
-                    title: GestureDetector(
-                        onTap: () async {
-                          Scaffold.of(context).closeDrawer();
-                          widget.pageViewController
-                              .nextPage(duration: _kDuration, curve: _kCurve);
-                        },
-                        child: Text('With Semester')),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.reviews),
-                    title: GestureDetector(
-                        onTap: () async {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ReviewPage(allSemesters),
-                            ),
-                          );
-                        },
-                        child: Text('Review')),
                   ),
                 ],
               ),

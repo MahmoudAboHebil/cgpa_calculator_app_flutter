@@ -83,142 +83,153 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xffb8c8d1),
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Color(0xffb8c8d1),
-          body: SingleChildScrollView(
-            physics: ScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppBarReview(setAllCourses),
-                SizedBox(
-                  height: 20,
-                ),
-                allCourses.isNotEmpty
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 40,
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            // height: 50,
-                            width: 150,
-                            decoration: BoxDecoration(
-                                color: Color(0xffeaf1ed),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                                border:
-                                    Border.all(color: Colors.white, width: 2)),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 15),
-                              child: Text(
-                                'Name',
-                                style: TextStyle(
-                                  color: Color(0xff004d60),
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 10),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePageFin(),
+            ));
 
-                            // height: 50,
-                            width: 80,
-                            decoration: BoxDecoration(
-                                color: Color(0xffeaf1ed),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                                border:
-                                    Border.all(color: Colors.white, width: 2)),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 15),
-                              child: Text(
-                                'Credit',
-                                style: TextStyle(
-                                  color: Color(0xff004d60),
-                                  fontSize: 15,
-                                ),
-                              ),
+        return false;
+      },
+      child: Container(
+        color: Color(0xffb8c8d1),
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: Color(0xffb8c8d1),
+            body: SingleChildScrollView(
+              physics: ScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppBarReview(setAllCourses),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  allCourses.isNotEmpty
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 40,
                             ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            // height: 50,
-
-                            width: 100,
-                            decoration: BoxDecoration(
-                                color: Color(0xffeaf1ed),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                                border:
-                                    Border.all(color: Colors.white, width: 2)),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 15),
-                              child: Text(
-                                'Grades',
-                                style: TextStyle(
-                                  color: Color(0xff004d60),
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          )
-                        ],
-                      )
-                    : Container(),
-                SizedBox(
-                  height: 10,
-                ),
-                allCourses.isNotEmpty
-                    ? ScrollConfiguration(
-                        behavior: MyBehavior(),
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
-                            return CourseCard(
-                                allCourses[index][0],
-                                allCourses[index][1],
-                                allCourses[index][2],
-                                allCourses[index][3],
-                                index);
-                          },
-                          physics: ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: allCourses.length,
-                        ),
-                      )
-                    : Column(
-                        children: [
-                          SizedBox(
-                            height: 150,
-                          ),
-                          Center(
-                            child: Container(
+                            Container(
+                              alignment: Alignment.center,
+                              // height: 50,
+                              width: 150,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'No Courses Found',
-                                style: TextStyle(
-                                    fontSize: 20, color: Color(0xff4562a7)),
+                                  color: Color(0xffeaf1ed),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  border: Border.all(
+                                      color: Colors.white, width: 2)),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                                child: Text(
+                                  'Name',
+                                  style: TextStyle(
+                                    color: Color(0xff004d60),
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ),
                             ),
+                            Container(
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+
+                              // height: 50,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffeaf1ed),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  border: Border.all(
+                                      color: Colors.white, width: 2)),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                                child: Text(
+                                  'Credit',
+                                  style: TextStyle(
+                                    color: Color(0xff004d60),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              // height: 50,
+
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffeaf1ed),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  border: Border.all(
+                                      color: Colors.white, width: 2)),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                                child: Text(
+                                  'Grades',
+                                  style: TextStyle(
+                                    color: Color(0xff004d60),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            )
+                          ],
+                        )
+                      : Container(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  allCourses.isNotEmpty
+                      ? ScrollConfiguration(
+                          behavior: MyBehavior(),
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              return CourseCard(
+                                  allCourses[index][0],
+                                  allCourses[index][1],
+                                  allCourses[index][2],
+                                  allCourses[index][3],
+                                  index);
+                            },
+                            physics: ScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: allCourses.length,
                           ),
-                        ],
-                      ),
-              ],
+                        )
+                      : Column(
+                          children: [
+                            SizedBox(
+                              height: 150,
+                            ),
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  'No Courses Found',
+                                  style: TextStyle(
+                                      fontSize: 20, color: Color(0xff4562a7)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ],
+              ),
             ),
           ),
         ),

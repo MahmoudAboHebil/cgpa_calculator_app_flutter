@@ -507,7 +507,7 @@ class _ContentState extends State<Content> {
                 ),
               ),
               SizedBox(
-                height: 230,
+                height: 200,
               ),
               Align(
                 alignment: Alignment.center,
