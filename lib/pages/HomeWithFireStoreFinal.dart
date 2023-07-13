@@ -480,15 +480,7 @@ class _HomePageFinState extends State<HomePageFin> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // final prov = Provider.of<AuthServer>(context, listen: false);
-        // prov.googleLogout();
-        //
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => Siginin(),
-        //     ));
-        //
+        SystemNavigator.pop();
         return false;
       },
       child: Container(
