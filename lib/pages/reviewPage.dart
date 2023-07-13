@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'HomeWithFireStoreFinal.dart';
 
 final List<String> items = [
-  'all',
+  'All',
   'A',
   'A-',
   'B+',
@@ -38,7 +38,10 @@ class _ReviewPageState extends State<ReviewPage> {
     //  grade2
     // ]
   ];
-  void setAllCourses() {
+  void setAllCourses(String grade) {
+    setState(() {
+      allCourses.clear();
+    });
     for (List semester in widget.allSemesters) {
       for (List course in semester) {
         var name = course[1];
@@ -47,8 +50,22 @@ class _ReviewPageState extends State<ReviewPage> {
         var selectedValue2 = course[4];
         if (name != null && credit != null && selectedValue1 != null) {
           setState(() {
-            allCourses
-                .add([name, credit, selectedValue1, selectedValue2 ?? '']);
+            if (grade == 'All') {
+              allCourses
+                  .add([name, credit, selectedValue1, selectedValue2 ?? '']);
+            } else {
+              if (selectedValue2 == null) {
+                if (grade == selectedValue1) {
+                  allCourses.add(
+                      [name, credit, selectedValue1, selectedValue2 ?? '']);
+                }
+              } else {
+                if (grade == selectedValue2) {
+                  allCourses.add(
+                      [name, credit, selectedValue1, selectedValue2 ?? '']);
+                }
+              }
+            }
           });
         }
       }
@@ -58,7 +75,10 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   void initState() {
     super.initState();
-    setAllCourses();
+    setState(() {
+      selectedValue = 'All';
+    });
+    setAllCourses(selectedValue!);
   }
 
   @override
@@ -73,7 +93,7 @@ class _ReviewPageState extends State<ReviewPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AppBarReview(),
+                AppBarReview(setAllCourses),
                 SizedBox(
                   height: 20,
                 ),
@@ -280,6 +300,10 @@ class CourseCard extends StatelessWidget {
 }
 
 class AppBarReview extends StatefulWidget {
+  final Function callBackSetCourses;
+
+  AppBarReview(this.callBackSetCourses);
+
   @override
   State<AppBarReview> createState() => _AppBarReviewState();
 }
@@ -346,22 +370,14 @@ class _AppBarReviewState extends State<AppBarReview> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          selectedValue == null
-                              ? Text(
-                                  'All',
-                                  style: TextStyle(
-                                      color: Color(0xff4562a7),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : Text(
-                                  '$selectedValue',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color(0xff4562a7),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                          Text(
+                            '$selectedValue',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xff4562a7),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -394,8 +410,7 @@ class _AppBarReviewState extends State<AppBarReview> {
                     onChanged: (value) {
                       setState(() {
                         selectedValue = value as String;
-                        if (value.isNotEmpty) {
-                        } else {}
+                        widget.callBackSetCourses(selectedValue!);
                       });
                     },
                     dropdownStyleData: DropdownStyleData(
