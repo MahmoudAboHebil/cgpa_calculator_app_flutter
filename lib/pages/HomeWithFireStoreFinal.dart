@@ -1,6 +1,6 @@
+import 'package:cgp_calculator/home_with_firestore_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +9,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/authServieses.dart';
+import '../widgets/myCustomAppBar.dart';
 import 'signin.dart';
 import 'profilePage.dart';
 import 'expectTheCGPAPage.dart';
@@ -45,53 +46,7 @@ List allSemesters = [
 User? loggedInUser;
 CollectionReference? _courses;
 CollectionReference? semestersRef;
-
-void addCourseInDB(int semestID, String courseId, String? name, String? credit,
-    String? grade1, String? grade2, String type) async {
-  await FirebaseFirestore.instance
-      .collection('UsersCourses')
-      .doc('${loggedInUser!.email}')
-      .collection('courses')
-      .doc(courseId)
-      .set({
-    'courseName': name,
-    'credit': credit,
-    'grade1': grade1,
-    'grade2': grade2,
-    'semestId': semestID,
-    'type': type,
-    'id': courseId,
-  });
-}
-
-void updateData(var semestId, var courseId, var name, var credit, var grade1,
-    var grade2, var type) async {
-  await _courses!.doc(courseId).set({
-    'id': courseId,
-    'courseName': name,
-    'credit': credit,
-    'grade1': grade1,
-    'grade2': grade2,
-    'semestId': semestId,
-    'type': '$type',
-  });
-}
-
-void deleteSemesterFromDB(int semesterId) async {
-  await _courses!.get().then((QuerySnapshot querySnapshot) {
-    querySnapshot.docs.forEach((doc) {
-      final DocumentSnapshot course = doc;
-      if (course['semestId'] == semesterId) {
-        String id = course.id;
-        _courses!.doc(id).delete();
-      }
-    });
-  });
-}
-
-void deleteCourseFromDB(String courseId) async {
-  _courses!.doc(courseId).delete();
-}
+late HomeWithFireStoreServices? homeWithFireStoreServices;
 
 class HomePageFin extends StatefulWidget {
   @override
@@ -112,6 +67,7 @@ class _HomePageFinState extends State<HomePageFin> {
   int totalCreditPage2 = 0;
   int totalCredit = 0;
   bool flag = true;
+  bool flag2 = true;
   bool calcFlag = true;
   // bool showSpinner2 = true;
   callBackChangeList(int index, bool value, remove) {
@@ -141,8 +97,10 @@ class _HomePageFinState extends State<HomePageFin> {
       showSpinner = true;
       allSemesters.clear();
       allSemesters2.clear();
+      homeWithFireStoreServices = null;
     });
     getCurrentUser();
+    setState(() {});
     // Future.delayed(Duration(seconds: 3), () {
     //   calcCGPA();
     // });
@@ -283,7 +241,8 @@ class _HomePageFinState extends State<HomePageFin> {
                     ]
                   ]
                 ];
-                addCourseInDB(1, 'firstCourse', null, null, null, null, 'one');
+                homeWithFireStoreServices!.addCourseInDB(
+                    1, 'firstCourse', null, null, null, null, 'one');
               }
               isChangeList = [];
               for (int i = 0; i < keys.length; i++) {
@@ -382,7 +341,8 @@ class _HomePageFinState extends State<HomePageFin> {
       ]);
       isChangeList.add(false);
       print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
-      addCourseInDB(maxSemester + 1, uniqueId, null, null, null, null, 'one');
+      homeWithFireStoreServices!.addCourseInDB(
+          maxSemester + 1, uniqueId, null, null, null, null, 'one');
       _keySemester.currentState!
           .insertItem(insertIndex, duration: Duration(milliseconds: 0));
     });
@@ -478,6 +438,13 @@ class _HomePageFinState extends State<HomePageFin> {
 
   @override
   Widget build(BuildContext context) {
+    if (flag2 && loggedInUser != null && _courses != null) {
+      setState(() {
+        homeWithFireStoreServices =
+            HomeWithFireStoreServices(_courses!, loggedInUser!);
+        flag2 = false;
+      });
+    }
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -589,62 +556,6 @@ class _HomePageFinState extends State<HomePageFin> {
 //
 //   pageButton(this.text, this.textColor, this.parentColor);
 // }
-
-class MyCustomAppBar extends StatelessWidget {
-  final double height;
-  double cgpa;
-  int earnCredit;
-  int totalCredit;
-
-  MyCustomAppBar(this.height, this.cgpa, this.earnCredit, this.totalCredit);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      padding: EdgeInsets.only(top: 10),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-        border: Border.all(color: Colors.grey, width: 2),
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                child: IconButton(
-                  icon: Icon(
-                    Icons.menu,
-                    color: Color(0xff4562a7),
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                ),
-              ),
-              AppBarHomeFin(
-                cgpa,
-                earnCredit,
-                totalCredit,
-              ),
-            ],
-          ),
-          // Row(
-          //   children: [
-          //     pageButton('Page1',Colors.grey,Colors.white54),
-          //     pageButton('Page1',Colors.grey,Colors.white54),
-          //   ],
-          // )
-        ],
-      ),
-    );
-  }
-}
 
 // bool isChanged = false;
 
@@ -843,7 +754,8 @@ class _SemesterFinState extends State<SemesterFin> {
         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
     print('theListAfterAdd:${listOfCoursesInSemester}');
     Future.delayed(Duration(milliseconds: 270), () {
-      addCourseInDB(widget.semesterId, uniqueId, null, null, null, null, 'one');
+      homeWithFireStoreServices!.addCourseInDB(
+          widget.semesterId, uniqueId, null, null, null, null, 'one');
     });
   }
 
@@ -862,7 +774,7 @@ class _SemesterFinState extends State<SemesterFin> {
 
       widget.calcCGPA();
     });
-    deleteSemesterFromDB(widget.semesterId);
+    homeWithFireStoreServices!.deleteSemesterFromDB(widget.semesterId);
     widget.ChangeList(widget.index, false, true);
   }
 
@@ -1155,10 +1067,10 @@ class _SemesterFinState extends State<SemesterFin> {
       var val = type == 'one' ? false : true;
 
       if (val) {
-        updateData(semesterID, courseID, name, credit, selectedValue1,
-            selectedValue2, 'two');
+        homeWithFireStoreServices!.updateData(semesterID, courseID, name,
+            credit, selectedValue1, selectedValue2, 'two');
       } else {
-        updateData(
+        homeWithFireStoreServices!.updateData(
             semesterID, courseID, name, credit, selectedValue1, null, 'one');
       }
     }
@@ -1520,7 +1432,6 @@ class _CourseFinState extends State<CourseFin> {
   late TextEditingController _controller_Credit;
   FocusNode _focusName = FocusNode();
   FocusNode _focusCredit = FocusNode();
-  FocusNode _focusGrade = FocusNode();
 
   late String? selectedValue1;
   late String? selectedValue2;
@@ -1558,7 +1469,6 @@ class _CourseFinState extends State<CourseFin> {
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
     _focusName.addListener(_onFocusNameChange);
     _focusCredit.addListener(_onFocusCreditChange);
-    _focusGrade.addListener(_onFocusGradeChange);
 
     setState(() {
       semesterID = widget.courseList[0];
@@ -1584,55 +1494,13 @@ class _CourseFinState extends State<CourseFin> {
   }
 
   void _onFocusNameChange() {
-    if (_focusName.hasFocus) {
-    } else {
-      String value = _controller_Name.text;
-      if (value.isNotEmpty) {
-        widget.listCoursesInSemester[widget.index][1] = value;
-      } else {
-        widget.listCoursesInSemester[widget.index][1] = null;
-      }
-      if (!_focusCredit.hasFocus && !_focusGrade.hasFocus) {
-        print(
-            '_onFocus  Name Change jffffffffffffffffffffffffffffffffffffffffffff');
-
-        widget.CallBackUpdateList(widget.listCoursesInSemester);
-        widget.CallBackUpdateChange();
-      }
-    }
     errorGrade();
     validationMethod();
   }
 
   void _onFocusCreditChange() {
-    if (_focusCredit.hasFocus) {
-    } else {
-      String value = _controller_Credit.text;
-      if (value.isNotEmpty) {
-        widget.listCoursesInSemester[widget.index][2] = value;
-      } else {
-        widget.listCoursesInSemester[widget.index][2] = null;
-      }
-      if (!_focusName.hasFocus && !_focusGrade.hasFocus) {
-        print(
-            '_onFocus  Credit   Change jffffffffffffffffffffffffffffffffffffffffffff');
-        widget.CallBackUpdateList(widget.listCoursesInSemester);
-        widget.CallBackUpdateChange();
-      }
-    }
-  }
-
-  void _onFocusGradeChange() {
-    if (_focusGrade.hasFocus) {
-    } else {
-      // Future.delayed(D)
-      if (!_focusName.hasFocus && !_focusCredit.hasFocus) {
-        print(
-            '_onFocus  Grade   Change jffffffffffffffffffffffffffffffffffffffffffff');
-        widget.CallBackUpdateList(widget.listCoursesInSemester);
-        widget.CallBackUpdateChange();
-      }
-    }
+    errorGrade();
+    validationMethod();
   }
 
   String? get _errorCredit {
@@ -1771,7 +1639,8 @@ class _CourseFinState extends State<CourseFin> {
         selectedValueIs2Null = false;
       });
 
-      updateData(semesterID, courseID, null, null, null, null, 'one');
+      homeWithFireStoreServices!
+          .updateData(semesterID, courseID, null, null, null, null, 'one');
       // addCourseInDB(semesterID, courseID, null, null, null, null, 'one');
       print('theListAfterUpdate:${widget.listCoursesInSemester}');
       allSemesters[widget.semesterIndex][widget.index] =
@@ -1796,7 +1665,7 @@ class _CourseFinState extends State<CourseFin> {
         );
       }, duration: Duration(milliseconds: 300));
       Future.delayed(Duration(milliseconds: 310), () {
-        deleteCourseFromDB(courseID);
+        homeWithFireStoreServices!.deleteCourseFromDB(courseID);
         print('deletedCourse:$deletedCourse');
         print('theListAfterDeleting:${widget.listCoursesInSemester}');
       });
@@ -1809,57 +1678,6 @@ class _CourseFinState extends State<CourseFin> {
     Future.delayed(Duration(milliseconds: 320), () {
       widget.calcCGPA();
     });
-
-//###############################################################
-    // if (widget.allSemesterss.length == 1 &&
-    //     widget.listCoursesInSemester.length == 1) {
-    //   print('no delete');
-    // }
-    //
-    // widget.CallBackUpdateChange(true);
-    //
-    // List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
-    //
-    // widget.CallBackUpdateList(widget.listCoursesInSemester);
-    // widget._keyAniSemest.currentState!.removeItem(widget.index,
-    //     (context, animation) {
-    //   return SizeTransition(
-    //     sizeFactor: animation,
-    //     child: Course(
-    //         widget.index,
-    //         deletedCourse,
-    //         widget.listCoursesInSemester,
-    //         widget.CallBackUpdateList,
-    //         widget.CallBackUpdateChange,
-    //         widget.allSemesterss,
-    //         widget.callBackallSemesterss,
-    //         widget.semesterIndex,
-    //         widget._keyAniSemest),
-    //   );
-    // }, duration: Duration(milliseconds: 0));
-    // print('deletedCourse:$deletedCourse');
-    // print('theListAfterDeleting:${widget.listCoursesInSemester}');
-
-    // if (widget.listCoursesInSemester.isEmpty) {
-    //   var uuid = Uuid();
-    //   var uniqueId = uuid.v1();
-    //
-    //   setState(() {
-    //     widget.listCoursesInSemester
-    //         .add([semesterID, null, null, null, null, 'one', uniqueId]);
-    //     widget.allSemesterss[widget.index] = widget.listCoursesInSemester;
-    //     widget.callBackallSemesterss(widget.allSemesterss);
-    //     widget.allSemesterss[widget.semesterIndex] =
-    //         widget.listCoursesInSemester;
-    //     widget.callBackallSemesterss(widget.allSemesterss);
-    //   });
-    //   widget._keyAniSemest.currentState!
-    //       .insertItem(0, duration: Duration(milliseconds: 250));
-    //   print('theListAfterAdd:${widget.listCoursesInSemester}');
-    // } else {
-    //   widget.allSemesterss[widget.semesterIndex] = widget.listCoursesInSemester;
-    //   widget.callBackallSemesterss(widget.allSemesterss);
-    // }
   }
 
   Widget gradeContainer() {
@@ -2165,7 +1983,6 @@ class _CourseFinState extends State<CourseFin> {
                         .toList(),
                     value: selectedValue1,
                     // openWithLongPress: true,
-                    // focusNode: _focusGrade,
                     key: ValueKey(selectedValue1),
                     onChanged: (value) {
                       setState(() {
@@ -2266,17 +2083,12 @@ class _CourseFinState extends State<CourseFin> {
     _focusName.dispose();
     _focusCredit.removeListener(_onFocusCreditChange);
     _focusCredit.dispose();
-    _focusGrade.removeListener(_onFocusGradeChange);
-    _focusGrade.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     errorGrade();
     validationMethod();
-    // if (_focusCredit.hasFocus || _focusName.hasFocus) {
-    //   _focusGrade.unfocus();
-    // }
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -2332,7 +2144,7 @@ class _CourseFinState extends State<CourseFin> {
                         controller: _controller_Name,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.bottom,
-                        // focusNode: _focusName,
+                        focusNode: _focusName,
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xff004d60),
@@ -2413,7 +2225,7 @@ class _CourseFinState extends State<CourseFin> {
                   TextField(
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     controller: _controller_Credit,
-                    // focusNode: _focusCredit,
+                    focusNode: _focusCredit,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
@@ -2741,132 +2553,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class AppBarHomeFin extends StatefulWidget {
-  double cgpa;
-  int earnCredit;
-  int totalCredit;
-
-  AppBarHomeFin(this.cgpa, this.earnCredit, this.totalCredit);
-
-  @override
-  State<AppBarHomeFin> createState() => _AppBarHomeFinState();
-}
-
-class _AppBarHomeFinState extends State<AppBarHomeFin> {
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
-  Future<String?> openDialogSitting() => showDialog(
-        context: context,
-        builder: (context) => StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              insetPadding: EdgeInsets.all(20),
-              contentPadding: EdgeInsets.all(0),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
-              content: Container(
-                height: 300,
-                width: 100,
-                color: Colors.red,
-              ),
-            );
-          },
-        ),
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text(
-                                'CGPA',
-                                style: TextStyle(
-                                    color: Color(0xff4562a7),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 20),
-                            child: Text(
-                              '${widget.cgpa.toStringAsFixed(3)}',
-                              style: TextStyle(
-                                  color: Color(0xff4562a7),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      LinearPercentIndicator(
-                        width: 230,
-                        lineHeight: 15,
-                        percent: widget.cgpa / 4,
-                        backgroundColor: Colors.grey.shade400,
-                        progressColor: Color(0xff4562a7),
-                        animation: true,
-                        barRadius: Radius.circular(10),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 0, top: 20),
-                      child: Text(
-                        'Total Credits',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 0),
-                      child: Text(
-                        '${widget.earnCredit} / ${widget.totalCredit}',
-                        style: TextStyle(
-                          color: Color(0xff004d60),
-                          fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            )
-          ],
-        ),
-      ],
     );
   }
 }
