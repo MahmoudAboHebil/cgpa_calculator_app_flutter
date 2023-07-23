@@ -1,4 +1,4 @@
-import 'package:cgp_calculator/pages/HomeWithFireStoreFinal.dart';
+import 'package:cgp_calculator/pages/home_with_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';

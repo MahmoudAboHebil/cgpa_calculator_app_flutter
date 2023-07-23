@@ -8,7 +8,6 @@ class AuthServer extends ChangeNotifier {
   GoogleSignInAccount? gUser;
 
   Future googleLogin() async {
-    // FirebaseAuth.instance.signOut();
     final googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) return;
     gUser = googleUser;

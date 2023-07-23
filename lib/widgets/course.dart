@@ -14,6 +14,7 @@ class Course extends StatefulWidget {
   final Function callBackUpdateChange;
   final Function calcCGPA;
   final GlobalKey<AnimatedListState> _keyAniSemest;
+  final HomeWithFireStoreServices homeWithFireStoreServices;
   Course(
       this.index,
       this.semesterIndex,
@@ -25,6 +26,7 @@ class Course extends StatefulWidget {
       this.callBackUpdateChange,
       this.calcCGPA,
       this._keyAniSemest,
+      this.homeWithFireStoreServices,
       {Key? key})
       : super(key: key);
 
@@ -33,8 +35,6 @@ class Course extends StatefulWidget {
 }
 
 class _CourseState extends State<Course> {
-  final HomeWithFireStoreServices homeWithFireStoreServices =
-      HomeWithFireStoreServices();
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
   FocusNode _focusName = FocusNode();
@@ -102,64 +102,23 @@ class _CourseState extends State<Course> {
   }
 
   void _onFocusNameChange() {
-    if (_focusName.hasFocus) {
-    } else {
-      String value = _controller_Name.text;
-      if (value.isNotEmpty) {
-        widget.listCoursesInSemester[widget.index][1] = value;
-      } else {
-        widget.listCoursesInSemester[widget.index][1] = null;
-      }
-      if (!_focusCredit.hasFocus && !_focusGrade.hasFocus) {
-        print(
-            '_onFocus  Name Change jffffffffffffffffffffffffffffffffffffffffffff');
-
-        widget
-            .callBackUpdateListCoursesInSemester(widget.listCoursesInSemester);
-        widget.callBackUpdateChange();
-      }
-    }
     errorGrade();
     validationMethod();
   }
 
   void _onFocusCreditChange() {
-    if (_focusCredit.hasFocus) {
-    } else {
-      String value = _controller_Credit.text;
-      if (value.isNotEmpty) {
-        widget.listCoursesInSemester[widget.index][2] = value;
-      } else {
-        widget.listCoursesInSemester[widget.index][2] = null;
-      }
-      if (!_focusName.hasFocus && !_focusGrade.hasFocus) {
-        print(
-            '_onFocus  Credit   Change jffffffffffffffffffffffffffffffffffffffffffff');
-        widget
-            .callBackUpdateListCoursesInSemester(widget.listCoursesInSemester);
-        widget.callBackUpdateChange();
-      }
-    }
+    errorGrade();
+    validationMethod();
   }
 
   void _onFocusGradeChange() {
-    if (_focusGrade.hasFocus) {
-    } else {
-      // Future.delayed(D)
-      if (!_focusName.hasFocus && !_focusCredit.hasFocus) {
-        print(
-            '_onFocus  Grade   Change jffffffffffffffffffffffffffffffffffffffffffff');
-        widget
-            .callBackUpdateListCoursesInSemester(widget.listCoursesInSemester);
-        widget.callBackUpdateChange();
-      }
-    }
+    errorGrade();
+    validationMethod();
   }
 
   String? get _errorCredit {
     var Name = name ?? '';
     var Credit = credit ?? '';
-    // if (pressed) {
     if (Credit.isNotEmpty && Credit.length > 3) {
       return '';
     }
@@ -178,14 +137,12 @@ class _CourseState extends State<Course> {
         (selectedValue1 != null || selectedValue2 != null)) {
       return '';
     }
-    // }
     return null;
   }
 
   String? get _errorName {
     var Name = name ?? '';
     var Credit = credit ?? '';
-    // if (pressed) {
 
     if (Credit.isNotEmpty && Credit.trim().isNotEmpty) {
       if (Name.isEmpty || Name.trim().isEmpty) {
@@ -195,7 +152,6 @@ class _CourseState extends State<Course> {
         (selectedValue1 != null || selectedValue2 != null)) {
       return '';
     }
-    // }
 
     return null;
   }
@@ -257,7 +213,6 @@ class _CourseState extends State<Course> {
         }
       });
     }
-    // }
   }
 
   deleteCourse() {
@@ -287,9 +242,8 @@ class _CourseState extends State<Course> {
         selectedValueIs2Null = false;
       });
 
-      homeWithFireStoreServices.updateData(
-          semesterID, courseID, null, null, null, null, 'one');
-      // addCourseInDB(semesterID, courseID, null, null, null, null, 'one');
+      widget.homeWithFireStoreServices
+          .updateData(semesterID, courseID, null, null, null, null, 'one');
       widget.listAllSemesters[widget.semesterIndex][widget.index] =
           widget.listCoursesInSemester[widget.index];
       widget.callBackUpdateListAllSemesters(widget.listAllSemesters);
@@ -311,11 +265,12 @@ class _CourseState extends State<Course> {
               widget.callBackUpdateListAllSemesters,
               () {},
               () {},
-              widget._keyAniSemest),
+              widget._keyAniSemest,
+              widget.homeWithFireStoreServices),
         );
       }, duration: Duration(milliseconds: 300));
       Future.delayed(Duration(milliseconds: 310), () {
-        homeWithFireStoreServices.deleteCourseFromDB(courseID);
+        widget.homeWithFireStoreServices.deleteCourseFromDB(courseID);
         print('deletedCourse:$deletedCourse');
         print('theListAfterDeleting:${widget.listCoursesInSemester}');
       });
@@ -430,9 +385,6 @@ class _CourseState extends State<Course> {
                                   bottomLeft: Radius.circular(10),
                                   bottomRight: Radius.circular(10)),
                               color: Color(0xffb8c8d1),
-                              // boxShadow: [
-                              //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                              // ],
                             ),
                             offset: const Offset(0, 0),
                             scrollbarTheme: ScrollbarThemeData(
@@ -540,9 +492,6 @@ class _CourseState extends State<Course> {
                                 bottomLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10)),
                             color: Color(0xffb8c8d1),
-                            // boxShadow: [
-                            //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                            // ],
                           ),
                           offset: const Offset(-10, 0),
                           scrollbarTheme: ScrollbarThemeData(
@@ -558,10 +507,6 @@ class _CourseState extends State<Course> {
               )
             : GestureDetector(
                 onTap: () {
-                  // _focusName.unfocus();
-                  // _focusCredit.unfocus();
-                  print('heeeeeeeeeeeeeeeeeeeeeeee');
-
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 child: DropdownButtonHideUnderline(
@@ -632,8 +577,7 @@ class _CourseState extends State<Course> {
                             ))
                         .toList(),
                     value: selectedValue1,
-                    // openWithLongPress: true,
-                    // focusNode: _focusGrade,
+                    focusNode: _focusGrade,
                     key: ValueKey(selectedValue1),
                     onChanged: (value) {
                       setState(() {
@@ -661,9 +605,6 @@ class _CourseState extends State<Course> {
                             bottomLeft: Radius.circular(10),
                             bottomRight: Radius.circular(10)),
                         color: Color(0xffb8c8d1),
-                        // boxShadow: [
-                        //   BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 0.2)
-                        // ],
                       ),
                       offset: const Offset(20, 0),
                       scrollbarTheme: ScrollbarThemeData(
@@ -758,11 +699,9 @@ class _CourseState extends State<Course> {
                 GestureDetector(
                   onTap: () {
                     FocusManager.instance.primaryFocus?.unfocus();
-                    // widget.CallBackUpdateChange();
                     setState(() {
                       Future.delayed(Duration(milliseconds: 100), () {
                         deleteCourse();
-                        // widget.calcCGPA();
                       });
                     });
                   },
@@ -778,7 +717,6 @@ class _CourseState extends State<Course> {
                   width: 125,
                   height: 28,
                   margin: EdgeInsets.only(top: 0, left: 10),
-                  // padding: EdgeInsets.,
                   decoration: BoxDecoration(
                       border: Border(
                     bottom: _focusName.hasFocus
@@ -791,7 +729,6 @@ class _CourseState extends State<Course> {
                             color:
                                 valideName ? Colors.white : Color(0xffce2029)),
                   )),
-                  // padding: EdgeInsets.only(bottom: 4),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -799,7 +736,7 @@ class _CourseState extends State<Course> {
                         controller: _controller_Name,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.bottom,
-                        // focusNode: _focusName,
+                        focusNode: _focusName,
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xff004d60),
@@ -820,7 +757,6 @@ class _CourseState extends State<Course> {
                                 widget.listCoursesInSemester);
                             widget.callBackUpdateChange();
 
-                            // widget.CallBackUpdateList(widget.listCoursesInSemester);
                             selectedValueIs1Null;
                             selectedValueIs2Null;
                           });
@@ -834,21 +770,10 @@ class _CourseState extends State<Course> {
                               TextStyle(color: Colors.grey, fontSize: 18),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)
-                              // borderSide: BorderSide(
-                              //   color:
-                              //       valideName ? Colors.white : Color(0xffce2029)),
-                              ),
+                                  width: 0, color: Colors.transparent)),
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)
-
-                              // borderSide: BorderSide(
-                              //   color: valideName
-                              //       ? Color(0xff4562a7)
-                              //       : Color(0xffce2029),
-                              // ),
-                              ),
+                                  width: 0, color: Colors.transparent)),
                         ),
                       ),
                       SizedBox(
@@ -861,9 +786,7 @@ class _CourseState extends State<Course> {
             ),
             Container(
               width: 60,
-              // height: 34,
               height: 28,
-              // margin: EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
                   border: Border(
                 bottom: _focusCredit.hasFocus
@@ -880,7 +803,7 @@ class _CourseState extends State<Course> {
                   TextField(
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     controller: _controller_Credit,
-                    // focusNode: _focusCredit,
+                    focusNode: _focusCredit,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
@@ -907,18 +830,9 @@ class _CourseState extends State<Course> {
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
                       hintText: 'Credit',
                       enabledBorder: UnderlineInputBorder(
-                          // borderSide: BorderSide(
-                          //     color: valideCredit
-                          //         ? Colors.white
-                          //         : Color(0xffce2029)),
                           borderSide:
                               BorderSide(width: 0, color: Colors.transparent)),
                       focusedBorder: UnderlineInputBorder(
-                          // borderSide: BorderSide(
-                          //   color: valideCredit
-                          //       ? Color(0xff4562a7)
-                          //       : Color(0xffce2029),
-                          // ),
                           borderSide:
                               BorderSide(width: 0, color: Colors.transparent)),
                     ),

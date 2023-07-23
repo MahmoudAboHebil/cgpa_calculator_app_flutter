@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'signin.dart';
-import 'HomeWithFireStoreFinal.dart';
+import 'home_with_firestore.dart';
 
 class WelcomePage extends StatefulWidget {
   @override

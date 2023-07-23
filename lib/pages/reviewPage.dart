@@ -1,6 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'HomeWithFireStoreFinal.dart';
+import 'home_with_firestore.dart';
 
 final List<String> items = [
   'All',

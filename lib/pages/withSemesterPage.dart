@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-import 'HomeWithFireStoreFinal.dart';
+import 'home_with_firestore.dart';
 // TODO: the  UI done
 // TODO: you need to add to DB(done)
 

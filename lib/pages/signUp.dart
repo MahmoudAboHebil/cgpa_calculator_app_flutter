@@ -7,7 +7,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:cgp_calculator/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'HomeWithFireStoreFinal.dart';
+import 'home_with_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:cgp_calculator/authServieses.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
