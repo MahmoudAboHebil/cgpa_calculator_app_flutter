@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'pages/welcome.dart';
-import 'authServieses.dart';
-import 'package:cgp_calculator/pages/withSemesterPage.dart';
-import 'providerBrain.dart';
+import 'online app/auth_servieses.dart';
+import 'online app/pages/welcome_page.dart';
+import 'offline app/provider_brain.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

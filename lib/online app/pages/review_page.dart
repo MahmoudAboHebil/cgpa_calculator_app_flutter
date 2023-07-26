@@ -1,6 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'home_with_firestore.dart';
+import 'home_with_firestore_page.dart';
 
 final List<String> items = [
   'All',
@@ -88,7 +88,7 @@ class _ReviewPageState extends State<ReviewPage> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePageFin(),
+              builder: (context) => HomeWithFireStorePage(),
             ));
 
         return false;
@@ -352,7 +352,7 @@ class _AppBarReviewState extends State<AppBarReview> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePageFin(),
+                          builder: (context) => HomeWithFireStorePage(),
                         ),
                       );
                     },

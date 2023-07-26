@@ -1,25 +1,25 @@
 import 'dart:io';
-import 'package:cgp_calculator/pages/home_with_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'welcome.dart';
+import 'home_with_firestore_page.dart';
+import 'welcome_page.dart';
 
-class Profile extends StatefulWidget {
+class ProfilePage extends StatefulWidget {
   String email = '';
   String name = '';
   String imageURL = '';
 
-  Profile(this.email, this.name, this.imageURL);
+  ProfilePage(this.email, this.name, this.imageURL);
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _controller1 = TextEditingController();
   TextEditingController _controller2 = TextEditingController();
   File? image;
@@ -97,7 +97,7 @@ class _ProfileState extends State<Profile> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePageFin(),
+              builder: (context) => HomeWithFireStorePage(),
             ));
 
         return false;
@@ -124,7 +124,7 @@ class _ProfileState extends State<Profile> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePageFin(),
+                          builder: (context) => HomeWithFireStorePage(),
                         ),
                       );
                     },
@@ -455,7 +455,8 @@ class _ProfileState extends State<Profile> {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => HomePageFin(),
+                                      builder: (context) =>
+                                          HomeWithFireStorePage(),
                                     ),
                                   );
                                 }

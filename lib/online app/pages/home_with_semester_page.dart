@@ -3,16 +3,16 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-import 'home_with_firestore.dart';
+import 'home_with_firestore_page.dart';
 // TODO: the  UI done
 // TODO: you need to add to DB(done)
 
-class WithSemester extends StatefulWidget {
+class HomeWithSemesterPage extends StatefulWidget {
   final Function callBack;
-  WithSemester(this.callBack);
+  HomeWithSemesterPage(this.callBack);
 
   @override
-  State<WithSemester> createState() => _WithSemesterState();
+  State<HomeWithSemesterPage> createState() => _HomeWithSemesterPageState();
 }
 
 List<List> allSemesters2 = [];
@@ -30,7 +30,7 @@ void updateData(CollectionReference? ref, double? SGPA, int? Credits,
   });
 }
 
-class _WithSemesterState extends State<WithSemester> {
+class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
   bool isChanged = false;
   double cgpa = 0.0;
   int totCredits = 0;

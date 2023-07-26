@@ -1,7 +1,7 @@
-import 'package:cgp_calculator/pages/home_with_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'home_with_firestore_page.dart';
 
 class ExpectTheCGPAPage extends StatefulWidget {
   @override
@@ -63,7 +63,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePageFin(),
+              builder: (context) => HomeWithFireStorePage(),
             ));
 
         return false;
@@ -85,7 +85,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePageFin(),
+                          builder: (context) => HomeWithFireStorePage(),
                         ),
                       );
                     },

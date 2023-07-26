@@ -1,23 +1,23 @@
+import 'package:cgp_calculator/online%20app/pages/sign_up_page.dart';
 import 'package:flutter/services.dart';
-import 'package:cgp_calculator/pages/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cgp_calculator/authServieses.dart';
+import 'package:cgp_calculator/online%20app/auth_servieses.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'home_with_firestore.dart';
+import 'home_with_firestore_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'forgetPasswordPage.dart';
+import 'forget_password_page.dart';
 
-class Siginin extends StatefulWidget {
+class SignInPage extends StatefulWidget {
   @override
-  State<Siginin> createState() => _SigininState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
-class _SigininState extends State<Siginin> {
+class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -40,7 +40,7 @@ class _SigininState extends State<Siginin> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (snapshot.hasData) {
-                    return HomePageFin();
+                    return HomeWithFireStorePage();
                   }
 
                   return Content();
@@ -439,7 +439,7 @@ class _ContentState extends State<Content> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomePageFin(),
+                                builder: (context) => HomeWithFireStorePage(),
                               ),
                               (route) => true,
                             );

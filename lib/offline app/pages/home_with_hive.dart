@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:cgp_calculator/providerBrain.dart';
+import 'package:cgp_calculator/offline%20app/provider_brain.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_button2/src/dropdown_button2.dart';
@@ -43,12 +43,12 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomeWithHivePage extends StatefulWidget {
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeWithHivePage> createState() => _HomeWithHivePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeWithHivePageState extends State<HomeWithHivePage> {
   final _auth = FirebaseAuth.instance;
   User? loggedInUser;
   List allCourse = [];

@@ -1,15 +1,15 @@
 import 'dart:io';
+import 'package:cgp_calculator/online%20app/pages/sign_in_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:cgp_calculator/pages/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'home_with_firestore.dart';
+import 'home_with_firestore_page.dart';
 import 'package:provider/provider.dart';
-import 'package:cgp_calculator/authServieses.dart';
+import 'package:cgp_calculator/online%20app/auth_servieses.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -36,7 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasData) {
-                  return HomePageFin();
+                  return HomeWithFireStorePage();
                 }
 
                 return ContentSignUp();
@@ -274,7 +274,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Siginin(),
+              builder: (context) => SignInPage(),
             ));
         return false;
       },
@@ -536,7 +536,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Siginin(),
+                                    builder: (context) => SignInPage(),
                                   ));
                             },
                             child: Text(
@@ -604,7 +604,8 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                       Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => HomePageFin(),
+                                          builder: (context) =>
+                                              HomeWithFireStorePage(),
                                         ),
                                         (route) => true,
                                       );

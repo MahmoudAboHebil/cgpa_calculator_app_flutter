@@ -1,16 +1,16 @@
-import 'package:cgp_calculator/home_with_firestore_services.dart';
+import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../pages/home_with_firestore_page.dart';
 
 class Course extends StatefulWidget {
   final int index;
   final int semesterIndex;
   final List courseList;
   final List listCoursesInSemester;
-  final List listAllSemesters;
   final Function callBackUpdateListCoursesInSemester;
-  final Function callBackUpdateListAllSemesters;
   final Function callBackUpdateChange;
   final Function calcCGPA;
   final GlobalKey<AnimatedListState> _keyAniSemest;
@@ -20,9 +20,7 @@ class Course extends StatefulWidget {
       this.semesterIndex,
       this.courseList,
       this.listCoursesInSemester,
-      this.listAllSemesters,
       this.callBackUpdateListCoursesInSemester,
-      this.callBackUpdateListAllSemesters,
       this.callBackUpdateChange,
       this.calcCGPA,
       this._keyAniSemest,
@@ -244,9 +242,8 @@ class _CourseState extends State<Course> {
 
       widget.homeWithFireStoreServices
           .updateData(semesterID, courseID, null, null, null, null, 'one');
-      widget.listAllSemesters[widget.semesterIndex][widget.index] =
+      allSemesters[widget.semesterIndex][widget.index] =
           widget.listCoursesInSemester[widget.index];
-      widget.callBackUpdateListAllSemesters(widget.listAllSemesters);
       widget.callBackUpdateListCoursesInSemester(widget.listCoursesInSemester);
     } else {
       List deletedCourse = widget.listCoursesInSemester.removeAt(widget.index);
@@ -260,9 +257,7 @@ class _CourseState extends State<Course> {
               widget.semesterIndex,
               deletedCourse,
               widget.listCoursesInSemester,
-              widget.listAllSemesters,
               widget.callBackUpdateListCoursesInSemester,
-              widget.callBackUpdateListAllSemesters,
               () {},
               () {},
               widget._keyAniSemest,
