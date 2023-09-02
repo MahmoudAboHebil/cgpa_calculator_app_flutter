@@ -51,6 +51,8 @@ dependencies:
   modal_progress_hud_nsn: ^0.3.0
   google_sign_in: ^6.1.4
   firebase_storage: ^11.2.4
+  textfield_search: ^0.10.0
+  searchfield: ^0.8.4
 
 dev_dependencies:
   flutter_test:
