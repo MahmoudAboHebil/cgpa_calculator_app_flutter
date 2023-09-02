@@ -53,6 +53,7 @@ dependencies:
   firebase_storage: ^11.2.4
   textfield_search: ^0.10.0
   searchfield: ^0.8.4
+  flutter_textfield_autocomplete: ^1.0.2
 
 dev_dependencies:
   flutter_test:

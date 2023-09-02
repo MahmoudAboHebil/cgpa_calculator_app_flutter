@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
+import 'package:flutter_textfield_autocomplete/flutter_textfield_autocomplete.dart';
 import 'package:textfield_search/textfield_search.dart';
 
 List<List<String>> courseDataList = [
@@ -54,7 +55,7 @@ class _CoursesPageState extends State<CoursesPage> {
               elevation: 0,
             ),
             backgroundColor: Color(0xffb8c8d1),
-            body: Center(child: SearchFieldSample()),
+            body: Center(child: search()),
             // body: ListView.builder(
             //   shrinkWrap: true,
             //   itemCount: courseDataList.length,
@@ -88,9 +89,9 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
       child: SizedBox(
         width: 150,
         child: SearchField(
-          searchStyle: TextStyle(color: Colors.red),
+          searchStyle: TextStyle(color: Color(0xff004d60)),
           suggestionItemDecoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.red))),
+              border: Border(bottom: BorderSide(color: Colors.white))),
           scrollbarAlwaysVisible: false,
           onSearchTextChanged: (query) {
             final filter = suggestions
@@ -99,7 +100,11 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
                 .toList();
             return filter
                 .map((e) => SearchFieldListItem<String>(e,
-                    child: TextFieldReadOnly(e, 150)))
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 0),
+                      child: TextFieldReadOnly(e, 150),
+                    )))
                 .toList();
           },
           key: const Key('searchfield'),
@@ -115,12 +120,16 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
                 borderSide: BorderSide(width: 0, color: Colors.transparent)),
           ),
           suggestionsDecoration: SuggestionDecoration(
-              padding: const EdgeInsets.all(0),
-              color: Colors.green,
-              borderRadius: BorderRadius.all(Radius.circular(30))),
+            padding: const EdgeInsets.all(0),
+            color: Color(0xffb8c8d1),
+          ),
           suggestions: suggestions
               .map((e) => SearchFieldListItem<String>(e,
-                  child: TextFieldReadOnly(e, 150)))
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+                    child: TextFieldReadOnly(e, 150),
+                  )))
               .toList(),
           focusNode: focus,
           suggestionState: Suggestion.expand,
@@ -141,26 +150,41 @@ class search extends StatefulWidget {
 class _searchState extends State<search> {
   final _controller_Name = TextEditingController();
   final scrollController = ScrollController();
+  GlobalKey<TextFieldAutoCompleteState<String>> _textFieldAutoCompleteKey =
+      GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      child: TextFieldSearch(
-        label: '',
-        controller: _controller_Name,
-        initialList: list,
-        textStyle: TextStyle(),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          hintText: 'Enter Course',
-          hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(width: 0, color: Colors.white)),
-          focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(width: 0, color: Colors.white)),
-        ),
-      ),
+    return TextFieldAutoComplete(
+      suggestions: list,
+      key: _textFieldAutoCompleteKey,
+      clearOnSubmit: false,
+      controller: _controller_Name,
+      itemSubmitted: (String item) {
+        print('###############################################');
+        print('selected breed $item');
+        _controller_Name.text = item;
+        print('selected breed 2 ${item}');
+      },
+      itemSorter: (String a, String b) {
+        return a.compareTo(b);
+      },
+      itemFilter: (String item, query) {
+        return item.toLowerCase().startsWith(query.toLowerCase());
+      },
+      itemBuilder: (context, String item) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Text(
+                item,
+                style: TextStyle(color: Colors.black),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -211,7 +235,6 @@ class TextFieldReadOnly extends StatelessWidget {
     return Container(
       height: 30,
       width: width,
-      color: Colors.grey,
       child: TextField(
         controller: TextEditingController(text: title),
         textAlign: TextAlign.center,

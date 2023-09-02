@@ -291,6 +291,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_textfield_autocomplete:
+    dependency: "direct main"
+    description:
+      name: flutter_textfield_autocomplete
+      sha256: d169412ff84a92f19ae50433d54fbe44210a3bfb3cfeb2ae6aecac2f68a99882
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
