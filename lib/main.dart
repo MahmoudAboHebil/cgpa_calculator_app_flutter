@@ -14,8 +14,7 @@ void main() async {
       //     apiKey: "apiKey",
       //     appId: "appId",
       //     messagingSenderId: "messagingSenderId",
-      //     projectId: "projectId"
-      // ),
+      //     projectId: "projectId"),
       );
   await Hive.initFlutter();
   await Hive.openBox('courses00');

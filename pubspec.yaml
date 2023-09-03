@@ -54,6 +54,7 @@ dependencies:
   textfield_search: ^0.10.0
   searchfield: ^0.8.4
   flutter_textfield_autocomplete: ^1.0.2
+  flutter_typeahead: ^4.6.2
 
 dev_dependencies:
   flutter_test:
