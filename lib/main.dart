@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             textSelectionTheme: TextSelectionThemeData(
                 selectionColor: Colors.transparent,
                 selectionHandleColor: Colors.transparent)),
-        home: CoursesPage(),
+        home: WelcomePage(),
       ),
     );
   }

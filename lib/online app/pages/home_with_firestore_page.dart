@@ -22,6 +22,8 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
+bool isTab = false;
+
 List allSemesters = [
   // // semester one
   // [
@@ -443,7 +445,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         color: Color(0xffb8c8d1),
         child: SafeArea(
           child: GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              setState(() {
+                isTab = !isTab;
+              });
+            },
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
               drawer: MyNavigationDrawer(_pageViewController),

@@ -2,6 +2,7 @@ import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
 
@@ -35,6 +36,10 @@ class Course extends StatefulWidget {
 class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
+  String? _selectedCity;
+
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+
   FocusNode _focusName = FocusNode();
   FocusNode _focusCredit = FocusNode();
   FocusNode _focusGrade = FocusNode();
@@ -100,6 +105,7 @@ class _CourseState extends State<Course> {
   }
 
   void _onFocusNameChange() {
+    suggestionBoxController.suggestionsBox?.close();
     errorGrade();
     validationMethod();
   }
@@ -683,165 +689,257 @@ class _CourseState extends State<Course> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
-      child: Container(
-        height: 31,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    setState(() {
-                      Future.delayed(Duration(milliseconds: 100), () {
-                        deleteCourse();
-                      });
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 0),
-                    child: Icon(
-                      Icons.delete_outline,
-                      color: Color(0xffce2029),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 125,
-                  height: 28,
-                  margin: EdgeInsets.only(top: 0, left: 10),
-                  decoration: BoxDecoration(
-                      border: Border(
-                    bottom: _focusName.hasFocus
-                        ? BorderSide(
-                            color: valideName
-                                ? Color(0xff4562a7)
-                                : Color(0xffce2029),
-                          )
-                        : BorderSide(
-                            color:
-                                valideName ? Colors.white : Color(0xffce2029)),
-                  )),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: _controller_Name,
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.bottom,
-                        focusNode: _focusName,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xff004d60),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            errorGrade();
-                            widget.courseList[1] = value;
-                            name = value;
-                            if (value.isNotEmpty) {
-                              widget.listCoursesInSemester[widget.index][1] =
-                                  value;
-                            } else {
-                              widget.listCoursesInSemester[widget.index][1] =
-                                  null;
-                            }
-                            widget.callBackUpdateListCoursesInSemester(
-                                widget.listCoursesInSemester);
-                            widget.callBackUpdateChange();
-
-                            selectedValueIs1Null;
-                            selectedValueIs2Null;
-                          });
-                        },
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          hintText: 'Enter Course',
-                          hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 18),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 0.5,
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              width: 60,
-              height: 28,
-              decoration: BoxDecoration(
-                  border: Border(
-                bottom: _focusCredit.hasFocus
-                    ? BorderSide(
-                        color: valideCredit
-                            ? Color(0xff4562a7)
-                            : Color(0xffce2029),
-                      )
-                    : BorderSide(
-                        color: valideCredit ? Colors.white : Color(0xffce2029)),
-              )),
-              child: Column(
+      child: GestureDetector(
+        onTap: () {},
+        child: Container(
+          height: 31,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
                 children: [
-                  TextField(
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    controller: _controller_Credit,
-                    focusNode: _focusCredit,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
+                  GestureDetector(
+                    onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       setState(() {
-                        credit = value;
-                        if (value.isNotEmpty) {
-                          widget.listCoursesInSemester[widget.index][2] = value;
-                        } else {
-                          widget.listCoursesInSemester[widget.index][2] = null;
-                        }
-                        widget.callBackUpdateListCoursesInSemester(
-                            widget.listCoursesInSemester);
-                        widget.callBackUpdateChange();
+                        Future.delayed(Duration(milliseconds: 100), () {
+                          deleteCourse();
+                        });
                       });
                     },
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xff4562a7),
-                    ),
-                    maxLines: 1,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                      hintText: 'Credit',
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(width: 0, color: Colors.transparent)),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(width: 0, color: Colors.transparent)),
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 0),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: Color(0xffce2029),
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: 1,
-                  )
+                  Container(
+                    width: 125,
+                    height: 28,
+                    margin: EdgeInsets.only(top: 0, left: 10),
+                    decoration: BoxDecoration(
+                        border: Border(
+                      bottom: _focusName.hasFocus
+                          ? BorderSide(
+                              color: valideName
+                                  ? Color(0xff4562a7)
+                                  : Color(0xffce2029),
+                            )
+                          : BorderSide(
+                              color: valideName
+                                  ? Colors.white
+                                  : Color(0xffce2029)),
+                    )),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TypeAheadFormField(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            controller: _controller_Name,
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.bottom,
+                            focusNode: _focusName,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xff004d60),
+                            ),
+                            onChanged: (value) {
+                              print(
+                                  '######################44#####################');
+                              setState(() {
+                                errorGrade();
+                                widget.courseList[1] = value;
+                                name = value;
+                                if (value.isNotEmpty) {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = value;
+                                } else {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = null;
+                                }
+                                widget.callBackUpdateListCoursesInSemester(
+                                    widget.listCoursesInSemester);
+                                widget.callBackUpdateChange();
+
+                                selectedValueIs1Null;
+                                selectedValueIs2Null;
+                              });
+                            },
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                              hintText: 'Enter Course',
+                              hintStyle:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 0, color: Colors.transparent)),
+                              focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 0, color: Colors.transparent)),
+                            ),
+                          ),
+                          hideSuggestionsOnKeyboardHide: false,
+                          suggestionsCallback: (pattern) async {
+                            return CitiesService.getSuggestions(pattern);
+                          },
+                          itemBuilder: (context, String suggestion) {
+                            return Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text(suggestion,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xff4562a7),
+                                    )),
+                              ),
+                            );
+                          },
+                          suggestionsBoxController: suggestionBoxController,
+                          onSuggestionSelected: (String suggestion) {
+                            this._controller_Name.text = suggestion;
+                            setState(() {
+                              errorGrade();
+                              widget.courseList[1] = suggestion;
+                              name = suggestion;
+                              if (suggestion.isNotEmpty) {
+                                widget.listCoursesInSemester[widget.index][1] =
+                                    suggestion;
+                              } else {
+                                widget.listCoursesInSemester[widget.index][1] =
+                                    null;
+                              }
+                              widget.callBackUpdateListCoursesInSemester(
+                                  widget.listCoursesInSemester);
+                              widget.callBackUpdateChange();
+
+                              selectedValueIs1Null;
+                              selectedValueIs2Null;
+                            });
+                          },
+                          itemSeparatorBuilder: (context, index) {
+                            return Divider(
+                              color: Colors.white,
+                            );
+                          },
+                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                            constraints: BoxConstraints(
+                              maxHeight: 250,
+                            ),
+                            borderRadius: BorderRadius.circular(10.0),
+                            elevation: 8.0,
+                            color: Color(0xffb8c8d1),
+                          ),
+                          // hideSuggestionsOnKeyboardHide: true,
+                          // hideKeyboard: true,
+                        ),
+                        SizedBox(
+                          height: 0.5,
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-            gradeContainer()
-          ],
+              Container(
+                width: 60,
+                height: 28,
+                decoration: BoxDecoration(
+                    border: Border(
+                  bottom: _focusCredit.hasFocus
+                      ? BorderSide(
+                          color: valideCredit
+                              ? Color(0xff4562a7)
+                              : Color(0xffce2029),
+                        )
+                      : BorderSide(
+                          color:
+                              valideCredit ? Colors.white : Color(0xffce2029)),
+                )),
+                child: Column(
+                  children: [
+                    TextField(
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      controller: _controller_Credit,
+                      focusNode: _focusCredit,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          credit = value;
+                          if (value.isNotEmpty) {
+                            widget.listCoursesInSemester[widget.index][2] =
+                                value;
+                          } else {
+                            widget.listCoursesInSemester[widget.index][2] =
+                                null;
+                          }
+                          widget.callBackUpdateListCoursesInSemester(
+                              widget.listCoursesInSemester);
+                          widget.callBackUpdateChange();
+                        });
+                      },
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xff4562a7),
+                      ),
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                        hintText: 'Credit',
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                width: 0, color: Colors.transparent)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                width: 0, color: Colors.transparent)),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 1,
+                    )
+                  ],
+                ),
+              ),
+              gradeContainer()
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class CitiesService {
+  static final List<String> cities = [
+    'Beirut',
+    'Damascus',
+    'San Fransisco',
+    'Rome',
+    'Los Angeles',
+    'Madrid',
+    'Bali',
+    'Barcelona',
+    'Paris',
+    'Bucharest',
+    'New York City',
+    'Philadelphia',
+    'Sydney',
+  ];
+
+  static List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(cities);
+
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
   }
 }
