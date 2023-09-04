@@ -279,7 +279,10 @@ class _SemesterFinState extends State<SemesterFin> {
             pointOfGrade = 0.00;
           } else if (grade1 == 'S') {
             pointOfGrade = -1.00;
+          } else if (grade1 == 'Non') {
+            pointOfGrade = -3.00;
           } else {
+            // S grade
             pointOfGrade = -2.00;
           }
         });
@@ -295,7 +298,9 @@ class _SemesterFinState extends State<SemesterFin> {
             totalCredit = totalCredit + credit;
           }
 
-          if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+          if (!(pointOfGrade == 0.00 ||
+              pointOfGrade == -2.00 ||
+              pointOfGrade == -3.00)) {
             //  passed course
             earnCredit = earnCredit + credit;
           }
@@ -308,13 +313,6 @@ class _SemesterFinState extends State<SemesterFin> {
           GPA = (totalPointsOfSemest / totalCredit_without_SU);
         }
       });
-      // print('################## semester #################');
-      // print(allCoursesInSemstd);
-      // print('GPA  : $GPA');
-      // print('totalPointsOfSemest  : $totalPointsOfSemest');
-      // print('totalCredit_without_SU  : $totalCredit_without_SU');
-      // print('totalCredit  : $totalCredit');
-      // print('earnCredit  : $earnCredit');
     } else {
       print('################## Empty GPA #################');
     }

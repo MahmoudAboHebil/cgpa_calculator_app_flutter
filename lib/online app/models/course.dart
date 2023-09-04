@@ -59,6 +59,7 @@ class _CourseState extends State<Course> {
   bool pressDeleteCourse = false;
 
   final List<String> items = [
+    'Non',
     'A',
     'A-',
     'B+',
@@ -785,7 +786,7 @@ class _CourseState extends State<Course> {
                           ),
                           hideSuggestionsOnKeyboardHide: false,
                           suggestionsCallback: (pattern) async {
-                            return CitiesService.getSuggestions(pattern);
+                            return CoursesService.getSuggestions(pattern);
                           },
                           itemBuilder: (context, String suggestion) {
                             return Container(
@@ -813,6 +814,19 @@ class _CourseState extends State<Course> {
                                     suggestion;
                               } else {
                                 widget.listCoursesInSemester[widget.index][1] =
+                                    null;
+                              }
+
+                              //  auto credit
+                              String value =
+                                  CoursesService.getCredit(suggestion);
+                              credit = value;
+                              _controller_Credit.text = value;
+                              if (value.isNotEmpty) {
+                                widget.listCoursesInSemester[widget.index][2] =
+                                    value;
+                              } else {
+                                widget.listCoursesInSemester[widget.index][2] =
                                     null;
                               }
                               widget.callBackUpdateListCoursesInSemester(
@@ -918,8 +932,8 @@ class _CourseState extends State<Course> {
   }
 }
 
-class CitiesService {
-  static final List<String> cities = [
+class CoursesService {
+  static List<String> cities = [
     'Beirut',
     'Damascus',
     'San Fransisco',
@@ -934,10 +948,106 @@ class CitiesService {
     'Philadelphia',
     'Sydney',
   ];
+  static List majorCS = [
+    [
+      'Introduction to Probability and Statistics',
+      '2',
+      '040102102',
+      [[], []]
+    ],
+    [
+      'Object Oriented Programming',
+      '2',
+      '040103201',
+      [
+        ['040102102'],
+        []
+      ]
+    ],
+    [
+      'Data Structures and File Processing',
+      '3',
+      '040103202',
+      [
+        ['040103201'],
+        []
+      ]
+    ],
+    [
+      'Discrete Structures',
+      '2',
+      '040103203',
+      [[], []]
+    ],
+    [
+      'Theory of Computation',
+      '2',
+      '040103204',
+      [
+        ['040103203'],
+        []
+      ]
+    ],
+    //
+    [
+      'Network and Internet Programming',
+      '3',
+      '040103205',
+      [
+        ['040102102'],
+        []
+      ]
+    ],
+    [
+      'Advanced Programming',
+      '3',
+      '040103206',
+      [
+        ['040103201'],
+        []
+      ]
+    ],
+    [
+      'Computer Programming (Practical)',
+      '1',
+      '040103207',
+      [
+        ['040103205', '040103201'],
+        []
+      ]
+    ],
+    [
+      'Matrices',
+      '2',
+      '040101231',
+      [[], []]
+    ],
+    [
+      'Digital Logic Circuits',
+      '3',
+      '040103250',
+      [[], []]
+    ],
+
+    //
+  ];
+
+  static String getCredit(String courseName) {
+    String credit = '';
+    for (List course in majorCS) {
+      if (course[0] == courseName) {
+        credit = course[1];
+      }
+    }
+    return credit;
+  }
 
   static List<String> getSuggestions(String query) {
     List<String> matches = <String>[];
-    matches.addAll(cities);
+    for (List course in majorCS) {
+      matches.add(course[0]);
+    }
+    // matches.addAll(cities);
 
     matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
     return matches;

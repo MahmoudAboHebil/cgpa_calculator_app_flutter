@@ -51,7 +51,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   final _keySemester = GlobalKey<AnimatedListState>();
   final _pageViewController = PageController();
   final _auth = FirebaseAuth.instance;
-  List<bool> isChangeList = [];
+
+  List<bool> isChangeList =
+      []; // to update calc_GPA button when there is any changing  in the course
   List keySemesters = [];
   var uuid = Uuid();
   bool _visible = true;
@@ -388,6 +390,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 pointOfGrade = 0.00;
               } else if (grade1 == 'S') {
                 pointOfGrade = -1.00;
+              } else if (grade1 == 'Non') {
+                pointOfGrade = -3.00;
               } else {
                 pointOfGrade = -2.00;
               }
@@ -404,7 +408,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 totalCredit = totalCredit + credit;
               }
 
-              if (!(pointOfGrade == 0.00 || pointOfGrade == -2.00)) {
+              if (!(pointOfGrade == 0.00 ||
+                  pointOfGrade == -2.00 ||
+                  pointOfGrade == -3.00)) {
                 //  passed course
                 earnCredit = earnCredit + credit;
               }
