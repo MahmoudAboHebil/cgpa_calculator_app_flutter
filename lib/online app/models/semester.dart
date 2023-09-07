@@ -30,7 +30,7 @@ class _SemesterFinState extends State<SemesterFin> {
   List listOfCoursesInSemester = [];
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
-
+  // 2 mean that there are repeated Names
   List<int?> errorTypeCredit = [];
   // 1 mean that some fields are empty
   // 2 means that the credit is more than three numbers

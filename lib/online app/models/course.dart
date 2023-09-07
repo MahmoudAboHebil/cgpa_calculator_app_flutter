@@ -148,7 +148,11 @@ class _CourseState extends State<Course> {
   String? get _errorName {
     var Name = name ?? '';
     var Credit = credit ?? '';
-
+    if (Name.isNotEmpty && Name.trim().isNotEmpty) {
+      if (isRepeatedCourse(Name, courseID)) {
+        return '';
+      }
+    }
     if (Credit.isNotEmpty && Credit.trim().isNotEmpty) {
       if (Name.isEmpty || Name.trim().isEmpty) {
         return '';
@@ -752,6 +756,7 @@ class _CourseState extends State<Course> {
                                   '######################44#####################');
                               setState(() {
                                 errorGrade();
+
                                 widget.courseList[1] = value;
                                 name = value;
                                 if (value.isNotEmpty) {

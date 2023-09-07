@@ -52,6 +52,10 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
           newCGPA = 0.000;
         });
       }
+    } else {
+      setState(() {
+        newCGPA = 0.000;
+      });
     }
   }
 
@@ -156,7 +160,9 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                               color: Color(0xff67B7D1),
                                             ),
                                             onChanged: (value) {
-                                              setState(() {});
+                                              setState(() {
+                                                calcPredictCGPA();
+                                              });
                                             },
                                             decoration: InputDecoration(
                                               focusedBorder:
@@ -198,7 +204,9 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                               color: Color(0xff67B7D1),
                                             ),
                                             onChanged: (value) {
-                                              setState(() {});
+                                              setState(() {
+                                                calcPredictCGPA();
+                                              });
                                             },
                                             decoration: InputDecoration(
                                               focusedBorder:
@@ -249,7 +257,9 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                               color: Color(0xff67B7D1),
                                             ),
                                             onChanged: (value) {
-                                              setState(() {});
+                                              setState(() {
+                                                calcPredictCGPA();
+                                              });
                                             },
                                             decoration: InputDecoration(
                                               focusedBorder:
@@ -291,7 +301,9 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                               color: Color(0xff67B7D1),
                                             ),
                                             onChanged: (value) {
-                                              setState(() {});
+                                              setState(() {
+                                                calcPredictCGPA();
+                                              });
                                             },
                                             decoration: InputDecoration(
                                               focusedBorder:
