@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
 
-String repeatedCourseInSemestId = '';
+List<String> repeatedCourseInSemestId = [];
 
 class Course extends StatefulWidget {
   final int index;
@@ -42,6 +44,9 @@ class _CourseState extends State<Course> {
   bool isRepeatedCourseModel(
       String courseName, String courseId, String semesterID) {
     List courseNames = [];
+    // setState(() {
+    //   repeatedCourseInSemestId = [];
+    // });
     for (List semester in allSemesters) {
       for (List course in semester) {
         courseNames.add(course[1]);
@@ -60,19 +65,30 @@ class _CourseState extends State<Course> {
       }
       if (courseId == twoRepeatedIds[1]) {
         setState(() {
-          repeatedCourseInSemestId = semesterID;
+          repeatedCourseInSemestId.add(semesterID);
+          repeatedCourseInSemestId =
+              LinkedHashSet<String>.from(repeatedCourseInSemestId).toList();
         });
+
+        // print('11111111111111111111111 : $repeatedCourseInSemestId');
         return true;
       } else {
-        // setState(() {
-        //   repeatedCourseInSemestId = '';
-        // });
+        bool isExist = repeatedCourseInSemestId.contains(semesterID);
+        setState(() {
+          if (isExist) {
+            repeatedCourseInSemestId.remove(semesterID);
+            // print('22222222222222222222222 : $repeatedCourseInSemestId');
+          }
+        });
         return false;
       }
     } else {
-      // setState(() {
-      //   repeatedCourseInSemestId = '';
-      // });
+      bool isExist = repeatedCourseInSemestId.contains(semesterID);
+      setState(() {
+        if (isExist) {
+          repeatedCourseInSemestId.remove(semesterID);
+        }
+      });
       return false;
     }
   }

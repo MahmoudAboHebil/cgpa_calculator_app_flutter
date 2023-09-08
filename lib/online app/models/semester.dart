@@ -68,7 +68,7 @@ class _SemesterFinState extends State<SemesterFin> {
     //     '##################### repeatedCourseInSemestId:  $repeatedCourseInSemestId');
 
     if (courseNamesAfter.length != courseNamesBefore.length &&
-        widget.semesterId.toString() == repeatedCourseInSemestId) {
+        repeatedCourseInSemestId.contains(widget.semesterId.toString())) {
       return true;
     } else {
       return false;
@@ -378,7 +378,6 @@ class _SemesterFinState extends State<SemesterFin> {
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
-
       // behavior: SnackBarBehavior.floating,
       clipBehavior: Clip.none,
       elevation: 0,
@@ -532,6 +531,21 @@ class _SemesterFinState extends State<SemesterFin> {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      if (repeatedCourseInSemestId.contains(widget.semesterId.toString())) {
+        setState(() {
+          widget.isChanged = true;
+          widget.ChangeList(widget.index, true, false);
+        });
+      }
+      if (widget.isChanged) {
+        setState(() {
+          GPA = 0.0;
+          earnCredit = 0;
+          totalCredit = 0;
+        });
+      }
+    });
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 30),
       child: GestureDetector(
