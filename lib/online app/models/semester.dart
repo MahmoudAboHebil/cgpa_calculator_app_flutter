@@ -80,9 +80,16 @@ class _SemesterFinState extends State<SemesterFin> {
     super.initState();
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
-      if (!widget.isChanged) {
-        calcGPA();
-      }
+      Future.delayed(Duration.zero, () {
+        if (!isValide()) {
+          print('fffffffffffffffffffffffffffffffffff');
+          widget.isChanged = true;
+          widget.ChangeList(widget.index, true, false);
+        }
+        if (!widget.isChanged) {
+          calcGPA();
+        }
+      });
     });
   }
 
@@ -360,7 +367,8 @@ class _SemesterFinState extends State<SemesterFin> {
     findErrors();
     if (emptyField == null &&
         creditEqZero == null &&
-        creditMoreThanThree == null) {
+        creditMoreThanThree == null &&
+        repeatedField == null) {
       return true;
     } else {
       return false;
@@ -370,7 +378,8 @@ class _SemesterFinState extends State<SemesterFin> {
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
-      behavior: SnackBarBehavior.floating,
+
+      // behavior: SnackBarBehavior.floating,
       clipBehavior: Clip.none,
       elevation: 0,
       content: Stack(
@@ -379,11 +388,13 @@ class _SemesterFinState extends State<SemesterFin> {
         children: [
           Container(
             padding: EdgeInsets.all(8),
+            alignment: Alignment.bottomCenter,
             decoration: BoxDecoration(
               color: Color(0xff4562a7),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(
                   width: 48,
