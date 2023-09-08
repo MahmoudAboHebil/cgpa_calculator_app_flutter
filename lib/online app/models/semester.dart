@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,6 +30,7 @@ class _SemesterFinState extends State<SemesterFin> {
   var uuid = Uuid();
 
   List listOfCoursesInSemester = [];
+
   List<int?> errorTypeName = [];
   // 1 mean that some fields are empty
   // 2 mean that there are repeated Names
@@ -40,6 +43,7 @@ class _SemesterFinState extends State<SemesterFin> {
   // 1 mean that some fields are empty
 
   String? emptyField;
+  String? repeatedField;
   String? creditMoreThanThree;
   String? creditEqZero;
 
@@ -47,6 +51,29 @@ class _SemesterFinState extends State<SemesterFin> {
   int earnCredit = 0;
   int totalCredit = 0;
   List allCoursesInSemstd = [];
+  bool isRepeatedSemesterModel() {
+    List courseNamesBefore = [];
+    List courseNamesAfter = [];
+
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        if (course[1] != null) {
+          courseNamesBefore.add(course[1]);
+        }
+      }
+    }
+    courseNamesAfter = LinkedHashSet<String>.from(courseNamesBefore).toList();
+    // print('###############ssssss ${widget.semesterId.toString()}');
+    // print(
+    //     '##################### repeatedCourseInSemestId:  $repeatedCourseInSemestId');
+
+    if (courseNamesAfter.length != courseNamesBefore.length &&
+        widget.semesterId.toString() == repeatedCourseInSemestId) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -148,6 +175,17 @@ class _SemesterFinState extends State<SemesterFin> {
           });
         }
       }
+    }
+    bool isRepeated = isRepeatedSemesterModel();
+
+    if (isRepeated) {
+      setState(() {
+        repeatedField = 'there is repeated field';
+      });
+    } else {
+      setState(() {
+        repeatedField = null;
+      });
     }
 
     for (int? name in errorTypeName) {
@@ -361,6 +399,18 @@ class _SemesterFinState extends State<SemesterFin> {
                       emptyField != null
                           ? Text(
                               '$emptyField',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      repeatedField != null
+                          ? Text(
+                              '$repeatedField',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
                               maxLines: 1,
@@ -724,7 +774,8 @@ class _SemesterFinState extends State<SemesterFin> {
                           findErrors();
                           if (emptyField == null &&
                               creditEqZero == null &&
-                              creditMoreThanThree == null) {
+                              creditMoreThanThree == null &&
+                              repeatedField == null) {
                             collectDate();
                             calcGPA();
                             widget.calcCGPA();
@@ -737,6 +788,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           }
                           setState(() {
                             emptyField = null;
+                            repeatedField = null;
                             creditMoreThanThree = null;
                             creditEqZero = null;
                             errorTypeGrade.clear();

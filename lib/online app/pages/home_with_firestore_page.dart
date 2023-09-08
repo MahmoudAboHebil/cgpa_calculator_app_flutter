@@ -51,33 +51,6 @@ int countOccurrencesUsingLoop(List values, String? element) {
   return count;
 }
 
-bool isRepeatedCourse(String courseName, String courseId) {
-  List courseNames = [];
-  for (List semester in allSemesters) {
-    for (List course in semester) {
-      courseNames.add(course[1]);
-    }
-  }
-  int numberOfOccurrence = 0;
-  numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
-  if (numberOfOccurrence >= 2) {
-    List twoRepeatedIds = [];
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        if (course[1] == courseName) {
-          twoRepeatedIds.add(course[6]);
-        }
-      }
-    }
-    if (courseId == twoRepeatedIds[1]) {
-      return true;
-    }
-    return false;
-  } else {
-    return false;
-  }
-}
-
 User? loggedInUser;
 CollectionReference? _courses;
 CollectionReference? semestersRef;

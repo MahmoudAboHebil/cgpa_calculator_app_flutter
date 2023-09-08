@@ -6,6 +6,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
 
+String repeatedCourseInSemestId = '';
+
 class Course extends StatefulWidget {
   final int index;
   final int semesterIndex;
@@ -37,6 +39,43 @@ class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
   String? _selectedCity;
+  bool isRepeatedCourseModel(
+      String courseName, String courseId, String semesterID) {
+    List courseNames = [];
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        courseNames.add(course[1]);
+      }
+    }
+    int numberOfOccurrence = 0;
+    numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
+    if (numberOfOccurrence >= 2) {
+      List twoRepeatedIds = [];
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[1] == courseName) {
+            twoRepeatedIds.add(course[6]);
+          }
+        }
+      }
+      if (courseId == twoRepeatedIds[1]) {
+        setState(() {
+          repeatedCourseInSemestId = semesterID;
+        });
+        return true;
+      } else {
+        // setState(() {
+        //   repeatedCourseInSemestId = '';
+        // });
+        return false;
+      }
+    } else {
+      // setState(() {
+      //   repeatedCourseInSemestId = '';
+      // });
+      return false;
+    }
+  }
 
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
 
@@ -149,7 +188,7 @@ class _CourseState extends State<Course> {
     var Name = name ?? '';
     var Credit = credit ?? '';
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
-      if (isRepeatedCourse(Name, courseID)) {
+      if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
         return '';
       }
     }
