@@ -10,6 +10,7 @@ import '../pages/home_with_firestore_page.dart';
 
 List<String> repeatedCoursesIds = [];
 List<String> namesCoursesNotInListIds = [];
+List<String> creditsCoursesNotInListIds = [];
 
 class Course extends StatefulWidget {
   final int index;
@@ -92,6 +93,47 @@ class _CourseState extends State<Course> {
       });
       return false;
     }
+  }
+
+  bool isValidCreditSystme() {
+    var creditInput = credit ?? '';
+    var creditList = '';
+
+    bool isInList = true;
+
+    if (CoursesService.systemOption) {
+      if (creditInput.isNotEmpty &&
+          creditInput.trim().isNotEmpty &&
+          !namesCoursesNotInListIds.contains(courseID.toString())) {
+        var name = _controller_Name.text ?? '';
+        creditList = CoursesService.getCredit(name);
+        if (creditList != creditInput) {
+          setState(() {
+            creditsCoursesNotInListIds.add(courseID.toString());
+            creditsCoursesNotInListIds =
+                LinkedHashSet<String>.from(creditsCoursesNotInListIds).toList();
+          });
+          isInList = false;
+        } else {
+          bool isExist =
+              creditsCoursesNotInListIds.contains(courseID.toString());
+          setState(() {
+            if (isExist) {
+              creditsCoursesNotInListIds.remove(courseID);
+            }
+          });
+        }
+      } else {
+        bool isExist = creditsCoursesNotInListIds.contains(courseID.toString());
+        setState(() {
+          if (isExist) {
+            creditsCoursesNotInListIds.remove(courseID);
+          }
+        });
+      }
+    }
+
+    return isInList;
   }
 
   bool isValidNameSystem() {
@@ -282,6 +324,7 @@ class _CourseState extends State<Course> {
       });
     }
     isValidNameSystem();
+    isValidCreditSystme();
   }
 
   void errorGrade() {
@@ -382,7 +425,6 @@ class _CourseState extends State<Course> {
     setState(() {
       pressDeleteCourse = false;
     });
-    isValidNameSystem();
     Future.delayed(Duration(milliseconds: 320), () {
       widget.calcCGPA();
     });
@@ -971,13 +1013,14 @@ class _CourseState extends State<Course> {
                     border: Border(
                   bottom: _focusCredit.hasFocus
                       ? BorderSide(
-                          color: valideCredit
+                          color: valideCredit && isValidCreditSystme()
                               ? Color(0xff4562a7)
                               : Color(0xffce2029),
                         )
                       : BorderSide(
-                          color:
-                              valideCredit ? Colors.white : Color(0xffce2029)),
+                          color: valideCredit && isValidCreditSystme()
+                              ? Colors.white
+                              : Color(0xffce2029)),
                 )),
                 child: Column(
                   children: [
@@ -1036,7 +1079,7 @@ class _CourseState extends State<Course> {
 }
 
 class CoursesService {
-  static bool systemOption = true;
+  static bool systemOption = false;
   static List<String> cities = [
     'Beirut',
     'Damascus',
@@ -1156,21 +1199,25 @@ class CoursesService {
 
   static List<String> getSuggestions(String query) {
     List<String> matches = <String>[];
-    List<String> coursesNamesEntered = [];
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        if (course[1] != null) {
-          coursesNamesEntered.add(course[1]);
+    if (systemOption) {
+      List<String> coursesNamesEntered = [];
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[1] != null) {
+            coursesNamesEntered.add(course[1]);
+          }
         }
       }
-    }
-
-    for (List course in majorCS) {
-      if (!coursesNamesEntered.contains(course[0])) {
+      for (List course in majorCS) {
+        if (!coursesNamesEntered.contains(course[0])) {
+          matches.add(course[0]);
+        }
+      }
+    } else {
+      for (List course in majorCS) {
         matches.add(course[0]);
       }
     }
-    // matches.addAll(cities);
 
     matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
     return matches;

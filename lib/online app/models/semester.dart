@@ -211,10 +211,17 @@ class _SemesterFinState extends State<SemesterFin> {
           val.add(false);
         }
       }
+      for (String v in creditsCoursesNotInListIds) {
+        if (coursesIDs.contains(v)) {
+          val.add(true);
+        } else {
+          val.add(false);
+        }
+      }
       bool isValidNameInList = val.contains(true);
       if (isValidNameInList) {
         setState(() {
-          validNameInList = 'Invalid Name ,there is no record  ';
+          validNameInList = 'Invalid Name Or Credit ,there is no record  ';
         });
       } else {
         setState(() {
