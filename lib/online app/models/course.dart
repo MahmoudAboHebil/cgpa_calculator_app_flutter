@@ -9,6 +9,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../pages/home_with_firestore_page.dart';
 
 List<String> repeatedCourseInSemestId = [];
+List<String> validNameListInCoursetId = [];
 
 class Course extends StatefulWidget {
   final int index;
@@ -206,6 +207,24 @@ class _CourseState extends State<Course> {
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
         return '';
+      }
+      if (CoursesService.systemOption) {
+        if (!CoursesService.getMajorCSNames().contains(Name)) {
+          setState(() {
+            validNameListInCoursetId.add(courseID.toString());
+            validNameListInCoursetId =
+                LinkedHashSet<String>.from(validNameListInCoursetId).toList();
+          });
+          return '';
+        } else {
+          bool isExist = validNameListInCoursetId.contains(courseID.toString());
+          setState(() {
+            if (isExist) {
+              validNameListInCoursetId.remove(courseID.toString());
+            }
+          });
+        }
+        // print('ssssssssssssssssssssssssss $validNameListInCoursetId');
       }
     }
     if (Credit.isNotEmpty && Credit.trim().isNotEmpty) {
@@ -865,6 +884,7 @@ class _CourseState extends State<Course> {
                           suggestionsBoxController: suggestionBoxController,
                           onSuggestionSelected: (String suggestion) {
                             this._controller_Name.text = suggestion;
+
                             setState(() {
                               errorGrade();
                               widget.courseList[1] = suggestion;
@@ -993,6 +1013,7 @@ class _CourseState extends State<Course> {
 }
 
 class CoursesService {
+  static bool systemOption = true;
   static List<String> cities = [
     'Beirut',
     'Damascus',
@@ -1091,6 +1112,14 @@ class CoursesService {
 
     //
   ];
+
+  static List<String> getMajorCSNames() {
+    List<String> names = [];
+    for (List list in majorCS) {
+      names.add(list[0]);
+    }
+    return names;
+  }
 
   static String getCredit(String courseName) {
     String credit = '';

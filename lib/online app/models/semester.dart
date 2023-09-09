@@ -44,6 +44,7 @@ class _SemesterFinState extends State<SemesterFin> {
 
   String? emptyField;
   String? repeatedField;
+  String? validNameInList;
   String? creditMoreThanThree;
   String? creditEqZero;
 
@@ -184,6 +185,30 @@ class _SemesterFinState extends State<SemesterFin> {
       }
     }
     bool isRepeated = isRepeatedSemesterModel();
+    if (CoursesService.systemOption) {
+      List<String> coursesIDs = [];
+      List<bool> val = [];
+      for (List course in listOfCoursesInSemester) {
+        coursesIDs.add(course[6]);
+      }
+      for (String v in validNameListInCoursetId) {
+        if (coursesIDs.contains(v)) {
+          val.add(true);
+        } else {
+          val.add(false);
+        }
+      }
+      bool isValidNameInList = val.contains(true);
+      if (isValidNameInList) {
+        setState(() {
+          validNameInList = 'Invalid Name ,there is no record  ';
+        });
+      } else {
+        setState(() {
+          validNameInList = null;
+        });
+      }
+    }
 
     if (isRepeated) {
       setState(() {
@@ -368,6 +393,7 @@ class _SemesterFinState extends State<SemesterFin> {
     if (emptyField == null &&
         creditEqZero == null &&
         creditMoreThanThree == null &&
+        validNameInList == null &&
         repeatedField == null) {
       return true;
     } else {
@@ -418,18 +444,6 @@ class _SemesterFinState extends State<SemesterFin> {
                               width: 0,
                               height: 0,
                             ),
-                      repeatedField != null
-                          ? Text(
-                              '$repeatedField',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : SizedBox(
-                              width: 0,
-                              height: 0,
-                            ),
                       creditMoreThanThree != null
                           ? Text(
                               '$creditMoreThanThree',
@@ -445,6 +459,30 @@ class _SemesterFinState extends State<SemesterFin> {
                       creditEqZero != null
                           ? Text(
                               '$creditEqZero',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      repeatedField != null
+                          ? Text(
+                              '$repeatedField',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      validNameInList != null
+                          ? Text(
+                              '$validNameInList',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
                               maxLines: 1,
@@ -800,6 +838,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           if (emptyField == null &&
                               creditEqZero == null &&
                               creditMoreThanThree == null &&
+                              validNameInList == null &&
                               repeatedField == null) {
                             collectDate();
                             calcGPA();
@@ -814,6 +853,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           setState(() {
                             emptyField = null;
                             repeatedField = null;
+                            validNameInList = null;
                             creditMoreThanThree = null;
                             creditEqZero = null;
                             errorTypeGrade.clear();
