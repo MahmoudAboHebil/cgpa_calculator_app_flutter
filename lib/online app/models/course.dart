@@ -133,7 +133,7 @@ class _CourseState extends State<Course> {
 
       isInList = true;
     }
-    print('ssssssssssssssssssssssssss $namesCoursesNotInListIds');
+    // print('ssssssssssssssssssssssssss $namesCoursesNotInListIds');
 
     return isRepeatedName && isInList;
   }
@@ -1156,8 +1156,19 @@ class CoursesService {
 
   static List<String> getSuggestions(String query) {
     List<String> matches = <String>[];
+    List<String> coursesNamesEntered = [];
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        if (course[1] != null) {
+          coursesNamesEntered.add(course[1]);
+        }
+      }
+    }
+
     for (List course in majorCS) {
-      matches.add(course[0]);
+      if (!coursesNamesEntered.contains(course[0])) {
+        matches.add(course[0]);
+      }
     }
     // matches.addAll(cities);
 
