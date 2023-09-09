@@ -8,8 +8,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
 
-List<String> repeatedCourseInSemestId = [];
-List<String> validNameListInCoursetId = [];
+List<String> repeatedCoursesIds = [];
+List<String> namesCoursesNotInListIds = [];
 
 class Course extends StatefulWidget {
   final int index;
@@ -66,32 +66,76 @@ class _CourseState extends State<Course> {
       }
       if (courseId == twoRepeatedIds[1]) {
         setState(() {
-          repeatedCourseInSemestId.add(semesterID);
-          repeatedCourseInSemestId =
-              LinkedHashSet<String>.from(repeatedCourseInSemestId).toList();
+          repeatedCoursesIds.add(courseId);
+          repeatedCoursesIds =
+              LinkedHashSet<String>.from(repeatedCoursesIds).toList();
         });
 
         // print('11111111111111111111111 : $repeatedCourseInSemestId');
         return true;
       } else {
-        bool isExist = repeatedCourseInSemestId.contains(semesterID);
+        bool isExist = repeatedCoursesIds.contains(courseId);
         setState(() {
           if (isExist) {
-            repeatedCourseInSemestId.remove(semesterID);
+            repeatedCoursesIds.remove(courseId);
             // print('22222222222222222222222 : $repeatedCourseInSemestId');
           }
         });
         return false;
       }
     } else {
-      bool isExist = repeatedCourseInSemestId.contains(semesterID);
+      bool isExist = repeatedCoursesIds.contains(courseId);
       setState(() {
         if (isExist) {
-          repeatedCourseInSemestId.remove(semesterID);
+          repeatedCoursesIds.remove(courseId);
         }
       });
       return false;
     }
+  }
+
+  bool isValidNameSystem() {
+    var Name = _controller_Name.text ?? '';
+    bool isRepeatedName = true;
+    bool isInList = true;
+    if (Name.isNotEmpty && Name.trim().isNotEmpty) {
+      if (CoursesService.systemOption) {
+        if (!CoursesService.getMajorCSNames().contains(Name)) {
+          setState(() {
+            namesCoursesNotInListIds.add(courseID.toString());
+            namesCoursesNotInListIds =
+                LinkedHashSet<String>.from(namesCoursesNotInListIds).toList();
+          });
+          isInList = false;
+        } else {
+          bool isExist = namesCoursesNotInListIds.contains(courseID.toString());
+          setState(() {
+            if (isExist) {
+              namesCoursesNotInListIds.remove(courseID);
+            }
+          });
+
+          isInList = true;
+        }
+      }
+      if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
+        isRepeatedName = false;
+      } else {
+        isRepeatedName = true;
+      }
+    } else {
+      bool isExist = namesCoursesNotInListIds.contains(courseID.toString());
+      setState(() {
+        if (isExist) {
+          namesCoursesNotInListIds.remove(courseID);
+        }
+      });
+
+      isInList = true;
+    }
+    print('ssssssssssssssssssssssssss $namesCoursesNotInListIds');
+
+    return isRepeatedName && isInList;
   }
 
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
@@ -204,29 +248,7 @@ class _CourseState extends State<Course> {
   String? get _errorName {
     var Name = name ?? '';
     var Credit = credit ?? '';
-    if (Name.isNotEmpty && Name.trim().isNotEmpty) {
-      if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
-        return '';
-      }
-      if (CoursesService.systemOption) {
-        if (!CoursesService.getMajorCSNames().contains(Name)) {
-          setState(() {
-            validNameListInCoursetId.add(courseID.toString());
-            validNameListInCoursetId =
-                LinkedHashSet<String>.from(validNameListInCoursetId).toList();
-          });
-          return '';
-        } else {
-          bool isExist = validNameListInCoursetId.contains(courseID.toString());
-          setState(() {
-            if (isExist) {
-              validNameListInCoursetId.remove(courseID.toString());
-            }
-          });
-        }
-        // print('ssssssssssssssssssssssssss $validNameListInCoursetId');
-      }
-    }
+
     if (Credit.isNotEmpty && Credit.trim().isNotEmpty) {
       if (Name.isEmpty || Name.trim().isEmpty) {
         return '';
@@ -259,6 +281,7 @@ class _CourseState extends State<Course> {
         valideCredit = true;
       });
     }
+    isValidNameSystem();
   }
 
   void errorGrade() {
@@ -351,15 +374,15 @@ class _CourseState extends State<Course> {
       }, duration: Duration(milliseconds: 300));
       Future.delayed(Duration(milliseconds: 310), () {
         widget.homeWithFireStoreServices.deleteCourseFromDB(courseID);
-        print('deletedCourse:$deletedCourse');
-        print('theListAfterDeleting:${widget.listCoursesInSemester}');
+        // print('deletedCourse:$deletedCourse');
+        // print('theListAfterDeleting:${widget.listCoursesInSemester}');
       });
     }
 
     setState(() {
       pressDeleteCourse = false;
     });
-
+    isValidNameSystem();
     Future.delayed(Duration(milliseconds: 320), () {
       widget.calcCGPA();
     });
@@ -803,12 +826,12 @@ class _CourseState extends State<Course> {
                         border: Border(
                       bottom: _focusName.hasFocus
                           ? BorderSide(
-                              color: valideName
+                              color: valideName && isValidNameSystem()
                                   ? Color(0xff4562a7)
                                   : Color(0xffce2029),
                             )
                           : BorderSide(
-                              color: valideName
+                              color: valideName && isValidNameSystem()
                                   ? Colors.white
                                   : Color(0xffce2029)),
                     )),
@@ -826,8 +849,8 @@ class _CourseState extends State<Course> {
                               color: Color(0xff004d60),
                             ),
                             onChanged: (value) {
-                              print(
-                                  '######################44#####################');
+                              // print(
+                              //     '######################44#####################');
                               setState(() {
                                 errorGrade();
 

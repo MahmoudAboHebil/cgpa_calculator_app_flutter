@@ -68,8 +68,21 @@ class _SemesterFinState extends State<SemesterFin> {
     // print(
     //     '##################### repeatedCourseInSemestId:  $repeatedCourseInSemestId');
 
+    List<String> coursesIDs = [];
+    List<bool> val = [];
+    for (List course in listOfCoursesInSemester) {
+      coursesIDs.add(course[6]);
+    }
+    for (String v in repeatedCoursesIds) {
+      if (coursesIDs.contains(v)) {
+        val.add(true);
+      } else {
+        val.add(false);
+      }
+    }
+    bool isRepeatingExits = val.contains(true);
     if (courseNamesAfter.length != courseNamesBefore.length &&
-        repeatedCourseInSemestId.contains(widget.semesterId.toString())) {
+        isRepeatingExits) {
       return true;
     } else {
       return false;
@@ -83,7 +96,7 @@ class _SemesterFinState extends State<SemesterFin> {
       listOfCoursesInSemester = widget.semesterCourses;
       Future.delayed(Duration.zero, () {
         if (!isValide()) {
-          print('fffffffffffffffffffffffffffffffffff');
+          // print('fffffffffffffffffffffffffffffffffff');
           widget.isChanged = true;
           widget.ChangeList(widget.index, true, false);
         }
@@ -191,7 +204,7 @@ class _SemesterFinState extends State<SemesterFin> {
       for (List course in listOfCoursesInSemester) {
         coursesIDs.add(course[6]);
       }
-      for (String v in validNameListInCoursetId) {
+      for (String v in namesCoursesNotInListIds) {
         if (coursesIDs.contains(v)) {
           val.add(true);
         } else {
@@ -273,7 +286,7 @@ class _SemesterFinState extends State<SemesterFin> {
         : listOfCoursesInSemester.length - 1;
     _keyAniListCourses.currentState!
         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
-    print('theListAfterAdd:${listOfCoursesInSemester}');
+    // print('theListAfterAdd:${listOfCoursesInSemester}');
     Future.delayed(Duration(milliseconds: 270), () {
       homeWithFireStoreServices!.addCourseInDB(
           widget.semesterId, uniqueId, null, null, null, null, 'one');
@@ -384,7 +397,7 @@ class _SemesterFinState extends State<SemesterFin> {
         }
       });
     } else {
-      print('################## Empty GPA #################');
+      // print('################## Empty GPA #################');
     }
   }
 
@@ -570,17 +583,11 @@ class _SemesterFinState extends State<SemesterFin> {
   @override
   Widget build(BuildContext context) {
     Future.delayed(Duration.zero, () {
-      if (repeatedCourseInSemestId.contains(widget.semesterId.toString())) {
+      if (isRepeatedSemesterModel()) {
+        // print('repeatedCourseInSemestIddddd  $repeatedCourseInSemestId');
         setState(() {
           widget.isChanged = true;
           widget.ChangeList(widget.index, true, false);
-        });
-      }
-      if (widget.isChanged) {
-        setState(() {
-          GPA = 0.0;
-          earnCredit = 0;
-          totalCredit = 0;
         });
       }
     });
@@ -658,13 +665,21 @@ class _SemesterFinState extends State<SemesterFin> {
                           SizedBox(
                             height: 5,
                           ),
-                          Text(
-                            '${GPA.toStringAsFixed(3)}',
-                            style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 18,
-                            ),
-                          )
+                          !widget.isChanged
+                              ? Text(
+                                  '${GPA.toStringAsFixed(3)}',
+                                  style: TextStyle(
+                                    color: Color(0xff4562a7),
+                                    fontSize: 18,
+                                  ),
+                                )
+                              : Text(
+                                  '0.000',
+                                  style: TextStyle(
+                                    color: Color(0xff4562a7),
+                                    fontSize: 18,
+                                  ),
+                                )
                         ],
                       ),
                       Column(
@@ -679,13 +694,21 @@ class _SemesterFinState extends State<SemesterFin> {
                           SizedBox(
                             height: 5,
                           ),
-                          Text(
-                            '$earnCredit / $totalCredit',
-                            style: TextStyle(
-                              color: Color(0xff4562a7),
-                              fontSize: 18,
-                            ),
-                          )
+                          !widget.isChanged
+                              ? Text(
+                                  '$earnCredit / $totalCredit',
+                                  style: TextStyle(
+                                    color: Color(0xff4562a7),
+                                    fontSize: 18,
+                                  ),
+                                )
+                              : Text(
+                                  '0 / 0',
+                                  style: TextStyle(
+                                    color: Color(0xff4562a7),
+                                    fontSize: 18,
+                                  ),
+                                )
                         ],
                       ),
                     ],

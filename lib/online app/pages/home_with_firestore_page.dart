@@ -235,7 +235,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 }
               }
               if (allSemesters.isEmpty) {
-                print('jerrrrrrrrrrrrrrr');
+                // print('jerrrrrrrrrrrrrrr');
                 allSemesters = [
                   [
                     [
@@ -266,7 +266,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               flag = false;
             }
 
-            print(allSemesters.length);
+            // print(allSemesters.length);
 
             return AnimatedList(
               shrinkWrap: true,
@@ -364,8 +364,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       earnCredit = 0;
       totalCredit = 0;
     });
-    print('#####################  CGPA ##########################');
-    print(allSemesters);
+    // print('#####################  CGPA ##########################');
+    // print(allSemesters);
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
     if (allSemesters.isNotEmpty) {
       for (List semester in allSemesters) {
@@ -444,7 +444,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         }
       });
     } else {
-      print('################## Empty CGPA#################');
+      // print('################## Empty CGPA#################');
     }
   }
 
