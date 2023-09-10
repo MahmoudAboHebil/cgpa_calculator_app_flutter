@@ -45,6 +45,7 @@ class _SemesterFinState extends State<SemesterFin> {
   String? emptyField;
   String? repeatedField;
   String? validNameInList;
+  String? validRequirements;
   String? creditMoreThanThree;
   String? creditEqZero;
 
@@ -201,6 +202,7 @@ class _SemesterFinState extends State<SemesterFin> {
     if (CoursesService.systemOption) {
       List<String> coursesIDs = [];
       List<bool> val = [];
+      List<bool> val2 = [];
       for (List course in listOfCoursesInSemester) {
         coursesIDs.add(course[6]);
       }
@@ -219,6 +221,27 @@ class _SemesterFinState extends State<SemesterFin> {
         }
       }
       bool isValidNameInList = val.contains(true);
+
+      for (String v in namesCoursesNotInRequirements) {
+        if (coursesIDs.contains(v)) {
+          val2.add(true);
+        } else {
+          val2.add(false);
+        }
+      }
+      bool isValidRequirements = val2.contains(true);
+      // print(
+      //     'dhjjjjjjjj$isValidRequirements jjjjj: $namesCoursesNotInRequirements');
+      if (isValidRequirements) {
+        setState(() {
+          validRequirements =
+              'Invalid Requirements ,this course is not allowed to enroll';
+        });
+      } else {
+        setState(() {
+          validRequirements = null;
+        });
+      }
       if (isValidNameInList) {
         setState(() {
           validNameInList = 'Invalid Name Or Credit ,there is no record  ';
@@ -414,6 +437,7 @@ class _SemesterFinState extends State<SemesterFin> {
         creditEqZero == null &&
         creditMoreThanThree == null &&
         validNameInList == null &&
+        validRequirements == null &&
         repeatedField == null) {
       return true;
     } else {
@@ -507,6 +531,17 @@ class _SemesterFinState extends State<SemesterFin> {
                                   TextStyle(fontSize: 14, color: Colors.white),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      validRequirements != null
+                          ? Text(
+                              '$validRequirements',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 2,
                             )
                           : SizedBox(
                               width: 0,
@@ -869,6 +904,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               creditEqZero == null &&
                               creditMoreThanThree == null &&
                               validNameInList == null &&
+                              validRequirements == null &&
                               repeatedField == null) {
                             collectDate();
                             calcGPA();
@@ -884,6 +920,7 @@ class _SemesterFinState extends State<SemesterFin> {
                             emptyField = null;
                             repeatedField = null;
                             validNameInList = null;
+                            validRequirements = null;
                             creditMoreThanThree = null;
                             creditEqZero = null;
                             errorTypeGrade.clear();

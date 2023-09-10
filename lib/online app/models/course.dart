@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import '../pages/home_with_firestore_page.dart';
 
 List<String> repeatedCoursesIds = [];
 List<String> namesCoursesNotInListIds = [];
+List<String> namesCoursesNotInRequirements = [];
 List<String> creditsCoursesNotInListIds = [];
 
 class Course extends StatefulWidget {
@@ -140,8 +142,10 @@ class _CourseState extends State<Course> {
     var Name = _controller_Name.text ?? '';
     bool isRepeatedName = true;
     bool isInList = true;
+    bool isValidRequirements = true;
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (CoursesService.systemOption) {
+        //  is the name in the courses Of college
         if (!CoursesService.getMajorCSNames().contains(Name)) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());
@@ -159,7 +163,30 @@ class _CourseState extends State<Course> {
 
           isInList = true;
         }
+        // is the name valid about courses requirements
+
+        if (!CoursesService.courseEnrollingSystem(Name)) {
+          setState(() {
+            namesCoursesNotInRequirements.add(courseID.toString());
+            namesCoursesNotInRequirements =
+                LinkedHashSet<String>.from(namesCoursesNotInRequirements)
+                    .toList();
+          });
+          isValidRequirements = false;
+        } else {
+          bool isExist =
+              namesCoursesNotInRequirements.contains(courseID.toString());
+          setState(() {
+            if (isExist) {
+              namesCoursesNotInRequirements.remove(courseID);
+            }
+          });
+
+          isValidRequirements = true;
+        }
       }
+      //  is the name is repeated
+
       if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
         isRepeatedName = false;
       } else {
@@ -172,12 +199,20 @@ class _CourseState extends State<Course> {
           namesCoursesNotInListIds.remove(courseID);
         }
       });
+      bool isExist1 =
+          namesCoursesNotInRequirements.contains(courseID.toString());
+      setState(() {
+        if (isExist1) {
+          namesCoursesNotInRequirements.remove(courseID);
+        }
+      });
+
+      isValidRequirements = true;
 
       isInList = true;
     }
-    // print('ssssssssssssssssssssssssss $namesCoursesNotInListIds');
 
-    return isRepeatedName && isInList;
+    return isRepeatedName && isInList && isValidRequirements;
   }
 
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
@@ -1079,7 +1114,7 @@ class _CourseState extends State<Course> {
 }
 
 class CoursesService {
-  static bool systemOption = false;
+  static bool systemOption = true;
   static List<String> cities = [
     'Beirut',
     'Damascus',
@@ -1108,7 +1143,7 @@ class CoursesService {
       '040103201',
       [
         ['040102102'],
-        []
+        ['040102102', '040103202']
       ]
     ],
     [
@@ -1197,9 +1232,83 @@ class CoursesService {
     return credit;
   }
 
+  static String? getCourseNumberByName(String courseName) {
+    late String number;
+    for (List course in majorCS) {
+      if (course[0] == courseName) {
+        number = course[2];
+      }
+    }
+    return number;
+  }
+
+  static bool courseEnrollingSystem(String courseName) {
+    Function eq = const ListEquality().equals;
+
+    bool isValidMustCourses = true;
+    bool isValidOneCourses = true;
+    List coursesMustBeEnrolled = [];
+    List coursesMustOneBeEnrolled = [];
+    List<String> val1 = [];
+    List<bool> val = [];
+    for (List course in majorCS) {
+      if (course[0] == courseName) {
+        coursesMustBeEnrolled = course[3][0];
+        coursesMustOneBeEnrolled = course[3][1];
+      }
+    }
+    for (String v in coursesMustOneBeEnrolled) {
+      val.add(false);
+    }
+
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        if (course[1] != null) {
+          String? num = getCourseNumberByName(course[1]);
+          if (num != null) {
+            if (coursesMustBeEnrolled.contains(num)) {
+              val1.add(num);
+            }
+          }
+        } else {}
+      }
+    }
+    if (coursesMustOneBeEnrolled.isNotEmpty) {
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[1] != null) {
+            String? num = getCourseNumberByName(course[1]);
+            if (num != null) {
+              if (coursesMustOneBeEnrolled.isNotEmpty) {
+                if (coursesMustOneBeEnrolled.contains(num)) {
+                  val = [];
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (val.isNotEmpty) {
+      if (val.contains(false)) {
+        isValidOneCourses = false;
+      } else {
+        isValidOneCourses = true;
+      }
+    }
+    if (eq(val1, coursesMustBeEnrolled)) {
+      isValidMustCourses = true;
+    } else {
+      isValidMustCourses = false;
+    }
+    return isValidMustCourses && isValidOneCourses;
+  }
+
   static List<String> getSuggestions(String query) {
     List<String> matches = <String>[];
     if (systemOption) {
+      // avoiding repeating course in the list
       List<String> coursesNamesEntered = [];
       for (List semester in allSemesters) {
         for (List course in semester) {
@@ -1208,8 +1317,10 @@ class CoursesService {
           }
         }
       }
+
       for (List course in majorCS) {
-        if (!coursesNamesEntered.contains(course[0])) {
+        if (!coursesNamesEntered.contains(course[0]) &&
+            courseEnrollingSystem(course[0])) {
           matches.add(course[0]);
         }
       }
