@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -12,8 +13,9 @@ class ProfilePage extends StatefulWidget {
   String email = '';
   String name = '';
   String imageURL = '';
+  String department = '';
 
-  ProfilePage(this.email, this.name, this.imageURL);
+  ProfilePage(this.email, this.name, this.imageURL, this.department);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -21,7 +23,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _controller1 = TextEditingController();
-  TextEditingController _controller2 = TextEditingController();
+  TextEditingController _controller_dp = TextEditingController();
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   File? image;
   bool imageDelete = false;
   Future pickImage(ImageSource source) async {
@@ -64,7 +67,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    print(widget.department);
     _controller1 = TextEditingController(text: widget.name);
+    _controller_dp = TextEditingController(text: widget.department);
   }
 
   String? get _errorText1 {
@@ -76,18 +81,25 @@ class _ProfilePageState extends State<ProfilePage> {
     return null;
   }
 
-  void addUserInfo(String? email, String? name, String? imageURl) async {
+  void addUserInfo(
+      String? email, String? name, String? imageURl, String? department) async {
     await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
       'email': '$email',
       'name': '$name',
       'image': '$imageURl',
+      'department': '$department',
     });
   }
 
+  List<String> departments = [
+    'Computer Science (Special) Alex ',
+  ];
+  FocusNode _focus_dp = FocusNode();
   @override
   void dispose() {
     super.dispose();
     _controller1.dispose();
+    _controller_dp.dispose();
   }
 
   @override
@@ -318,43 +330,79 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             height: 10,
                           ),
-                          TextField(
-                            controller: _controller2,
-                            onChanged: (text) {
-                              setState(() {
-                                // _errorText2;
-                              });
-                            },
-                            style: TextStyle(fontSize: 20, color: Colors.white),
-                            decoration: InputDecoration(
-                              // errorText: _errorText2,
-                              label: Row(
-                                children: [
-                                  Icon(
-                                    Icons.school_rounded,
-                                    size: 28,
+                          TypeAheadFormField(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                              controller: _controller_dp,
+                              decoration: InputDecoration(
+                                // errorText: _errorText2,
+                                label: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.school_rounded,
+                                      size: 28,
+                                      color: Colors.white54,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      'Department',
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 18),
+                                    )
+                                  ],
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
                                     color: Colors.white54,
                                   ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    'Department',
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  )
-                                ],
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.white54,
                                 ),
                               ),
                             ),
+                            suggestionsCallback: (pattern) async {
+                              return departments;
+                            },
+                            itemBuilder: (context, String suggestion) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 10),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Text(suggestion,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xff4562a7),
+                                      )),
+                                ),
+                              );
+                            },
+                            suggestionsBoxController: suggestionBoxController,
+                            onSuggestionSelected: (String suggestion) {
+                              setState(() {
+                                _controller_dp.text = suggestion;
+                              });
+                            },
+                            itemSeparatorBuilder: (context, index) {
+                              return Divider(
+                                color: Colors.white,
+                              );
+                            },
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              constraints: BoxConstraints(
+                                maxHeight: 250,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                              elevation: 8.0,
+                              color: Color(0xffb8c8d1),
+                            ),
+                            // hideSuggestionsOnKeyboardHide: true,
+                            // hideKeyboard: true,
                           ),
                           SizedBox(
                             height: 25,
@@ -442,9 +490,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 }
                                 if (image != null ||
                                     _controller1.text != widget.name ||
-                                    imageDelete) {
-                                  addUserInfo(widget.email.toLowerCase(),
-                                      _controller1.text, widget.imageURL);
+                                    imageDelete ||
+                                    _controller_dp.text != widget.department) {
+                                  addUserInfo(
+                                      widget.email.toLowerCase(),
+                                      _controller1.text,
+                                      widget.imageURL,
+                                      _controller_dp.text);
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

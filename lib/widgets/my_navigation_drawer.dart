@@ -25,6 +25,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
   String email = '';
   String name = '';
   String imageURL = '';
+  String department = '';
 
   CollectionReference? _usersInfo;
 
@@ -76,6 +77,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                 print('#########################################');
                 print(name);
                 imageURL = userInfo['image'];
+                department = userInfo['department'];
               }
             }
             // showSpinner = false;
@@ -143,7 +145,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                             ],
                           ),
                     SizedBox(
-                      width: 10,
+                      height: 5,
                     ),
                     Container(
                       alignment: Alignment.center,
@@ -155,8 +157,18 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       email,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      department,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -185,7 +197,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: 220,
+              height: 250,
               color: Color(0xff4562a7),
               child: headerContent(),
               padding: EdgeInsets.all(10),
@@ -251,8 +263,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ProfilePage(email, name, imageURL),
+                                builder: (context) => ProfilePage(
+                                    email, name, imageURL, department),
                               ));
                         },
                         child: Text('Profile')),

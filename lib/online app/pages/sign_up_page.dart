@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:cgp_calculator/online%20app/pages/sign_in_page.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
@@ -180,9 +182,12 @@ class _ContentSignUpState extends State<ContentSignUp> {
   bool pressed = false;
   final _auth = FirebaseAuth.instance;
   final _controller1 = TextEditingController();
-  final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
   final _controller4 = TextEditingController();
+  final _controller_dp = TextEditingController();
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+
+  FocusNode _focus_dp = FocusNode();
   String nameOrID = '';
   String department = '';
   String email = '';
@@ -199,7 +204,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
   void dispose() {
     super.dispose();
     _controller1.dispose();
-    _controller2.dispose();
+    _controller_dp.dispose();
     _controller3.dispose();
     _controller4.dispose();
   }
@@ -254,20 +259,24 @@ class _ContentSignUpState extends State<ContentSignUp> {
     }
   }
 
-  void addUserInfo(String? email, String? name, String? imageURl) async {
+  void addUserInfo(
+      String? email, String? name, String? imageURl, String department) async {
     bool isExist = await checkExist('$email');
     if (!isExist) {
       // firstTime
       await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
         'email': '$email',
         'name': '$name',
+        'department': department,
         'image': '$imageURl',
       });
     }
   }
 
   String imageURL = '';
-  @override
+  List<String> departments = [
+    'Computer Science (Special) Alex ',
+  ];
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
@@ -446,23 +455,80 @@ class _ContentSignUpState extends State<ContentSignUp> {
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 0, vertical: 10),
-                              child: TextField(
-                                controller: _controller2,
-                                style: TextStyle(
-                                    fontSize: 18, color: Color(0xff004d60)),
-                                decoration: InputDecoration(
-                                  hintText: 'Enter your Department(Option)',
-                                  hintStyle: TextStyle(
-                                      color: Colors.grey, fontSize: 18),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.white),
+                              child: TypeAheadFormField(
+                                textFieldConfiguration: TextFieldConfiguration(
+                                  controller: _controller_dp,
+                                  textAlign: TextAlign.start,
+                                  textAlignVertical: TextAlignVertical.bottom,
+                                  focusNode: _focus_dp,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color(0xff004d60),
                                   ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0xff4562a7),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      department = value;
+                                    });
+                                  },
+                                  maxLines: 1,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.only(bottom: 10),
+                                    hintText: 'Enter your Department(Option)',
+                                    hintStyle: TextStyle(
+                                        color: Colors.grey, fontSize: 18),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Color(0xff4562a7),
+                                      ),
                                     ),
                                   ),
                                 ),
+                                suggestionsCallback: (pattern) async {
+                                  return departments;
+                                },
+                                itemBuilder: (context, String suggestion) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 10),
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Text(suggestion,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xff4562a7),
+                                          )),
+                                    ),
+                                  );
+                                },
+                                suggestionsBoxController:
+                                    suggestionBoxController,
+                                onSuggestionSelected: (String suggestion) {
+                                  setState(() {
+                                    department = suggestion;
+                                    _controller_dp.text = suggestion;
+                                  });
+                                },
+                                itemSeparatorBuilder: (context, index) {
+                                  return Divider(
+                                    color: Colors.white,
+                                  );
+                                },
+                                suggestionsBoxDecoration:
+                                    SuggestionsBoxDecoration(
+                                  constraints: BoxConstraints(
+                                    maxHeight: 250,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  elevation: 8.0,
+                                  color: Color(0xffb8c8d1),
+                                ),
+                                // hideSuggestionsOnKeyboardHide: true,
+                                // hideKeyboard: true,
                               ),
                             ),
                             Padding(
@@ -573,7 +639,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   setState(() {
                                     pressed = false;
                                     nameOrID = _controller1.text;
-                                    department = _controller2.text;
+                                    department = _controller_dp.text;
                                     email = _controller3.text;
                                     password = _controller4.text;
                                     showProgress = true;
@@ -596,10 +662,10 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                             await referenceImageToUpload
                                                 .getDownloadURL();
                                         addUserInfo(email.toLowerCase(),
-                                            nameOrID, imageURL);
+                                            nameOrID, imageURL, department);
                                       } else {
-                                        addUserInfo(
-                                            email.toLowerCase(), nameOrID, '');
+                                        addUserInfo(email.toLowerCase(),
+                                            nameOrID, '', department);
                                       }
                                       Navigator.pushAndRemoveUntil(
                                         context,
@@ -610,7 +676,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                         (route) => true,
                                       );
                                       _controller1.clear();
-                                      _controller2.clear();
+                                      _controller_dp.clear();
                                       _controller3.clear();
                                       _controller4.clear();
                                     }
@@ -694,7 +760,8 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                 addUserInfo(
                                     prov.gUser!.email.toLowerCase(),
                                     prov.gUser!.displayName,
-                                    prov.gUser!.photoUrl);
+                                    prov.gUser!.photoUrl,
+                                    department);
                                 setState(() {
                                   showProgress = false;
                                 });
