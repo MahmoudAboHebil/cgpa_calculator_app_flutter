@@ -9,7 +9,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
 
-List<String> repeatedCoursesIds = [];
+List<String> repeatedSemestersIds = [];
 List<String> namesCoursesNotInListIds = [];
 List<String> namesCoursesNotInRequirements = [];
 List<String> creditsCoursesNotInListIds = [];
@@ -47,53 +47,65 @@ class _CourseState extends State<Course> {
   String? _selectedCity;
   bool isRepeatedCourseModel(
       String courseName, String courseId, String semesterID) {
-    return false;
-    // List courseNames = [];
-    //
-    // for (List semester in allSemesters) {
-    //   for (List course in semester) {
-    //     courseNames.add(course[1]);
-    //   }
-    // }
-    // int numberOfOccurrence = 0;
-    // numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
-    // if (numberOfOccurrence >= 2) {
-    //   List twoRepeatedIds = [];
-    //   for (List semester in allSemesters) {
-    //     for (List course in semester) {
-    //       if (course[1] == courseName) {
-    //         twoRepeatedIds.add(course[6]);
-    //       }
-    //     }
-    //   }
-    //   if (courseId == twoRepeatedIds[1]) {
-    //     setState(() {
-    //       repeatedCoursesIds.add(courseId);
-    //       repeatedCoursesIds =
-    //           LinkedHashSet<String>.from(repeatedCoursesIds).toList();
-    //     });
-    //
-    //     // print('11111111111111111111111 : $repeatedCourseInSemestId');
-    //     return true;
-    //   } else {
-    //     bool isExist = repeatedCoursesIds.contains(courseId);
-    //     setState(() {
-    //       if (isExist) {
-    //         repeatedCoursesIds.remove(courseId);
-    //         // print('22222222222222222222222 : $repeatedCourseInSemestId');
-    //       }
-    //     });
-    //     return false;
-    //   }
-    // } else {
-    //   bool isExist = repeatedCoursesIds.contains(courseId);
-    //   setState(() {
-    //     if (isExist) {
-    //       repeatedCoursesIds.remove(courseId);
-    //     }
-    //   });
-    //   return false;
-    // }
+    List courseNames = [];
+    List<String> repeatedSemesterIDs = [];
+
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        courseNames.add(course[1]);
+      }
+    }
+    int numberOfOccurrence = 0;
+    numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
+
+    if (numberOfOccurrence >= 2) {
+      List twoRepeatedIds = [];
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[1] == courseName) {
+            repeatedSemesterIDs.add(course[0].toString());
+            if (course[0].toString() == semesterID) {
+              twoRepeatedIds.add(course[6]);
+            }
+          }
+        }
+      }
+
+      int numberOfOccurrence = 0;
+      numberOfOccurrence =
+          countOccurrencesUsingLoop(repeatedSemesterIDs, semesterID);
+
+      if (numberOfOccurrence >= 2) {
+        setState(() {
+          repeatedSemestersIds.add(semesterID);
+          repeatedSemestersIds =
+              LinkedHashSet<String>.from(repeatedSemestersIds).toList();
+        });
+      }
+      if (twoRepeatedIds.length >= 2) {
+        if (courseId == twoRepeatedIds[1] && numberOfOccurrence >= 2) {
+          return true;
+        }
+        return false;
+      } else {
+        bool isExist = repeatedSemestersIds.contains(semesterID);
+        setState(() {
+          if (isExist) {
+            repeatedSemestersIds.remove(semesterID);
+            // print('22222222222222222222222 : $repeatedCourseInSemestId');
+          }
+        });
+        return false;
+      }
+    } else {
+      bool isExist = repeatedSemestersIds.contains(semesterID);
+      setState(() {
+        if (isExist) {
+          repeatedSemestersIds.remove(semesterID);
+        }
+      });
+      return false;
+    }
   }
 
   bool isValidCreditSystme() {

@@ -54,36 +54,7 @@ class _SemesterFinState extends State<SemesterFin> {
   int totalCredit = 0;
   List allCoursesInSemstd = [];
   bool isRepeatedSemesterModel() {
-    List courseNamesBefore = [];
-    List courseNamesAfter = [];
-
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        if (course[1] != null) {
-          courseNamesBefore.add(course[1]);
-        }
-      }
-    }
-    courseNamesAfter = LinkedHashSet<String>.from(courseNamesBefore).toList();
-    // print('###############ssssss ${widget.semesterId.toString()}');
-    // print(
-    //     '##################### repeatedCourseInSemestId:  $repeatedCourseInSemestId');
-
-    List<String> coursesIDs = [];
-    List<bool> val = [];
-    for (List course in listOfCoursesInSemester) {
-      coursesIDs.add(course[6]);
-    }
-    for (String v in repeatedCoursesIds) {
-      if (coursesIDs.contains(v)) {
-        val.add(true);
-      } else {
-        val.add(false);
-      }
-    }
-    bool isRepeatingExits = val.contains(true);
-    if (courseNamesAfter.length != courseNamesBefore.length &&
-        isRepeatingExits) {
+    if (repeatedSemestersIds.contains(widget.semesterId.toString())) {
       return true;
     } else {
       return false;
