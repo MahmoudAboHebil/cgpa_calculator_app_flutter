@@ -249,6 +249,7 @@ class _ContentState extends State<Content> {
         'email': '$email',
         'name': '$name',
         'image': '$imageURl',
+        'department': '',
       });
     }
   }
