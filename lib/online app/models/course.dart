@@ -47,54 +47,53 @@ class _CourseState extends State<Course> {
   String? _selectedCity;
   bool isRepeatedCourseModel(
       String courseName, String courseId, String semesterID) {
-    List courseNames = [];
-    // setState(() {
-    //   repeatedCourseInSemestId = [];
-    // });
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        courseNames.add(course[1]);
-      }
-    }
-    int numberOfOccurrence = 0;
-    numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
-    if (numberOfOccurrence >= 2) {
-      List twoRepeatedIds = [];
-      for (List semester in allSemesters) {
-        for (List course in semester) {
-          if (course[1] == courseName) {
-            twoRepeatedIds.add(course[6]);
-          }
-        }
-      }
-      if (courseId == twoRepeatedIds[1]) {
-        setState(() {
-          repeatedCoursesIds.add(courseId);
-          repeatedCoursesIds =
-              LinkedHashSet<String>.from(repeatedCoursesIds).toList();
-        });
-
-        // print('11111111111111111111111 : $repeatedCourseInSemestId');
-        return true;
-      } else {
-        bool isExist = repeatedCoursesIds.contains(courseId);
-        setState(() {
-          if (isExist) {
-            repeatedCoursesIds.remove(courseId);
-            // print('22222222222222222222222 : $repeatedCourseInSemestId');
-          }
-        });
-        return false;
-      }
-    } else {
-      bool isExist = repeatedCoursesIds.contains(courseId);
-      setState(() {
-        if (isExist) {
-          repeatedCoursesIds.remove(courseId);
-        }
-      });
-      return false;
-    }
+    return false;
+    // List courseNames = [];
+    //
+    // for (List semester in allSemesters) {
+    //   for (List course in semester) {
+    //     courseNames.add(course[1]);
+    //   }
+    // }
+    // int numberOfOccurrence = 0;
+    // numberOfOccurrence = countOccurrencesUsingLoop(courseNames, courseName);
+    // if (numberOfOccurrence >= 2) {
+    //   List twoRepeatedIds = [];
+    //   for (List semester in allSemesters) {
+    //     for (List course in semester) {
+    //       if (course[1] == courseName) {
+    //         twoRepeatedIds.add(course[6]);
+    //       }
+    //     }
+    //   }
+    //   if (courseId == twoRepeatedIds[1]) {
+    //     setState(() {
+    //       repeatedCoursesIds.add(courseId);
+    //       repeatedCoursesIds =
+    //           LinkedHashSet<String>.from(repeatedCoursesIds).toList();
+    //     });
+    //
+    //     // print('11111111111111111111111 : $repeatedCourseInSemestId');
+    //     return true;
+    //   } else {
+    //     bool isExist = repeatedCoursesIds.contains(courseId);
+    //     setState(() {
+    //       if (isExist) {
+    //         repeatedCoursesIds.remove(courseId);
+    //         // print('22222222222222222222222 : $repeatedCourseInSemestId');
+    //       }
+    //     });
+    //     return false;
+    //   }
+    // } else {
+    //   bool isExist = repeatedCoursesIds.contains(courseId);
+    //   setState(() {
+    //     if (isExist) {
+    //       repeatedCoursesIds.remove(courseId);
+    //     }
+    //   });
+    //   return false;
+    // }
   }
 
   bool isValidCreditSystme() {
@@ -1263,14 +1262,29 @@ class CoursesService {
 
     for (List semester in allSemesters) {
       for (List course in semester) {
-        if (course[1] != null) {
-          String? num = getCourseNumberByName(course[1]);
-          if (num != null) {
-            if (coursesMustBeEnrolled.contains(num)) {
-              val1.add(num);
+        if (course[1] != null && course[3] != null) {
+          if (course[3] != 'U' &&
+              course[3] != 'F' &&
+              course[3] != 'Non' &&
+              course[4] == null) {
+            String? num = getCourseNumberByName(course[1]);
+            if (num != null) {
+              if (coursesMustBeEnrolled.contains(num)) {
+                val1.add(num);
+              }
+            }
+          } else if (course[4] != null &&
+              course[4] != 'U' &&
+              course[4] != 'F' &&
+              course[4] != 'Non') {
+            String? num = getCourseNumberByName(course[1]);
+            if (num != null) {
+              if (coursesMustBeEnrolled.contains(num)) {
+                val1.add(num);
+              }
             }
           }
-        } else {}
+        }
       }
     }
     if (coursesMustOneBeEnrolled.isNotEmpty) {
@@ -1312,8 +1326,18 @@ class CoursesService {
       List<String> coursesNamesEntered = [];
       for (List semester in allSemesters) {
         for (List course in semester) {
-          if (course[1] != null) {
-            coursesNamesEntered.add(course[1]);
+          if (course[1] != null && course[3] != null) {
+            if (course[3] != 'U' &&
+                course[3] != 'F' &&
+                course[3] != 'Non' &&
+                course[4] == null) {
+              coursesNamesEntered.add(course[1]);
+            } else if (course[4] != null &&
+                course[4] != 'U' &&
+                course[4] != 'F' &&
+                course[4] != 'Non') {
+              coursesNamesEntered.add(course[1]);
+            }
           }
         }
       }
