@@ -271,6 +271,7 @@ class _CourseState extends State<Course> {
     _focusCredit.addListener(_onFocusCreditChange);
     _focusGrade.addListener(_onFocusGradeChange);
     setState(() {
+      repeatedSemestersIds = [];
       semesterID = widget.courseList[0];
       name = widget.courseList[1];
       credit = widget.courseList[2];
@@ -976,7 +977,8 @@ class _CourseState extends State<Course> {
                           ),
                           hideSuggestionsOnKeyboardHide: false,
                           suggestionsCallback: (pattern) async {
-                            return CoursesService.getSuggestions(pattern);
+                            return CoursesService.getSuggestions(
+                                pattern, widget.listCoursesInSemester);
                           },
                           itemBuilder: (context, String suggestion) {
                             return Container(
@@ -1244,7 +1246,7 @@ class CoursesService {
   }
 
   static String? getCourseNumberByName(String courseName) {
-    late String number;
+    String? number;
     for (List course in majorCS) {
       if (course[0] == courseName) {
         number = course[2];
@@ -1348,7 +1350,7 @@ class CoursesService {
     return isValidMustCourses && isValidOneCourses;
   }
 
-  static List<String> getSuggestions(String query) {
+  static List<String> getSuggestions(String query, List listInSemester) {
     List<String> matches = <String>[];
     if (systemOption) {
       // avoiding repeating course in the list
@@ -1371,8 +1373,15 @@ class CoursesService {
         }
       }
 
+      List<String> namesCoursesInSemest = [];
+      for (List course in listInSemester) {
+        if (course[1] != null) {
+          namesCoursesInSemest.add(course[1]);
+        }
+      }
       for (List course in majorCS) {
         if (!coursesNamesEntered.contains(course[0]) &&
+            !namesCoursesInSemest.contains(course[0]) &&
             courseEnrollingSystem(course[0])) {
           matches.add(course[0]);
         }
