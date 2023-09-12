@@ -1302,12 +1302,29 @@ class CoursesService {
     if (coursesMustOneBeEnrolled.isNotEmpty) {
       for (List semester in allSemesters) {
         for (List course in semester) {
-          if (course[1] != null) {
-            String? num = getCourseNumberByName(course[1]);
-            if (num != null) {
-              if (coursesMustOneBeEnrolled.isNotEmpty) {
-                if (coursesMustOneBeEnrolled.contains(num)) {
-                  val = [];
+          if (course[1] != null && course[3] != null) {
+            if (course[3] != 'U' &&
+                course[3] != 'F' &&
+                course[3] != 'Non' &&
+                course[4] == null) {
+              String? num = getCourseNumberByName(course[1]);
+              if (num != null) {
+                if (coursesMustOneBeEnrolled.isNotEmpty) {
+                  if (coursesMustOneBeEnrolled.contains(num)) {
+                    val = [];
+                  }
+                }
+              }
+            } else if (course[4] != null &&
+                course[4] != 'U' &&
+                course[4] != 'F' &&
+                course[4] != 'Non') {
+              String? num = getCourseNumberByName(course[1]);
+              if (num != null) {
+                if (coursesMustOneBeEnrolled.isNotEmpty) {
+                  if (coursesMustOneBeEnrolled.contains(num)) {
+                    val = [];
+                  }
                 }
               }
             }
