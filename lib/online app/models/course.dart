@@ -185,21 +185,20 @@ class _CourseState extends State<Course> {
             }
           }
           for (int v in allSemesterIds) {
-            if (semesterID <= v) {
+            if (semesterID < v) {
               allSemesterIdsBeforeTheCurrentSemest.add(v);
             }
           }
-          print('##############################################');
           print('$allSemesterIdsBeforeTheCurrentSemest');
-          if (allSemesterIdsBeforeTheCurrentSemest.contains(semesterID)) {
-            setState(() {
-              namesCoursesNotInRequirements.add(courseID.toString());
-              namesCoursesNotInRequirements =
-                  LinkedHashSet<String>.from(namesCoursesNotInRequirements)
-                      .toList();
-            });
-            isValidRequirements = false;
-          }
+          setState(() {
+            namesCoursesNotInRequirements.add(courseID.toString());
+            namesCoursesNotInRequirements =
+                LinkedHashSet<String>.from(namesCoursesNotInRequirements)
+                    .toList();
+          });
+          print('##############################################');
+
+          isValidRequirements = false;
         } else {
           bool isExist =
               namesCoursesNotInRequirements.contains(courseID.toString());
@@ -1297,7 +1296,7 @@ class CoursesService {
 
     for (List semester in allSemesters) {
       for (List course in semester) {
-        if (course[0] <= semestId) {
+        if (course[0] < semestId) {
           if (course[1] != null && course[3] != null) {
             if (course[3] != 'U' &&
                 course[3] != 'F' &&
@@ -1327,7 +1326,7 @@ class CoursesService {
     if (coursesMustOneBeEnrolled.isNotEmpty) {
       for (List semester in allSemesters) {
         for (List course in semester) {
-          if (course[0] <= semestId) {
+          if (course[0] < semestId) {
             if (course[1] != null && course[3] != null) {
               if (course[3] != 'U' &&
                   course[3] != 'F' &&
