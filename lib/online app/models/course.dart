@@ -177,13 +177,27 @@ class _CourseState extends State<Course> {
         // is the name valid about courses requirements
 
         if (!CoursesService.courseEnrollingSystem(Name)) {
-          setState(() {
-            namesCoursesNotInRequirements.add(courseID.toString());
-            namesCoursesNotInRequirements =
-                LinkedHashSet<String>.from(namesCoursesNotInRequirements)
-                    .toList();
-          });
-          isValidRequirements = false;
+          List<int> allSemesterIds = [];
+          List<int> allSemesterIdsBeforeTheCurrentSemest = [];
+          for (List semester in allSemesters) {
+            for (List course in semester) {
+              allSemesterIds.add(course[0]);
+            }
+          }
+          for (int v in allSemesterIds) {
+            if (semesterID <= v) {
+              allSemesterIdsBeforeTheCurrentSemest.add(v);
+            }
+          }
+          if (allSemesterIdsBeforeTheCurrentSemest.contains(semesterID)) {
+            setState(() {
+              namesCoursesNotInRequirements.add(courseID.toString());
+              namesCoursesNotInRequirements =
+                  LinkedHashSet<String>.from(namesCoursesNotInRequirements)
+                      .toList();
+            });
+            isValidRequirements = false;
+          }
         } else {
           bool isExist =
               namesCoursesNotInRequirements.contains(courseID.toString());
@@ -272,6 +286,11 @@ class _CourseState extends State<Course> {
     _focusGrade.addListener(_onFocusGradeChange);
     setState(() {
       repeatedSemestersIds = [];
+      repeatedSemestersIds = [];
+      namesCoursesNotInListIds = [];
+      namesCoursesNotInRequirements = [];
+      creditsCoursesNotInListIds = [];
+
       semesterID = widget.courseList[0];
       name = widget.courseList[1];
       credit = widget.courseList[2];
@@ -1380,9 +1399,13 @@ class CoursesService {
         }
       }
       for (List course in majorCS) {
-        if (!coursesNamesEntered.contains(course[0]) &&
+        if (
+
+            ///  TODO: if you un comment the next line you will not allow the user to improve their grade .
+            // !coursesNamesEntered.contains(course[0]) &&
+
             !namesCoursesInSemest.contains(course[0]) &&
-            courseEnrollingSystem(course[0])) {
+                courseEnrollingSystem(course[0])) {
           matches.add(course[0]);
         }
       }
