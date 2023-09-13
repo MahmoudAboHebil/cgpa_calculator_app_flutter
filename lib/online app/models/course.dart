@@ -958,27 +958,29 @@ class _CourseState extends State<Course> {
                               color: Color(0xff004d60),
                             ),
                             onChanged: (value) {
-                              // print(
-                              //     '######################44#####################');
-                              setState(() {
-                                errorGrade();
+                              if (value != 'There are no courses left') {
+                                // print(
+                                //     '######################44#####################');
+                                setState(() {
+                                  errorGrade();
 
-                                widget.courseList[1] = value;
-                                name = value;
-                                if (value.isNotEmpty) {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [1] = value;
-                                } else {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [1] = null;
-                                }
-                                widget.callBackUpdateListCoursesInSemester(
-                                    widget.listCoursesInSemester);
-                                widget.callBackUpdateChange();
+                                  widget.courseList[1] = value;
+                                  name = value;
+                                  if (value.isNotEmpty) {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [1] = value;
+                                  } else {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [1] = null;
+                                  }
+                                  widget.callBackUpdateListCoursesInSemester(
+                                      widget.listCoursesInSemester);
+                                  widget.callBackUpdateChange();
 
-                                selectedValueIs1Null;
-                                selectedValueIs2Null;
-                              });
+                                  selectedValueIs1Null;
+                                  selectedValueIs2Null;
+                                });
+                              }
                             },
                             maxLines: 1,
                             decoration: InputDecoration(
@@ -1001,54 +1003,69 @@ class _CourseState extends State<Course> {
                                 widget.listCoursesInSemester, semesterID);
                           },
                           itemBuilder: (context, String suggestion) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 10),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Text(suggestion,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xff4562a7),
-                                    )),
-                              ),
-                            );
+                            return suggestion != 'There are no courses left'
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 10),
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Text(suggestion,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xff4562a7),
+                                          )),
+                                    ),
+                                  )
+                                : Container(
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 10),
+                                    child: Text(suggestion,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.grey.shade700,
+                                        )),
+                                  );
                           },
                           suggestionsBoxController: suggestionBoxController,
+                          hideOnEmpty: false,
                           onSuggestionSelected: (String suggestion) {
-                            this._controller_Name.text = suggestion;
+                            if (suggestion != 'There are no courses left') {
+                              this._controller_Name.text = suggestion;
 
-                            setState(() {
-                              errorGrade();
-                              widget.courseList[1] = suggestion;
-                              name = suggestion;
-                              if (suggestion.isNotEmpty) {
-                                widget.listCoursesInSemester[widget.index][1] =
-                                    suggestion;
-                              } else {
-                                widget.listCoursesInSemester[widget.index][1] =
-                                    null;
-                              }
+                              setState(() {
+                                errorGrade();
+                                widget.courseList[1] = suggestion;
+                                name = suggestion;
+                                if (suggestion.isNotEmpty) {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = suggestion;
+                                } else {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = null;
+                                }
 
-                              //  auto credit
-                              String value =
-                                  CoursesService.getCredit(suggestion);
-                              credit = value;
-                              _controller_Credit.text = value;
-                              if (value.isNotEmpty) {
-                                widget.listCoursesInSemester[widget.index][2] =
-                                    value;
-                              } else {
-                                widget.listCoursesInSemester[widget.index][2] =
-                                    null;
-                              }
-                              widget.callBackUpdateListCoursesInSemester(
-                                  widget.listCoursesInSemester);
-                              widget.callBackUpdateChange();
+                                //  auto credit
+                                String value =
+                                    CoursesService.getCredit(suggestion);
+                                credit = value;
+                                _controller_Credit.text = value;
+                                if (value.isNotEmpty) {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [2] = value;
+                                } else {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [2] = null;
+                                }
+                                widget.callBackUpdateListCoursesInSemester(
+                                    widget.listCoursesInSemester);
+                                widget.callBackUpdateChange();
 
-                              selectedValueIs1Null;
-                              selectedValueIs2Null;
-                            });
+                                selectedValueIs1Null;
+                                selectedValueIs2Null;
+                              });
+                            }
                           },
                           itemSeparatorBuilder: (context, index) {
                             return Divider(
@@ -1407,10 +1424,9 @@ class CoursesService {
       for (List course in majorCS) {
         if (
 
-            ///  TODO: if you un comment the next line you will not allow the user to improve their grade .
-            // !coursesNamesEntered.contains(course[0]) &&
-
-            !namesCoursesInSemest.contains(course[0]) &&
+            ///  TODO: in the next line you will not allow the user to improve their grade .
+            !coursesNamesEntered.contains(course[0]) &&
+                !namesCoursesInSemest.contains(course[0]) &&
                 courseEnrollingSystem(course[0], semestId)) {
           matches.add(course[0]);
         }
@@ -1421,7 +1437,10 @@ class CoursesService {
       }
     }
 
-    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
-    return matches;
+    if (matches.isNotEmpty) {
+      matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+      return matches;
+    }
+    return ['There are no courses left'];
   }
 }
