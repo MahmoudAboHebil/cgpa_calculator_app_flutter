@@ -176,7 +176,7 @@ class _CourseState extends State<Course> {
         }
         // is the name valid about courses requirements
 
-        if (!CoursesService.courseEnrollingSystem(Name)) {
+        if (!CoursesService.courseEnrollingSystem(Name, semesterID)) {
           List<int> allSemesterIds = [];
           List<int> allSemesterIdsBeforeTheCurrentSemest = [];
           for (List semester in allSemesters) {
@@ -189,6 +189,8 @@ class _CourseState extends State<Course> {
               allSemesterIdsBeforeTheCurrentSemest.add(v);
             }
           }
+          print('##############################################');
+          print('$allSemesterIdsBeforeTheCurrentSemest');
           if (allSemesterIdsBeforeTheCurrentSemest.contains(semesterID)) {
             setState(() {
               namesCoursesNotInRequirements.add(courseID.toString());
@@ -996,8 +998,8 @@ class _CourseState extends State<Course> {
                           ),
                           hideSuggestionsOnKeyboardHide: false,
                           suggestionsCallback: (pattern) async {
-                            return CoursesService.getSuggestions(
-                                pattern, widget.listCoursesInSemester);
+                            return CoursesService.getSuggestions(pattern,
+                                widget.listCoursesInSemester, semesterID);
                           },
                           itemBuilder: (context, String suggestion) {
                             return Container(
@@ -1274,7 +1276,7 @@ class CoursesService {
     return number;
   }
 
-  static bool courseEnrollingSystem(String courseName) {
+  static bool courseEnrollingSystem(String courseName, int semestId) {
     Function eq = const ListEquality().equals;
 
     bool isValidMustCourses = true;
@@ -1295,25 +1297,27 @@ class CoursesService {
 
     for (List semester in allSemesters) {
       for (List course in semester) {
-        if (course[1] != null && course[3] != null) {
-          if (course[3] != 'U' &&
-              course[3] != 'F' &&
-              course[3] != 'Non' &&
-              course[4] == null) {
-            String? num = getCourseNumberByName(course[1]);
-            if (num != null) {
-              if (coursesMustBeEnrolled.contains(num)) {
-                val1.add(num);
+        if (course[0] <= semestId) {
+          if (course[1] != null && course[3] != null) {
+            if (course[3] != 'U' &&
+                course[3] != 'F' &&
+                course[3] != 'Non' &&
+                course[4] == null) {
+              String? num = getCourseNumberByName(course[1]);
+              if (num != null) {
+                if (coursesMustBeEnrolled.contains(num)) {
+                  val1.add(num);
+                }
               }
-            }
-          } else if (course[4] != null &&
-              course[4] != 'U' &&
-              course[4] != 'F' &&
-              course[4] != 'Non') {
-            String? num = getCourseNumberByName(course[1]);
-            if (num != null) {
-              if (coursesMustBeEnrolled.contains(num)) {
-                val1.add(num);
+            } else if (course[4] != null &&
+                course[4] != 'U' &&
+                course[4] != 'F' &&
+                course[4] != 'Non') {
+              String? num = getCourseNumberByName(course[1]);
+              if (num != null) {
+                if (coursesMustBeEnrolled.contains(num)) {
+                  val1.add(num);
+                }
               }
             }
           }
@@ -1323,28 +1327,30 @@ class CoursesService {
     if (coursesMustOneBeEnrolled.isNotEmpty) {
       for (List semester in allSemesters) {
         for (List course in semester) {
-          if (course[1] != null && course[3] != null) {
-            if (course[3] != 'U' &&
-                course[3] != 'F' &&
-                course[3] != 'Non' &&
-                course[4] == null) {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustOneBeEnrolled.isNotEmpty) {
-                  if (coursesMustOneBeEnrolled.contains(num)) {
-                    val = [];
+          if (course[0] <= semestId) {
+            if (course[1] != null && course[3] != null) {
+              if (course[3] != 'U' &&
+                  course[3] != 'F' &&
+                  course[3] != 'Non' &&
+                  course[4] == null) {
+                String? num = getCourseNumberByName(course[1]);
+                if (num != null) {
+                  if (coursesMustOneBeEnrolled.isNotEmpty) {
+                    if (coursesMustOneBeEnrolled.contains(num)) {
+                      val = [];
+                    }
                   }
                 }
-              }
-            } else if (course[4] != null &&
-                course[4] != 'U' &&
-                course[4] != 'F' &&
-                course[4] != 'Non') {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustOneBeEnrolled.isNotEmpty) {
-                  if (coursesMustOneBeEnrolled.contains(num)) {
-                    val = [];
+              } else if (course[4] != null &&
+                  course[4] != 'U' &&
+                  course[4] != 'F' &&
+                  course[4] != 'Non') {
+                String? num = getCourseNumberByName(course[1]);
+                if (num != null) {
+                  if (coursesMustOneBeEnrolled.isNotEmpty) {
+                    if (coursesMustOneBeEnrolled.contains(num)) {
+                      val = [];
+                    }
                   }
                 }
               }
@@ -1369,7 +1375,8 @@ class CoursesService {
     return isValidMustCourses && isValidOneCourses;
   }
 
-  static List<String> getSuggestions(String query, List listInSemester) {
+  static List<String> getSuggestions(
+      String query, List listInSemester, int semestId) {
     List<String> matches = <String>[];
     if (systemOption) {
       // avoiding repeating course in the list
@@ -1405,7 +1412,7 @@ class CoursesService {
             // !coursesNamesEntered.contains(course[0]) &&
 
             !namesCoursesInSemest.contains(course[0]) &&
-                courseEnrollingSystem(course[0])) {
+                courseEnrollingSystem(course[0], semestId)) {
           matches.add(course[0]);
         }
       }
