@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../pages/home_with_firestore_page.dart';
+import 'courses_service.dart';
 
 List<String> repeatedSemestersIds = [];
 List<String> namesCoursesNotInListIds = [];
@@ -22,6 +23,7 @@ class Course extends StatefulWidget {
   final Function callBackUpdateListCoursesInSemester;
   final Function callBackUpdateChange;
   final Function calcCGPA;
+  final Function calcGPA;
   final GlobalKey<AnimatedListState> _keyAniSemest;
   final HomeWithFireStoreServices homeWithFireStoreServices;
   Course(
@@ -32,6 +34,7 @@ class Course extends StatefulWidget {
       this.callBackUpdateListCoursesInSemester,
       this.callBackUpdateChange,
       this.calcCGPA,
+      this.calcGPA,
       this._keyAniSemest,
       this.homeWithFireStoreServices,
       {Key? key})
@@ -478,6 +481,7 @@ class _CourseState extends State<Course> {
               widget.callBackUpdateListCoursesInSemester,
               () {},
               () {},
+              () {},
               widget._keyAniSemest,
               widget.homeWithFireStoreServices),
         );
@@ -494,6 +498,7 @@ class _CourseState extends State<Course> {
     });
     Future.delayed(Duration(milliseconds: 320), () {
       widget.calcCGPA();
+      widget.calcGPA();
     });
   }
 
@@ -947,142 +952,195 @@ class _CourseState extends State<Course> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TypeAheadFormField(
-                          textFieldConfiguration: TextFieldConfiguration(
-                            controller: _controller_Name,
-                            textAlign: TextAlign.center,
-                            textAlignVertical: TextAlignVertical.bottom,
-                            focusNode: _focusName,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff004d60),
-                            ),
-                            onChanged: (value) {
-                              if (value != 'There are no courses left') {
-                                // print(
-                                //     '######################44#####################');
-                                setState(() {
-                                  errorGrade();
+                        CoursesService.systemOption
+                            ? TypeAheadFormField(
+                                textFieldConfiguration: TextFieldConfiguration(
+                                  controller: _controller_Name,
+                                  textAlign: TextAlign.center,
+                                  textAlignVertical: TextAlignVertical.bottom,
+                                  focusNode: _focusName,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color(0xff004d60),
+                                  ),
+                                  onChanged: (value) {
+                                    if (value != 'There are no courses left') {
+                                      // print(
+                                      //     '######################44#####################');
+                                      setState(() {
+                                        errorGrade();
 
-                                  widget.courseList[1] = value;
-                                  name = value;
-                                  if (value.isNotEmpty) {
-                                    widget.listCoursesInSemester[widget.index]
-                                        [1] = value;
-                                  } else {
-                                    widget.listCoursesInSemester[widget.index]
-                                        [1] = null;
+                                        widget.courseList[1] = value;
+                                        name = value;
+                                        if (value.isNotEmpty) {
+                                          widget.listCoursesInSemester[
+                                              widget.index][1] = value;
+                                        } else {
+                                          widget.listCoursesInSemester[
+                                              widget.index][1] = null;
+                                        }
+                                        widget
+                                            .callBackUpdateListCoursesInSemester(
+                                                widget.listCoursesInSemester);
+                                        widget.callBackUpdateChange();
+
+                                        selectedValueIs1Null;
+                                        selectedValueIs2Null;
+                                      });
+                                    }
+                                  },
+                                  maxLines: 1,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    hintText: 'Enter Course',
+                                    hintStyle: TextStyle(
+                                        color: Colors.grey, fontSize: 18),
+                                    enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            width: 0,
+                                            color: Colors.transparent)),
+                                    focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            width: 0,
+                                            color: Colors.transparent)),
+                                  ),
+                                ),
+                                hideSuggestionsOnKeyboardHide: false,
+                                suggestionsCallback: (pattern) async {
+                                  return CoursesService.getSuggestions(pattern,
+                                      widget.listCoursesInSemester, semesterID);
+                                },
+                                itemBuilder: (context, String suggestion) {
+                                  return suggestion !=
+                                          'There are no courses left'
+                                      ? Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 10),
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Text(suggestion,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Color(0xff4562a7),
+                                                )),
+                                          ),
+                                        )
+                                      : Container(
+                                          alignment: Alignment.center,
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15, horizontal: 10),
+                                          child: Text(suggestion,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                color: Colors.grey.shade700,
+                                              )),
+                                        );
+                                },
+                                suggestionsBoxController:
+                                    suggestionBoxController,
+                                hideOnEmpty: false,
+                                onSuggestionSelected: (String suggestion) {
+                                  if (suggestion !=
+                                      'There are no courses left') {
+                                    this._controller_Name.text = suggestion;
+
+                                    setState(() {
+                                      errorGrade();
+                                      widget.courseList[1] = suggestion;
+                                      name = suggestion;
+                                      if (suggestion.isNotEmpty) {
+                                        widget.listCoursesInSemester[
+                                            widget.index][1] = suggestion;
+                                      } else {
+                                        widget.listCoursesInSemester[
+                                            widget.index][1] = null;
+                                      }
+
+                                      //  auto credit
+                                      String value =
+                                          CoursesService.getCredit(suggestion);
+                                      credit = value;
+                                      _controller_Credit.text = value;
+                                      if (value.isNotEmpty) {
+                                        widget.listCoursesInSemester[
+                                            widget.index][2] = value;
+                                      } else {
+                                        widget.listCoursesInSemester[
+                                            widget.index][2] = null;
+                                      }
+                                      widget
+                                          .callBackUpdateListCoursesInSemester(
+                                              widget.listCoursesInSemester);
+                                      widget.callBackUpdateChange();
+
+                                      selectedValueIs1Null;
+                                      selectedValueIs2Null;
+                                    });
                                   }
-                                  widget.callBackUpdateListCoursesInSemester(
-                                      widget.listCoursesInSemester);
-                                  widget.callBackUpdateChange();
-
-                                  selectedValueIs1Null;
-                                  selectedValueIs2Null;
-                                });
-                              }
-                            },
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                              hintText: 'Enter Course',
-                              hintStyle:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      width: 0, color: Colors.transparent)),
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      width: 0, color: Colors.transparent)),
-                            ),
-                          ),
-                          hideSuggestionsOnKeyboardHide: false,
-                          suggestionsCallback: (pattern) async {
-                            return CoursesService.getSuggestions(pattern,
-                                widget.listCoursesInSemester, semesterID);
-                          },
-                          itemBuilder: (context, String suggestion) {
-                            return suggestion != 'There are no courses left'
-                                ? Container(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 5, horizontal: 10),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(suggestion,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xff4562a7),
-                                          )),
-                                    ),
-                                  )
-                                : Container(
-                                    alignment: Alignment.center,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 10),
-                                    child: Text(suggestion,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.grey.shade700,
-                                        )),
+                                },
+                                itemSeparatorBuilder: (context, index) {
+                                  return Divider(
+                                    color: Colors.white,
                                   );
-                          },
-                          suggestionsBoxController: suggestionBoxController,
-                          hideOnEmpty: false,
-                          onSuggestionSelected: (String suggestion) {
-                            if (suggestion != 'There are no courses left') {
-                              this._controller_Name.text = suggestion;
+                                },
+                                suggestionsBoxDecoration:
+                                    SuggestionsBoxDecoration(
+                                  constraints: BoxConstraints(
+                                    maxHeight: 250,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  elevation: 8.0,
+                                  color: Color(0xffb8c8d1),
+                                ),
+                                // hideSuggestionsOnKeyboardHide: true,
+                                // hideKeyboard: true,
+                              )
+                            : TextField(
+                                controller: _controller_Name,
+                                textAlign: TextAlign.center,
+                                textAlignVertical: TextAlignVertical.bottom,
+                                focusNode: _focusName,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xff004d60),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    errorGrade();
+                                    widget.courseList[1] = value;
+                                    name = value;
+                                    if (value.isNotEmpty) {
+                                      widget.listCoursesInSemester[widget.index]
+                                          [1] = value;
+                                    } else {
+                                      widget.listCoursesInSemester[widget.index]
+                                          [1] = null;
+                                    }
+                                    widget.callBackUpdateListCoursesInSemester(
+                                        widget.listCoursesInSemester);
+                                    widget.callBackUpdateChange();
 
-                              setState(() {
-                                errorGrade();
-                                widget.courseList[1] = suggestion;
-                                name = suggestion;
-                                if (suggestion.isNotEmpty) {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [1] = suggestion;
-                                } else {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [1] = null;
-                                }
-
-                                //  auto credit
-                                String value =
-                                    CoursesService.getCredit(suggestion);
-                                credit = value;
-                                _controller_Credit.text = value;
-                                if (value.isNotEmpty) {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [2] = value;
-                                } else {
-                                  widget.listCoursesInSemester[widget.index]
-                                      [2] = null;
-                                }
-                                widget.callBackUpdateListCoursesInSemester(
-                                    widget.listCoursesInSemester);
-                                widget.callBackUpdateChange();
-
-                                selectedValueIs1Null;
-                                selectedValueIs2Null;
-                              });
-                            }
-                          },
-                          itemSeparatorBuilder: (context, index) {
-                            return Divider(
-                              color: Colors.white,
-                            );
-                          },
-                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                            constraints: BoxConstraints(
-                              maxHeight: 250,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                            elevation: 8.0,
-                            color: Color(0xffb8c8d1),
-                          ),
-                          // hideSuggestionsOnKeyboardHide: true,
-                          // hideKeyboard: true,
-                        ),
+                                    selectedValueIs1Null;
+                                    selectedValueIs2Null;
+                                  });
+                                },
+                                maxLines: 1,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: 'Enter Course',
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 0, color: Colors.transparent)),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 0, color: Colors.transparent)),
+                                ),
+                              ),
                         SizedBox(
                           height: 0.5,
                         )
@@ -1160,287 +1218,5 @@ class _CourseState extends State<Course> {
         ),
       ),
     );
-  }
-}
-
-class CoursesService {
-  static bool systemOption = true;
-  static List<String> cities = [
-    'Beirut',
-    'Damascus',
-    'San Fransisco',
-    'Rome',
-    'Los Angeles',
-    'Madrid',
-    'Bali',
-    'Barcelona',
-    'Paris',
-    'Bucharest',
-    'New York City',
-    'Philadelphia',
-    'Sydney',
-  ];
-  static List majorCS = [
-    [
-      'Introduction to Probability and Statistics',
-      '2',
-      '040102102',
-      [[], []]
-    ],
-    [
-      'Object Oriented Programming',
-      '2',
-      '040103201',
-      [
-        ['040102102'],
-        ['040102102', '040103202']
-      ]
-    ],
-    [
-      'Data Structures and File Processing',
-      '3',
-      '040103202',
-      [
-        ['040103201'],
-        []
-      ]
-    ],
-    [
-      'Discrete Structures',
-      '2',
-      '040103203',
-      [[], []]
-    ],
-    [
-      'Theory of Computation',
-      '2',
-      '040103204',
-      [
-        ['040103203'],
-        []
-      ]
-    ],
-    //
-    [
-      'Network and Internet Programming',
-      '3',
-      '040103205',
-      [
-        ['040102102'],
-        []
-      ]
-    ],
-    [
-      'Advanced Programming',
-      '3',
-      '040103206',
-      [
-        ['040103201'],
-        []
-      ]
-    ],
-    [
-      'Computer Programming (Practical)',
-      '1',
-      '040103207',
-      [
-        ['040103205', '040103201'],
-        []
-      ]
-    ],
-    [
-      'Matrices',
-      '2',
-      '040101231',
-      [[], []]
-    ],
-    [
-      'Digital Logic Circuits',
-      '3',
-      '040103250',
-      [[], []]
-    ],
-
-    //
-  ];
-
-  static List<String> getMajorCSNames() {
-    List<String> names = [];
-    for (List list in majorCS) {
-      names.add(list[0]);
-    }
-    return names;
-  }
-
-  static String getCredit(String courseName) {
-    String credit = '';
-    for (List course in majorCS) {
-      if (course[0] == courseName) {
-        credit = course[1];
-      }
-    }
-    return credit;
-  }
-
-  static String? getCourseNumberByName(String courseName) {
-    String? number;
-    for (List course in majorCS) {
-      if (course[0] == courseName) {
-        number = course[2];
-      }
-    }
-    return number;
-  }
-
-  static bool courseEnrollingSystem(String courseName, int semestId) {
-    Function eq = const ListEquality().equals;
-
-    bool isValidMustCourses = true;
-    bool isValidOneCourses = true;
-    List coursesMustBeEnrolled = [];
-    List coursesMustOneBeEnrolled = [];
-    List<String> val1 = [];
-    List<bool> val = [];
-    for (List course in majorCS) {
-      if (course[0] == courseName) {
-        coursesMustBeEnrolled = course[3][0];
-        coursesMustOneBeEnrolled = course[3][1];
-      }
-    }
-    for (String v in coursesMustOneBeEnrolled) {
-      val.add(false);
-    }
-
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        if (course[0] < semestId) {
-          if (course[1] != null && course[3] != null) {
-            if (course[3] != 'U' &&
-                course[3] != 'F' &&
-                course[3] != 'Non' &&
-                course[4] == null) {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustBeEnrolled.contains(num)) {
-                  val1.add(num);
-                }
-              }
-            } else if (course[4] != null &&
-                course[4] != 'U' &&
-                course[4] != 'F' &&
-                course[4] != 'Non') {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustBeEnrolled.contains(num)) {
-                  val1.add(num);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if (coursesMustOneBeEnrolled.isNotEmpty) {
-      for (List semester in allSemesters) {
-        for (List course in semester) {
-          if (course[0] < semestId) {
-            if (course[1] != null && course[3] != null) {
-              if (course[3] != 'U' &&
-                  course[3] != 'F' &&
-                  course[3] != 'Non' &&
-                  course[4] == null) {
-                String? num = getCourseNumberByName(course[1]);
-                if (num != null) {
-                  if (coursesMustOneBeEnrolled.isNotEmpty) {
-                    if (coursesMustOneBeEnrolled.contains(num)) {
-                      val = [];
-                    }
-                  }
-                }
-              } else if (course[4] != null &&
-                  course[4] != 'U' &&
-                  course[4] != 'F' &&
-                  course[4] != 'Non') {
-                String? num = getCourseNumberByName(course[1]);
-                if (num != null) {
-                  if (coursesMustOneBeEnrolled.isNotEmpty) {
-                    if (coursesMustOneBeEnrolled.contains(num)) {
-                      val = [];
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (val.isNotEmpty) {
-      if (val.contains(false)) {
-        isValidOneCourses = false;
-      } else {
-        isValidOneCourses = true;
-      }
-    }
-    if (eq(val1, coursesMustBeEnrolled)) {
-      isValidMustCourses = true;
-    } else {
-      isValidMustCourses = false;
-    }
-    return isValidMustCourses && isValidOneCourses;
-  }
-
-  static List<String> getSuggestions(
-      String query, List listInSemester, int semestId) {
-    List<String> matches = <String>[];
-    if (systemOption) {
-      // avoiding repeating course in the list
-      List<String> coursesNamesEntered = [];
-      for (List semester in allSemesters) {
-        for (List course in semester) {
-          if (course[1] != null && course[3] != null) {
-            if (course[3] != 'U' &&
-                course[3] != 'F' &&
-                course[3] != 'Non' &&
-                course[4] == null) {
-              coursesNamesEntered.add(course[1]);
-            } else if (course[4] != null &&
-                course[4] != 'U' &&
-                course[4] != 'F' &&
-                course[4] != 'Non') {
-              coursesNamesEntered.add(course[1]);
-            }
-          }
-        }
-      }
-
-      List<String> namesCoursesInSemest = [];
-      for (List course in listInSemester) {
-        if (course[1] != null) {
-          namesCoursesInSemest.add(course[1]);
-        }
-      }
-      for (List course in majorCS) {
-        if (
-
-            ///  TODO: in the next line you will not allow the user to improve their grade .
-            !coursesNamesEntered.contains(course[0]) &&
-                !namesCoursesInSemest.contains(course[0]) &&
-                courseEnrollingSystem(course[0], semestId)) {
-          matches.add(course[0]);
-        }
-      }
-    } else {
-      for (List course in majorCS) {
-        matches.add(course[0]);
-      }
-    }
-
-    if (matches.isNotEmpty) {
-      matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
-      return matches;
-    }
-    return ['There are no courses left'];
   }
 }

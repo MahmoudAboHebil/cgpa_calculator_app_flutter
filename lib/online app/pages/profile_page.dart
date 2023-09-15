@@ -92,7 +92,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   List<String> departments = [
-    'Computer Science (Special) Alex ',
+    // 'Computer Science (Special) Alex ',
+    'Natural Sciences Division  Alex',
   ];
   FocusNode _focus_dp = FocusNode();
   @override

@@ -4,6 +4,7 @@ import 'home_with_firestore_page.dart';
 
 final List<String> items = [
   'All',
+  'Non',
   'A',
   'A-',
   'B+',
@@ -426,7 +427,7 @@ class _AppBarReviewState extends State<AppBarReview> {
                     },
                     dropdownStyleData: DropdownStyleData(
                       maxHeight: 200,
-                      width: 60,
+                      width: 70,
                       padding: null,
                       elevation: 2,
                       decoration: BoxDecoration(

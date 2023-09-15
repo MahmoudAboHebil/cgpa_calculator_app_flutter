@@ -275,7 +275,8 @@ class _ContentSignUpState extends State<ContentSignUp> {
 
   String imageURL = '';
   List<String> departments = [
-    'Computer Science (Special) Alex ',
+    // 'Computer Science (Special) Alex ',
+    'Natural Sciences Division  Alex',
   ];
   Widget build(BuildContext context) {
     return WillPopScope(

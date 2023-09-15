@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../pages/home_with_firestore_page.dart';
 import 'course.dart';
+import 'courses_service.dart';
 
 class SemesterFin extends StatefulWidget {
   List semesterCourses;
@@ -88,6 +89,12 @@ class _SemesterFinState extends State<SemesterFin> {
   callBackToUpdateTheCoursesList(newList) {
     setState(() {
       listOfCoursesInSemester = newList;
+    });
+  }
+
+  callBackToUpdateGPA() {
+    setState(() {
+      calcGPA();
     });
   }
 
@@ -823,6 +830,7 @@ class _SemesterFinState extends State<SemesterFin> {
                     () {
                       widget.calcCGPA();
                     },
+                    callBackToUpdateGPA,
                     _keyAniListCourses,
                     homeWithFireStoreServices!,
                   ),

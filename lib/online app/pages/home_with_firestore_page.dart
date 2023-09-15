@@ -8,6 +8,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
 import '../../widgets/my_custom_appbar.dart';
 import '../../widgets/my_navigation_drawer.dart';
+import '../models/courses_service.dart';
 import '../models/semester.dart';
 import 'home_with_semester_page.dart';
 
@@ -53,6 +54,8 @@ int countOccurrencesUsingLoop(List values, String? element) {
 
 User? loggedInUser;
 CollectionReference? _courses;
+CollectionReference? _usersInfo;
+
 CollectionReference? semestersRef;
 bool showSpinner = true;
 late HomeWithFireStoreServices? homeWithFireStoreServices;
@@ -80,6 +83,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   bool flag = true;
   bool flag2 = true;
   bool calcFlag = true;
+  String department = '';
   // bool showSpinner2 = true;
   callBackChangeList(int index, bool value, remove) {
     setState(() {
@@ -103,6 +107,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     super.initState();
     setState(() {
       _courses = null;
+      _usersInfo = null;
       semestersRef = null;
       loggedInUser = null;
       showSpinner = true;
@@ -112,6 +117,38 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     });
     getCurrentUser();
     setState(() {});
+    _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+  }
+
+  Widget getInfo() {
+    if (_usersInfo != null && loggedInUser != null) {
+      return StreamBuilder(
+        stream: _usersInfo!.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            for (int i = 0; i < snapshot.data!.docs.length; i++) {
+              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
+              if (userInfo['email'] == loggedInUser!.email) {
+                department = userInfo['department'];
+              }
+            }
+          }
+          if (department == 'Natural Sciences Division  Alex') {
+            CoursesService.systemOption = true;
+          } else {
+            CoursesService.systemOption = false;
+          }
+          return Container();
+        },
+      );
+    } else {
+      if (department == 'Natural Sciences Division  Alex') {
+        CoursesService.systemOption = true;
+      } else {
+        CoursesService.systemOption = false;
+      }
+      return Container();
+    }
   }
 
   static Future<bool> checkExist(String docID) async {
@@ -212,6 +249,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   }
 
   int maxSemester = 0;
+
   Widget Content() {
     if (_courses != null) {
       return StreamBuilder(
@@ -450,6 +488,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('################################## :$department');
     if (flag2 && loggedInUser != null && _courses != null) {
       setState(() {
         homeWithFireStoreServices =
@@ -507,6 +546,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                                   physics:
                                       const AlwaysScrollableScrollPhysics(),
                                   children: [
+                                    showSpinner ? Container() : getInfo(),
                                     showSpinner ? Container() : Content(),
                                     SizedBox(
                                       height: 50,
