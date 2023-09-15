@@ -10,12 +10,14 @@ import 'home_with_firestore_page.dart';
 import 'welcome_page.dart';
 
 class ProfilePage extends StatefulWidget {
-  String email = '';
-  String name = '';
-  String imageURL = '';
-  String division = '';
+  String email;
+  String name;
+  String imageURL;
+  String division;
+  String department;
 
-  ProfilePage(this.email, this.name, this.imageURL, this.division);
+  ProfilePage(
+      this.email, this.name, this.imageURL, this.division, this.department);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -23,10 +25,15 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _controller1 = TextEditingController();
+  TextEditingController _controller_div = TextEditingController();
   TextEditingController _controller_dp = TextEditingController();
-  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+  SuggestionsBoxController suggestionBoxController_div =
+      SuggestionsBoxController();
+  SuggestionsBoxController suggestionBoxController_dp =
+      SuggestionsBoxController();
   File? image;
   bool imageDelete = false;
+  bool showDepartment = false;
   Future pickImage(ImageSource source) async {
     try {
       final image = await ImagePicker().pickImage(source: source);
@@ -69,7 +76,11 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     print(widget.division);
     _controller1 = TextEditingController(text: widget.name);
-    _controller_dp = TextEditingController(text: widget.division);
+    _controller_div = TextEditingController(text: widget.division);
+    _controller_dp = TextEditingController(text: widget.department);
+    setState(() {
+      showDepartment = isGlobalDepartmentValidationOK();
+    });
   }
 
   String? get _errorText1 {
@@ -81,14 +92,14 @@ class _ProfilePageState extends State<ProfilePage> {
     return null;
   }
 
-  void addUserInfo(
-      String? email, String? name, String? imageURl, String? division) async {
+  void addUserInfo(String? email, String? name, String? imageURl,
+      String? division, String department) async {
     await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
       'email': '$email',
       'name': '$name',
       'image': '$imageURl',
       'division': division,
-      'department': '',
+      'department': '$department',
     });
   }
 
@@ -96,11 +107,14 @@ class _ProfilePageState extends State<ProfilePage> {
     // 'Computer Science (Special) Alex ',
     'Natural Sciences Division  Alex',
   ];
-  FocusNode _focus_dp = FocusNode();
+  List<String> departments = [
+    'Computer Science (Special) Alex ',
+  ];
   @override
   void dispose() {
     super.dispose();
     _controller1.dispose();
+    _controller_div.dispose();
     _controller_dp.dispose();
   }
 
@@ -336,7 +350,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             textFieldConfiguration: TextFieldConfiguration(
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
-                              controller: _controller_dp,
+                              controller: _controller_div,
                               decoration: InputDecoration(
                                 // errorText: _errorText2,
                                 label: Row(
@@ -350,7 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       width: 5,
                                     ),
                                     Text(
-                                      'Department',
+                                      'division (شعبة)',
                                       textAlign: TextAlign.end,
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 18),
@@ -384,10 +398,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               );
                             },
-                            suggestionsBoxController: suggestionBoxController,
+                            suggestionsBoxController:
+                                suggestionBoxController_div,
                             onSuggestionSelected: (String suggestion) {
                               setState(() {
-                                _controller_dp.text = suggestion;
+                                _controller_div.text = suggestion;
                               });
                             },
                             itemSeparatorBuilder: (context, index) {
@@ -406,6 +421,90 @@ class _ProfilePageState extends State<ProfilePage> {
                             // hideSuggestionsOnKeyboardHide: true,
                             // hideKeyboard: true,
                           ),
+                          SizedBox(
+                            height: showDepartment ? 10 : 0,
+                          ),
+                          showDepartment
+                              ? TypeAheadFormField(
+                                  textFieldConfiguration:
+                                      TextFieldConfiguration(
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.white),
+                                    controller: _controller_dp,
+                                    decoration: InputDecoration(
+                                      // errorText: _errorText2,
+                                      label: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.school_rounded,
+                                            size: 28,
+                                            color: Colors.white54,
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            'Department',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          )
+                                        ],
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  suggestionsCallback: (pattern) async {
+                                    return departments;
+                                  },
+                                  itemBuilder: (context, String suggestion) {
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 10),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(suggestion,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Color(0xff4562a7),
+                                            )),
+                                      ),
+                                    );
+                                  },
+                                  suggestionsBoxController:
+                                      suggestionBoxController_dp,
+                                  onSuggestionSelected: (String suggestion) {
+                                    setState(() {
+                                      _controller_dp.text = suggestion;
+                                    });
+                                  },
+                                  itemSeparatorBuilder: (context, index) {
+                                    return Divider(
+                                      color: Colors.white,
+                                    );
+                                  },
+                                  suggestionsBoxDecoration:
+                                      SuggestionsBoxDecoration(
+                                    constraints: BoxConstraints(
+                                      maxHeight: 250,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    elevation: 8.0,
+                                    color: Color(0xffb8c8d1),
+                                  ),
+                                  // hideSuggestionsOnKeyboardHide: true,
+                                  // hideKeyboard: true,
+                                )
+                              : SizedBox(),
                           SizedBox(
                             height: 25,
                           ),
@@ -493,12 +592,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                 if (image != null ||
                                     _controller1.text != widget.name ||
                                     imageDelete ||
-                                    _controller_dp.text != widget.division) {
+                                    _controller_div.text != widget.division ||
+                                    _controller_dp.text != widget.department) {
                                   addUserInfo(
-                                      widget.email.toLowerCase(),
-                                      _controller1.text,
-                                      widget.imageURL,
-                                      _controller_dp.text);
+                                    widget.email.toLowerCase(),
+                                    _controller1.text,
+                                    widget.imageURL,
+                                    _controller_div.text,
+                                    _controller_dp.text,
+                                  );
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

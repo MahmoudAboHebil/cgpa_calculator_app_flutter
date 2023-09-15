@@ -476,7 +476,8 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   decoration: InputDecoration(
                                     isDense: true,
                                     contentPadding: EdgeInsets.only(bottom: 10),
-                                    hintText: 'Enter your Department(Option)',
+                                    hintText:
+                                        'Enter your (division - شعبة) Option',
                                     hintStyle: TextStyle(
                                         color: Colors.grey, fontSize: 18),
                                     enabledBorder: UnderlineInputBorder(

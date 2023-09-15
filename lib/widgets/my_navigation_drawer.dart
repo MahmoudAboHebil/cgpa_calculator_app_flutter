@@ -265,8 +265,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ProfilePage(
-                                    email, name, imageURL, division),
+                                builder: (context) => ProfilePage(email, name,
+                                    imageURL, division, department),
                               ));
                         },
                         child: Text('Profile')),

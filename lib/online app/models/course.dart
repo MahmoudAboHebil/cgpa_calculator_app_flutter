@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -158,7 +159,7 @@ class _CourseState extends State<Course> {
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (CoursesService.systemOption) {
         //  is the name in the courses Of college
-        if (!CoursesService.getMajorCSNames().contains(Name)) {
+        if (!CoursesService.getCoursesNames().contains(Name)) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());
             namesCoursesNotInListIds =
@@ -432,7 +433,7 @@ class _CourseState extends State<Course> {
     }
   }
 
-  deleteCourse() {
+  deleteCourse() async {
     setState(() {
       pressDeleteCourse = true;
     });

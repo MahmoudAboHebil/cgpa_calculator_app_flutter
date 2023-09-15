@@ -193,7 +193,7 @@ class CoursesService {
     //
   ];
 
-  static List<String> getMajorCSNames() {
+  static List<String> getCoursesNames() {
     List<String> names = [];
     for (List list in collegeRequirementsForTheNaturalSciences) {
       names.add(list[0]);
@@ -284,6 +284,7 @@ class CoursesService {
         coursesMustOneBeEnrolled = course[3][1];
       }
     }
+
     if (departmentOption) {
       for (List course in majorCS) {
         if (course[0] == courseName) {
@@ -361,6 +362,22 @@ class CoursesService {
       }
     }
 
+    bool isValidDp = true;
+
+    if (departmentOption) {
+      List<String> majorCSNames = [];
+      for (List list in majorCS) {
+        majorCSNames.add(list[0]);
+      }
+      if (!isGlobalDepartmentValidationOK() &&
+          departmentOption &&
+          majorCSNames.contains(courseName)) {
+        isValidDp = false;
+      } else {
+        isValidDp = true;
+      }
+    }
+
     if (val.isNotEmpty) {
       if (val.contains(false)) {
         isValidOneCourses = false;
@@ -373,7 +390,7 @@ class CoursesService {
     } else {
       isValidMustCourses = false;
     }
-    return isValidMustCourses && isValidOneCourses;
+    return isValidMustCourses && isValidOneCourses && isValidDp;
   }
 
   static List<String> getSuggestions(
