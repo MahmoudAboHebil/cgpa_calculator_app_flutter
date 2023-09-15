@@ -1,4 +1,5 @@
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
+import 'package:cgp_calculator/online%20app/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -83,6 +84,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   bool flag = true;
   bool flag2 = true;
   bool calcFlag = true;
+  String division = '';
   String department = '';
   // bool showSpinner2 = true;
   callBackChangeList(int index, bool value, remove) {
@@ -100,6 +102,83 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       CGPAPage2 = cgpa;
       totalCreditPage2 = credits;
     });
+  }
+
+  Future<dynamic> departmentMessage() {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              alignment: Alignment.center,
+              backgroundColor: Color(0xffb8c8d1),
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "congratulation!",
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.green,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Now, you can choose your department",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xff4562a7),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Is your department Computer Science (Special) Alex ?",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xff4562a7),
+                    ),
+                  ),
+                ],
+              ),
+              // alignment: Alignment.center,
+
+              actions: [
+                TextButton(
+                  child: Text(
+                    "No",
+                    style: TextStyle(color: Colors.red, fontSize: 18),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text("Yes",
+                      style: TextStyle(color: Colors.green, fontSize: 18)),
+                  onPressed: () async {
+                    await FirebaseFirestore.instance
+                        .collection('UsersInfo')
+                        .doc(loggedInUser!.email)
+                        .update({
+                      'department': 'Computer Science (Special) Alex ',
+                    });
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WelcomePage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ));
   }
 
   @override
@@ -129,23 +208,34 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
               if (userInfo['email'] == loggedInUser!.email) {
+                division = userInfo['division'];
                 department = userInfo['department'];
               }
             }
           }
-          if (department == 'Natural Sciences Division  Alex') {
+          if (division == 'Natural Sciences Division  Alex') {
             CoursesService.systemOption = true;
           } else {
             CoursesService.systemOption = false;
+          }
+          if (department == 'Computer Science (Special) Alex ') {
+            CoursesService.departmentOption = true;
+          } else {
+            CoursesService.departmentOption = false;
           }
           return Container();
         },
       );
     } else {
-      if (department == 'Natural Sciences Division  Alex') {
+      if (division == 'Natural Sciences Division  Alex') {
         CoursesService.systemOption = true;
       } else {
         CoursesService.systemOption = false;
+      }
+      if (department == 'Computer Science (Special) Alex ') {
+        CoursesService.departmentOption = true;
+      } else {
+        CoursesService.departmentOption = false;
       }
       return Container();
     }
@@ -488,7 +578,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('################################## :$department');
     if (flag2 && loggedInUser != null && _courses != null) {
       setState(() {
         homeWithFireStoreServices =
@@ -568,8 +657,39 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 child: FloatingActionButton(
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
-                    // calcCGPA();
+                    List<bool> val = [true];
+                    List<String> validCourseName = [];
+                    List<String> collegeRequirements = [];
+                    for (List course in CoursesService
+                        .collegeRequirementsForTheNaturalSciences) {
+                      collegeRequirements.add(course[0]);
+                    }
+                    for (List semester in allSemesters) {
+                      for (List course in semester) {
+                        if (course[1] != null && course[3] != null) {
+                          if (course[3] != 'U' &&
+                              course[3] != 'F' &&
+                              course[3] != 'Non' &&
+                              course[4] == null) {
+                            validCourseName.add(course[1]);
+                          } else if (course[4] != null &&
+                              course[4] != 'U' &&
+                              course[4] != 'F' &&
+                              course[4] != 'Non') {
+                            validCourseName.add(course[1]);
+                          }
+                        }
+                      }
+                    }
+                    for (String name in collegeRequirements) {
+                      if (!validCourseName.contains(name)) {
+                        val.add(false);
+                      }
+                    }
                     addSemester();
+                    if (!val.contains(false)) {
+                      departmentMessage();
+                    }
                   },
                   child: Icon(
                     Icons.add,

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CoursesService {
   static bool systemOption = false;
+  static bool departmentOption = false;
   static List collegeRequirementsForTheNaturalSciences = [
     [
       'Calculus (1) and Geometry',
@@ -206,6 +207,11 @@ class CoursesService {
     for (List list in freeChoiceCourses) {
       names.add(list[0]);
     }
+    if (departmentOption) {
+      for (List list in majorCS) {
+        names.add(list[0]);
+      }
+    }
     return names;
   }
 
@@ -235,6 +241,14 @@ class CoursesService {
         return credit;
       }
     }
+    if (departmentOption) {
+      for (List course in majorCS) {
+        if (course[0] == courseName) {
+          credit = course[1];
+          return credit;
+        }
+      }
+    }
     return credit;
   }
 
@@ -243,6 +257,13 @@ class CoursesService {
     for (List course in collegeRequirementsForTheNaturalSciences) {
       if (course[0] == courseName) {
         number = course[2];
+      }
+    }
+    if (departmentOption) {
+      for (List course in majorCS) {
+        if (course[0] == courseName) {
+          number = course[2];
+        }
       }
     }
     return number;
@@ -261,6 +282,14 @@ class CoursesService {
       if (course[0] == courseName) {
         coursesMustBeEnrolled = course[3][0];
         coursesMustOneBeEnrolled = course[3][1];
+      }
+    }
+    if (departmentOption) {
+      for (List course in majorCS) {
+        if (course[0] == courseName) {
+          coursesMustBeEnrolled = course[3][0];
+          coursesMustOneBeEnrolled = course[3][1];
+        }
       }
     }
     for (String v in coursesMustOneBeEnrolled) {
@@ -377,6 +406,7 @@ class CoursesService {
           namesCoursesInSemest.add(course[1]);
         }
       }
+
       for (List course in collegeRequirementsForTheNaturalSciences) {
         if (
 
@@ -385,6 +415,18 @@ class CoursesService {
                 !namesCoursesInSemest.contains(course[0]) &&
                 courseEnrollingSystem(course[0], semestId)) {
           matches.add(course[0]);
+        }
+      }
+      if (departmentOption) {
+        for (List course in majorCS) {
+          if (
+
+              ///  TODO: in the next line you will not allow the user to improve their grade .
+              !coursesNamesEntered.contains(course[0]) &&
+                  !namesCoursesInSemest.contains(course[0]) &&
+                  courseEnrollingSystem(course[0], semestId)) {
+            matches.add(course[0]);
+          }
         }
       }
       for (List course in universityRequirements) {
@@ -417,6 +459,11 @@ class CoursesService {
     } else {
       for (List course in collegeRequirementsForTheNaturalSciences) {
         matches.add(course[0]);
+      }
+      if (departmentOption) {
+        for (List course in majorCS) {
+          matches.add(course[0]);
+        }
       }
       for (List course in universityRequirements) {
         matches.add(course[0]);

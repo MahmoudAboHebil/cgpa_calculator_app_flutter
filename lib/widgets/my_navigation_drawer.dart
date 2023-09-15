@@ -25,6 +25,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
   String email = '';
   String name = '';
   String imageURL = '';
+  String division = '';
   String department = '';
 
   CollectionReference? _usersInfo;
@@ -77,6 +78,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                 print('#########################################');
                 print(name);
                 imageURL = userInfo['image'];
+                division = userInfo['division'];
                 department = userInfo['department'];
               }
             }
@@ -168,7 +170,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                       ),
                     ),
                     Text(
-                      department,
+                      division,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -264,7 +266,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProfilePage(
-                                    email, name, imageURL, department),
+                                    email, name, imageURL, division),
                               ));
                         },
                         child: Text('Profile')),

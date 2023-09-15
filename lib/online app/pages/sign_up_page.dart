@@ -189,7 +189,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
 
   FocusNode _focus_dp = FocusNode();
   String nameOrID = '';
-  String department = '';
+  String division = '';
   String email = '';
   String password = '';
   bool showProgress = false;
@@ -260,21 +260,22 @@ class _ContentSignUpState extends State<ContentSignUp> {
   }
 
   void addUserInfo(
-      String? email, String? name, String? imageURl, String department) async {
+      String? email, String? name, String? imageURl, String division) async {
     bool isExist = await checkExist('$email');
     if (!isExist) {
       // firstTime
       await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
         'email': '$email',
         'name': '$name',
-        'department': department,
+        'division': division,
+        'department': '',
         'image': '$imageURl',
       });
     }
   }
 
   String imageURL = '';
-  List<String> departments = [
+  List<String> divisions = [
     // 'Computer Science (Special) Alex ',
     'Natural Sciences Division  Alex',
   ];
@@ -468,7 +469,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   ),
                                   onChanged: (value) {
                                     setState(() {
-                                      department = value;
+                                      division = value;
                                     });
                                   },
                                   maxLines: 1,
@@ -490,7 +491,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   ),
                                 ),
                                 suggestionsCallback: (pattern) async {
-                                  return departments;
+                                  return divisions;
                                 },
                                 itemBuilder: (context, String suggestion) {
                                   return Container(
@@ -510,7 +511,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                     suggestionBoxController,
                                 onSuggestionSelected: (String suggestion) {
                                   setState(() {
-                                    department = suggestion;
+                                    division = suggestion;
                                     _controller_dp.text = suggestion;
                                   });
                                 },
@@ -640,7 +641,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   setState(() {
                                     pressed = false;
                                     nameOrID = _controller1.text;
-                                    department = _controller_dp.text;
+                                    division = _controller_dp.text;
                                     email = _controller3.text;
                                     password = _controller4.text;
                                     showProgress = true;
@@ -663,10 +664,10 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                             await referenceImageToUpload
                                                 .getDownloadURL();
                                         addUserInfo(email.toLowerCase(),
-                                            nameOrID, imageURL, department);
+                                            nameOrID, imageURL, division);
                                       } else {
                                         addUserInfo(email.toLowerCase(),
-                                            nameOrID, '', department);
+                                            nameOrID, '', division);
                                       }
                                       Navigator.pushAndRemoveUntil(
                                         context,
@@ -762,7 +763,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                     prov.gUser!.email.toLowerCase(),
                                     prov.gUser!.displayName,
                                     prov.gUser!.photoUrl,
-                                    department);
+                                    division);
                                 setState(() {
                                   showProgress = false;
                                 });

@@ -13,9 +13,9 @@ class ProfilePage extends StatefulWidget {
   String email = '';
   String name = '';
   String imageURL = '';
-  String department = '';
+  String division = '';
 
-  ProfilePage(this.email, this.name, this.imageURL, this.department);
+  ProfilePage(this.email, this.name, this.imageURL, this.division);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -67,9 +67,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    print(widget.department);
+    print(widget.division);
     _controller1 = TextEditingController(text: widget.name);
-    _controller_dp = TextEditingController(text: widget.department);
+    _controller_dp = TextEditingController(text: widget.division);
   }
 
   String? get _errorText1 {
@@ -82,16 +82,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void addUserInfo(
-      String? email, String? name, String? imageURl, String? department) async {
+      String? email, String? name, String? imageURl, String? division) async {
     await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
       'email': '$email',
       'name': '$name',
       'image': '$imageURl',
-      'department': '$department',
+      'division': division,
+      'department': '',
     });
   }
 
-  List<String> departments = [
+  List<String> divisions = [
     // 'Computer Science (Special) Alex ',
     'Natural Sciences Division  Alex',
   ];
@@ -367,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                             suggestionsCallback: (pattern) async {
-                              return departments;
+                              return divisions;
                             },
                             itemBuilder: (context, String suggestion) {
                               return Container(
@@ -492,7 +493,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 if (image != null ||
                                     _controller1.text != widget.name ||
                                     imageDelete ||
-                                    _controller_dp.text != widget.department) {
+                                    _controller_dp.text != widget.division) {
                                   addUserInfo(
                                       widget.email.toLowerCase(),
                                       _controller1.text,

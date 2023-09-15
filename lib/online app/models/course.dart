@@ -1,7 +1,5 @@
 import 'dart:collection';
-
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
