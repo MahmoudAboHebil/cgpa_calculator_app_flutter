@@ -60,37 +60,6 @@ CollectionReference? _usersInfo;
 CollectionReference? semestersRef;
 bool showSpinner = true;
 late HomeWithFireStoreServices? homeWithFireStoreServices;
-bool isGlobalDepartmentValidationOK() {
-  List<bool> val = [true];
-  List<String> validCourseName = [];
-  List<String> collegeRequirements = [];
-  for (List course in CoursesService.collegeRequirementsForTheNaturalSciences) {
-    collegeRequirements.add(course[0]);
-  }
-  for (List semester in allSemesters) {
-    for (List course in semester) {
-      if (course[1] != null && course[3] != null) {
-        if (course[3] != 'U' &&
-            course[3] != 'F' &&
-            course[3] != 'Non' &&
-            course[4] == null) {
-          validCourseName.add(course[1]);
-        } else if (course[4] != null &&
-            course[4] != 'U' &&
-            course[4] != 'F' &&
-            course[4] != 'Non') {
-          validCourseName.add(course[1]);
-        }
-      }
-    }
-  }
-  for (String name in collegeRequirements) {
-    if (!validCourseName.contains(name)) {
-      val.add(false);
-    }
-  }
-  return !val.contains(false);
-}
 
 class HomeWithFireStorePage extends StatefulWidget {
   @override
@@ -242,33 +211,21 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               if (userInfo['email'] == loggedInUser!.email) {
                 division = userInfo['division'];
                 department = userInfo['department'];
+                CoursesService.systemOption = userInfo['divisionOption'];
+                CoursesService.departmentOption = userInfo['departmentOption'];
               }
             }
           }
           if (division == 'Natural Sciences Division  Alex') {
-            CoursesService.systemOption = true;
-          } else {
-            CoursesService.systemOption = false;
+            CoursesService.divisionName = 'Natural Sciences Division  Alex';
           }
           if (department == 'Computer Science (Special) Alex ') {
-            CoursesService.departmentOption = true;
-          } else {
-            CoursesService.departmentOption = false;
+            CoursesService.departmentName = 'Computer Science (Special) Alex ';
           }
           return Container();
         },
       );
     } else {
-      if (division == 'Natural Sciences Division  Alex') {
-        CoursesService.systemOption = true;
-      } else {
-        CoursesService.systemOption = false;
-      }
-      if (department == 'Computer Science (Special) Alex ') {
-        CoursesService.departmentOption = true;
-      } else {
-        CoursesService.departmentOption = false;
-      }
       return Container();
     }
   }
@@ -690,7 +647,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
-                    if (isGlobalDepartmentValidationOK()) {
+                    if (CoursesService.isGlobalDepartmentValidationOK()) {
                       departmentMessage();
                     }
                   },

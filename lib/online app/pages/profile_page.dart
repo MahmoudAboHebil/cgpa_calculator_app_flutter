@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cgp_calculator/online%20app/models/courses_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _controller_div = TextEditingController(text: widget.division);
     _controller_dp = TextEditingController(text: widget.department);
     setState(() {
-      showDepartment = isGlobalDepartmentValidationOK();
+      showDepartment = CoursesService.isGlobalDepartmentValidationOK();
     });
   }
 
@@ -94,12 +95,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void addUserInfo(String? email, String? name, String? imageURl,
       String? division, String department) async {
-    await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
+    bool depOp = departments.contains(department);
+    bool divOp = divisions.contains(division);
+    await FirebaseFirestore.instance.collection('UsersInfo').doc(email).update({
       'email': '$email',
       'name': '$name',
       'image': '$imageURl',
-      'division': division,
-      'department': '$department',
+      'division': division ?? '',
+      'department': department ?? '',
+      'departmentOption': depOp,
+      'divisionOption': divOp,
     });
   }
 

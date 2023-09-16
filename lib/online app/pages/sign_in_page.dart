@@ -243,13 +243,17 @@ class _ContentState extends State<Content> {
 
   void addUserInfo(String? email, String? name, String? imageURl) async {
     bool isExist = await checkExist('$email');
+
     if (!isExist) {
       // firstTime
       await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
-        'email': '$email',
-        'name': '$name',
-        'image': '$imageURl',
+        'email': email ?? '',
+        'name': name ?? '',
+        'image': imageURl ?? '',
+        'division': '',
         'department': '',
+        'departmentOption': false,
+        'divisionOption': false,
       });
     }
   }

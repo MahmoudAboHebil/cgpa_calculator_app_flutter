@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CoursesService {
   static bool systemOption = false;
   static bool departmentOption = false;
+  static String departmentName = '';
+  static String divisionName = '';
   static List collegeRequirementsForTheNaturalSciences = [
     [
       'Calculus (1) and Geometry',
@@ -193,9 +195,23 @@ class CoursesService {
     //
   ];
 
+  static List getDepartmentList() {
+    if (departmentName == 'Computer Science (Special) Alex ') {
+      return majorCS;
+    }
+    return [];
+  }
+
+  static List getDivisionList() {
+    if (divisionName == 'Natural Sciences Division  Alex') {
+      return collegeRequirementsForTheNaturalSciences;
+    }
+    return [];
+  }
+
   static List<String> getCoursesNames() {
     List<String> names = [];
-    for (List list in collegeRequirementsForTheNaturalSciences) {
+    for (List list in getDivisionList()) {
       names.add(list[0]);
     }
     for (List list in universityRequirements) {
@@ -208,7 +224,7 @@ class CoursesService {
       names.add(list[0]);
     }
     if (departmentOption) {
-      for (List list in majorCS) {
+      for (List list in getDepartmentList()) {
         names.add(list[0]);
       }
     }
@@ -217,7 +233,7 @@ class CoursesService {
 
   static String getCredit(String courseName) {
     String credit = '';
-    for (List course in collegeRequirementsForTheNaturalSciences) {
+    for (List course in getDivisionList()) {
       if (course[0] == courseName) {
         credit = course[1];
         return credit;
@@ -242,7 +258,7 @@ class CoursesService {
       }
     }
     if (departmentOption) {
-      for (List course in majorCS) {
+      for (List course in getDepartmentList()) {
         if (course[0] == courseName) {
           credit = course[1];
           return credit;
@@ -254,13 +270,13 @@ class CoursesService {
 
   static String? getCourseNumberByName(String courseName) {
     String? number;
-    for (List course in collegeRequirementsForTheNaturalSciences) {
+    for (List course in getDivisionList()) {
       if (course[0] == courseName) {
         number = course[2];
       }
     }
     if (departmentOption) {
-      for (List course in majorCS) {
+      for (List course in getDepartmentList()) {
         if (course[0] == courseName) {
           number = course[2];
         }
@@ -269,16 +285,52 @@ class CoursesService {
     return number;
   }
 
+  static bool isGlobalDepartmentValidationOK() {
+    List<bool> val = [true];
+    List<String> validCourseName = [];
+    List<String> collegeRequirements = [];
+    for (List course in CoursesService.getDivisionList()) {
+      collegeRequirements.add(course[0]);
+    }
+    for (List semester in allSemesters) {
+      for (List course in semester) {
+        if (course[1] != null && course[3] != null) {
+          if (course[3] != 'U' &&
+              course[3] != 'F' &&
+              course[3] != 'Non' &&
+              course[4] == null) {
+            validCourseName.add(course[1]);
+          } else if (course[4] != null &&
+              course[4] != 'U' &&
+              course[4] != 'F' &&
+              course[4] != 'Non') {
+            validCourseName.add(course[1]);
+          }
+        }
+      }
+    }
+    for (String name in collegeRequirements) {
+      if (!validCourseName.contains(name)) {
+        val.add(false);
+      }
+    }
+
+    return !val.contains(false) && departmentOption;
+  }
+
   static bool courseEnrollingSystem(String courseName, int semestId) {
     Function eq = const ListEquality().equals;
 
     bool isValidMustCourses = true;
     bool isValidOneCourses = true;
+    bool isValidDp = true;
+
     List coursesMustBeEnrolled = [];
     List coursesMustOneBeEnrolled = [];
     List<String> val1 = [];
     List<bool> val = [];
-    for (List course in collegeRequirementsForTheNaturalSciences) {
+
+    for (List course in getDivisionList()) {
       if (course[0] == courseName) {
         coursesMustBeEnrolled = course[3][0];
         coursesMustOneBeEnrolled = course[3][1];
@@ -286,7 +338,7 @@ class CoursesService {
     }
 
     if (departmentOption) {
-      for (List course in majorCS) {
+      for (List course in getDepartmentList()) {
         if (course[0] == courseName) {
           coursesMustBeEnrolled = course[3][0];
           coursesMustOneBeEnrolled = course[3][1];
@@ -362,16 +414,14 @@ class CoursesService {
       }
     }
 
-    bool isValidDp = true;
-
     if (departmentOption) {
-      List<String> majorCSNames = [];
-      for (List list in majorCS) {
-        majorCSNames.add(list[0]);
+      List<String> departCoursesNames = [];
+      for (List list in getDepartmentList()) {
+        departCoursesNames.add(list[0]);
       }
       if (!isGlobalDepartmentValidationOK() &&
           departmentOption &&
-          majorCSNames.contains(courseName)) {
+          departCoursesNames.contains(courseName)) {
         isValidDp = false;
       } else {
         isValidDp = true;
@@ -424,7 +474,7 @@ class CoursesService {
         }
       }
 
-      for (List course in collegeRequirementsForTheNaturalSciences) {
+      for (List course in getDivisionList()) {
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .
@@ -435,7 +485,7 @@ class CoursesService {
         }
       }
       if (departmentOption) {
-        for (List course in majorCS) {
+        for (List course in getDepartmentList()) {
           if (
 
               ///  TODO: in the next line you will not allow the user to improve their grade .
@@ -472,24 +522,6 @@ class CoursesService {
                 !namesCoursesInSemest.contains(course[0])) {
           matches.add(course[0]);
         }
-      }
-    } else {
-      for (List course in collegeRequirementsForTheNaturalSciences) {
-        matches.add(course[0]);
-      }
-      if (departmentOption) {
-        for (List course in majorCS) {
-          matches.add(course[0]);
-        }
-      }
-      for (List course in universityRequirements) {
-        matches.add(course[0]);
-      }
-      for (List course in mandatoryUniversityRequirements) {
-        matches.add(course[0]);
-      }
-      for (List course in freeChoiceCourses) {
-        matches.add(course[0]);
       }
     }
 

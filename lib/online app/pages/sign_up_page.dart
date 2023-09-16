@@ -260,16 +260,22 @@ class _ContentSignUpState extends State<ContentSignUp> {
   }
 
   void addUserInfo(
-      String? email, String? name, String? imageURl, String division) async {
+      String? email, String? name, String? imageURl, String? division) async {
     bool isExist = await checkExist('$email');
+    bool div = division == null
+        ? false
+        : (divisions.contains(division) ? true : false);
+
     if (!isExist) {
       // firstTime
       await FirebaseFirestore.instance.collection('UsersInfo').doc(email).set({
-        'email': '$email',
-        'name': '$name',
-        'division': division,
+        'email': email ?? '',
+        'name': name ?? '',
+        'image': imageURl ?? '',
+        'division': division ?? '',
         'department': '',
-        'image': '$imageURl',
+        'departmentOption': false,
+        'divisionOption': div,
       });
     }
   }
@@ -764,7 +770,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                     prov.gUser!.email.toLowerCase(),
                                     prov.gUser!.displayName,
                                     prov.gUser!.photoUrl,
-                                    division);
+                                    null);
                                 setState(() {
                                   showProgress = false;
                                 });
