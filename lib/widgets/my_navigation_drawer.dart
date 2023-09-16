@@ -27,6 +27,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
   String imageURL = '';
   String division = '';
   String department = '';
+  bool collageOption = false;
+  bool departmentOption = false;
 
   CollectionReference? _usersInfo;
 
@@ -35,6 +37,13 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     super.initState();
     setState(() {
       _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+  }
+
+  void setChanges(bool collageOption, bool departmentOption) async {
+    await FirebaseFirestore.instance.collection('UsersInfo').doc(email).update({
+      'departmentOption': departmentOption,
+      'divisionOption': collageOption,
     });
   }
 
@@ -73,13 +82,18 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
               if (userInfo['email'] == loggedInUser!.email) {
-                email = userInfo['email'];
-                name = userInfo['name'];
-                print('#########################################');
-                print(name);
-                imageURL = userInfo['image'];
-                division = userInfo['division'];
-                department = userInfo['department'];
+                Future.delayed(Duration.zero, () {
+                  setState(() {
+                    email = userInfo['email'];
+                    name = userInfo['name'];
+
+                    imageURL = userInfo['image'];
+                    division = userInfo['division'];
+                    department = userInfo['department'];
+                    collageOption = userInfo['divisionOption'];
+                    departmentOption = userInfo['departmentOption'];
+                  });
+                });
               }
             }
             // showSpinner = false;
@@ -294,7 +308,96 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                   ),
                 ],
               ),
-            )
+            ),
+            email.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: Container(
+                            height: 18,
+                            width: 18,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(100)),
+                              border: Border.all(color: Colors.grey, width: 2),
+                            ),
+                            child: Container(
+                                height: 10,
+                                width: 10,
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: collageOption
+                                      ? Colors.green
+                                      : Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100)),
+                                )),
+                          ),
+                          title: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                collageOption = !collageOption;
+                                setChanges(collageOption, departmentOption);
+                              });
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        HomeWithFireStorePage(),
+                                  ));
+                            },
+                            child: Text('Enable Collage System'),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Container(
+                            height: 18,
+                            width: 18,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(100)),
+                              border: Border.all(color: Colors.grey, width: 2),
+                            ),
+                            child: Container(
+                                height: 10,
+                                width: 10,
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: departmentOption
+                                      ? Colors.green
+                                      : Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100)),
+                                )),
+                          ),
+                          title: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                departmentOption = !departmentOption;
+                                setChanges(collageOption, departmentOption);
+                              });
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        HomeWithFireStorePage(),
+                                  ));
+                            },
+                            child: Text('Enable department System'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
       ),

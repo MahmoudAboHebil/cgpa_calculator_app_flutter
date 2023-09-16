@@ -55,7 +55,6 @@ int countOccurrencesUsingLoop(List values, String? element) {
 
 User? loggedInUser;
 CollectionReference? _courses;
-CollectionReference? _usersInfo;
 
 CollectionReference? semestersRef;
 bool showSpinner = true;
@@ -70,7 +69,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   final _keySemester = GlobalKey<AnimatedListState>();
   final _pageViewController = PageController();
   final _auth = FirebaseAuth.instance;
-
+  CollectionReference? _usersInfo =
+      FirebaseFirestore.instance.collection('UsersInfo');
   List<bool> isChangeList =
       []; // to update calc_GPA button when there is any changing  in the course
   List keySemesters = [];
@@ -222,6 +222,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           if (department == 'Computer Science (Special) Alex ') {
             CoursesService.departmentName = 'Computer Science (Special) Alex ';
           }
+          // CoursesService.departmentName = 'Computer Science (Special) Alex ';
+
           return Container();
         },
       );
