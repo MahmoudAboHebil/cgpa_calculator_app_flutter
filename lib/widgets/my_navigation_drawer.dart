@@ -1,3 +1,4 @@
+import 'package:cgp_calculator/online%20app/models/courses_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -91,6 +92,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     division = userInfo['division'];
                     department = userInfo['department'];
                     collageOption = userInfo['divisionOption'];
+
                     departmentOption = userInfo['departmentOption'];
                   });
                 });
@@ -168,9 +170,9 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                       child: Text(
                         name,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            overflow: TextOverflow.ellipsis),
                       ),
                     ),
                     SizedBox(
@@ -179,17 +181,31 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     Text(
                       email,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
+                          color: Colors.white,
+                          fontSize: 15,
+                          overflow: TextOverflow.ellipsis),
                     ),
-                    Text(
-                      division,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
+                    SizedBox(
+                      height: 5,
                     ),
+                    department.isNotEmpty
+                        ? Text(
+                            department,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                overflow: TextOverflow.ellipsis),
+                          )
+                        : SizedBox(),
+                    division.isNotEmpty
+                        ? Text(
+                            division,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                overflow: TextOverflow.ellipsis),
+                          )
+                        : SizedBox(),
                   ],
                 )
               : Center(
@@ -205,6 +221,87 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     }
   }
 
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Colors.transparent,
+      // behavior: SnackBarBehavior.floating,
+      clipBehavior: Clip.none,
+      elevation: 0,
+      content: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+              color: Color(0xff4562a7),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 48,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'You have chose available department at profile page',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        maxLines: 2,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+              bottom: 25,
+              left: 20,
+              child: ClipRRect(
+                child: Stack(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: Colors.red.shade200,
+                      size: 17,
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+              top: -20,
+              left: 5,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                  ),
+                  Positioned(
+                      top: 5,
+                      child: Icon(
+                        Icons.clear_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ))
+                ],
+              )),
+        ],
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -213,7 +310,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: 250,
+              height: department.isEmpty || division.isEmpty ? 250 : 260,
               color: Color(0xff4562a7),
               child: headerContent(),
               padding: EdgeInsets.all(10),
@@ -309,7 +406,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                 ],
               ),
             ),
-            email.isNotEmpty
+            email.isNotEmpty && CoursesService.divisions.contains(division)
                 ? Container(
                     padding: EdgeInsets.all(24),
                     child: Column(
@@ -343,6 +440,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                               setState(() {
                                 collageOption = !collageOption;
                                 setChanges(collageOption, departmentOption);
+                                CoursesService.systemOption = collageOption;
                               });
                               Navigator.pushReplacement(
                                   context,
@@ -354,46 +452,59 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                             child: Text('Enable Collage System'),
                           ),
                         ),
-                        ListTile(
-                          leading: Container(
-                            height: 18,
-                            width: 18,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(100)),
-                              border: Border.all(color: Colors.grey, width: 2),
-                            ),
-                            child: Container(
-                                height: 10,
-                                width: 10,
-                                alignment: Alignment.center,
-                                margin: EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: departmentOption
-                                      ? Colors.green
-                                      : Colors.transparent,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(100)),
-                                )),
-                          ),
-                          title: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                departmentOption = !departmentOption;
-                                setChanges(collageOption, departmentOption);
-                              });
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        HomeWithFireStorePage(),
-                                  ));
-                            },
-                            child: Text('Enable department System'),
-                          ),
-                        ),
+                        CoursesService.isGlobalDepartmentValidationOK() &&
+                                collageOption
+                            ? ListTile(
+                                leading: Container(
+                                  height: 18,
+                                  width: 18,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(100)),
+                                    border: Border.all(
+                                        color: Colors.grey, width: 2),
+                                  ),
+                                  child: Container(
+                                      height: 10,
+                                      width: 10,
+                                      alignment: Alignment.center,
+                                      margin: EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        color: departmentOption
+                                            ? Colors.green
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(100)),
+                                      )),
+                                ),
+                                title: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (CoursesService.departments
+                                          .contains(department)) {
+                                        departmentOption = !departmentOption;
+                                        setChanges(
+                                            collageOption, departmentOption);
+                                        CoursesService.departmentOption =
+                                            departmentOption;
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomeWithFireStorePage(),
+                                            ));
+                                      } else {
+                                        Navigator.pop(context);
+                                        message();
+                                      }
+                                    });
+                                  },
+                                  child: Text('Enable department System'),
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   )

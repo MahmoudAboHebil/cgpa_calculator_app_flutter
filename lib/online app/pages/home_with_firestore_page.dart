@@ -53,6 +53,91 @@ int countOccurrencesUsingLoop(List values, String? element) {
   return count;
 }
 
+Future<dynamic> departmentMessage(BuildContext _context) {
+  return showDialog(
+      context: _context,
+      builder: (context) => AlertDialog(
+            alignment: Alignment.center,
+            backgroundColor: Color(0xffb8c8d1),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "congratulation!",
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.green,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "Now, you can choose your department",
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xff4562a7),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Is your department Computer Science (Special) Alex ?",
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xff4562a7),
+                  ),
+                ),
+              ],
+            ),
+            // alignment: Alignment.center,
+
+            actions: [
+              TextButton(
+                child: Text(
+                  "No",
+                  style: TextStyle(color: Colors.red, fontSize: 18),
+                ),
+                onPressed: () async {
+                  CoursesService.departmentOption = false;
+                  await FirebaseFirestore.instance
+                      .collection('UsersInfo')
+                      .doc(loggedInUser!.email)
+                      .update({
+                    'departmentOption': false,
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("Yes",
+                    style: TextStyle(color: Colors.green, fontSize: 18)),
+                onPressed: () async {
+                  await FirebaseFirestore.instance
+                      .collection('UsersInfo')
+                      .doc(loggedInUser!.email)
+                      .update({
+                    'departmentOption': true,
+                    'department': 'Computer Science (Special) Alex ',
+                  });
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WelcomePage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ));
+}
+
 User? loggedInUser;
 CollectionReference? _courses;
 
@@ -104,84 +189,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     });
   }
 
-  Future<dynamic> departmentMessage() {
-    return showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              alignment: Alignment.center,
-              backgroundColor: Color(0xffb8c8d1),
-              content: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "congratulation!",
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.green,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Now, you can choose your department",
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xff4562a7),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Is your department Computer Science (Special) Alex ?",
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xff4562a7),
-                    ),
-                  ),
-                ],
-              ),
-              // alignment: Alignment.center,
-
-              actions: [
-                TextButton(
-                  child: Text(
-                    "No",
-                    style: TextStyle(color: Colors.red, fontSize: 18),
-                  ),
-                  onPressed: () {
-                    CoursesService.departmentOption = false;
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text("Yes",
-                      style: TextStyle(color: Colors.green, fontSize: 18)),
-                  onPressed: () async {
-                    await FirebaseFirestore.instance
-                        .collection('UsersInfo')
-                        .doc(loggedInUser!.email)
-                        .update({
-                      'department': 'Computer Science (Special) Alex ',
-                    });
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WelcomePage(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ));
-  }
-
   @override
   void initState() {
     super.initState();
@@ -216,13 +223,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
             }
           }
-          if (division == 'Natural Sciences Division  Alex') {
-            CoursesService.divisionName = 'Natural Sciences Division  Alex';
+          if (CoursesService.divisions.contains(division)) {
+            CoursesService.divisionName = division;
           }
-          if (department == 'Computer Science (Special) Alex ') {
-            CoursesService.departmentName = 'Computer Science (Special) Alex ';
+          if (CoursesService.departments.contains(department)) {
+            CoursesService.departmentName = department;
           }
-          // CoursesService.departmentName = 'Computer Science (Special) Alex ';
 
           return Container();
         },
@@ -629,7 +635,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                                     showSpinner ? Container() : getInfo(),
                                     showSpinner ? Container() : Content(),
                                     SizedBox(
-                                      height: 50,
+                                      height: 100,
                                     )
                                   ],
                                 ),
@@ -649,8 +655,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
-                    if (CoursesService.isGlobalDepartmentValidationOK()) {
-                      departmentMessage();
+                    if (CoursesService.isGlobalDepartmentValidationOK() &&
+                        CoursesService.departmentOption &&
+                        CoursesService.systemOption) {
+                      departmentMessage(context);
                     }
                   },
                   child: Icon(

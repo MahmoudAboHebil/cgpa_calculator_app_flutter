@@ -116,10 +116,14 @@ class _CourseState extends State<Course> {
 
     bool isInList = true;
 
+    // disable validation when departmentOption is false only after Requirements is succeed
+    bool val = CoursesService.isGlobalDepartmentValidationOK() &&
+        !CoursesService.departmentOption;
     if (CoursesService.systemOption) {
       if (creditInput.isNotEmpty &&
           creditInput.trim().isNotEmpty &&
-          !namesCoursesNotInListIds.contains(courseID.toString())) {
+          !namesCoursesNotInListIds.contains(courseID.toString()) &&
+          !val) {
         var name = _controller_Name.text ?? '';
         creditList = CoursesService.getCredit(name);
         if (creditList != creditInput) {
@@ -156,10 +160,13 @@ class _CourseState extends State<Course> {
     bool isRepeatedName = true;
     bool isInList = true;
     bool isValidRequirements = true;
+    bool val = CoursesService.isGlobalDepartmentValidationOK() &&
+        !CoursesService.departmentOption;
+
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (CoursesService.systemOption) {
         //  is the name in the courses Of college
-        if (!CoursesService.getCoursesNames().contains(Name)) {
+        if (!CoursesService.getCoursesNames().contains(Name) && !val) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());
             namesCoursesNotInListIds =

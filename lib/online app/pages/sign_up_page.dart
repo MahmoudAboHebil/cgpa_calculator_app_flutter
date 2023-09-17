@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cgp_calculator/online%20app/models/courses_service.dart';
 import 'package:cgp_calculator/online%20app/pages/sign_in_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -264,7 +265,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
     bool isExist = await checkExist('$email');
     bool div = division == null
         ? false
-        : (divisions.contains(division) ? true : false);
+        : (CoursesService.divisions.contains(division) ? true : false);
 
     if (!isExist) {
       // firstTime
@@ -274,17 +275,14 @@ class _ContentSignUpState extends State<ContentSignUp> {
         'image': imageURl ?? '',
         'division': division ?? '',
         'department': '',
-        'departmentOption': false,
+        'departmentOption': true,
         'divisionOption': div,
       });
     }
   }
 
   String imageURL = '';
-  List<String> divisions = [
-    // 'Computer Science (Special) Alex ',
-    'Natural Sciences Division  Alex',
-  ];
+
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
@@ -498,7 +496,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   ),
                                 ),
                                 suggestionsCallback: (pattern) async {
-                                  return divisions;
+                                  return CoursesService.divisions;
                                 },
                                 itemBuilder: (context, String suggestion) {
                                   return Container(

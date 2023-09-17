@@ -95,26 +95,62 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void addUserInfo(String? email, String? name, String? imageURl,
       String? division, String department) async {
-    bool depOp = departments.contains(department);
-    bool divOp = divisions.contains(division);
-    await FirebaseFirestore.instance.collection('UsersInfo').doc(email).update({
-      'email': '$email',
-      'name': '$name',
-      'image': '$imageURl',
-      'division': division ?? '',
-      'department': department ?? '',
-      'departmentOption': depOp,
-      'divisionOption': divOp,
-    });
+    bool depOp = CoursesService.departments.contains(department) &&
+        department != widget.department;
+    bool divOp = CoursesService.divisions.contains(division) &&
+        division != widget.division;
+
+    if (depOp && divOp) {
+      await FirebaseFirestore.instance
+          .collection('UsersInfo')
+          .doc(email)
+          .update({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+        'division': division ?? '',
+        'department': department ?? '',
+        'departmentOption': depOp,
+        'divisionOption': divOp,
+      });
+    } else if (depOp) {
+      await FirebaseFirestore.instance
+          .collection('UsersInfo')
+          .doc(email)
+          .update({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+        'division': division ?? '',
+        'department': department ?? '',
+        'departmentOption': depOp,
+      });
+    } else if (divOp) {
+      await FirebaseFirestore.instance
+          .collection('UsersInfo')
+          .doc(email)
+          .update({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+        'division': division ?? '',
+        'department': department ?? '',
+        'divisionOption': divOp,
+      });
+    } else {
+      await FirebaseFirestore.instance
+          .collection('UsersInfo')
+          .doc(email)
+          .update({
+        'email': '$email',
+        'name': '$name',
+        'image': '$imageURl',
+        'division': division ?? '',
+        'department': department ?? '',
+      });
+    }
   }
 
-  List<String> divisions = [
-    // 'Computer Science (Special) Alex ',
-    'Natural Sciences Division  Alex',
-  ];
-  List<String> departments = [
-    'Computer Science (Special) Alex ',
-  ];
   @override
   void dispose() {
     super.dispose();
@@ -387,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                             suggestionsCallback: (pattern) async {
-                              return divisions;
+                              return CoursesService.divisions;
                             },
                             itemBuilder: (context, String suggestion) {
                               return Container(
@@ -469,7 +505,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   suggestionsCallback: (pattern) async {
-                                    return departments;
+                                    return CoursesService.departments;
                                   },
                                   itemBuilder: (context, String suggestion) {
                                     return Container(

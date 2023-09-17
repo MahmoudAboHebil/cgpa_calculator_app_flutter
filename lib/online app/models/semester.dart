@@ -221,10 +221,18 @@ class _SemesterFinState extends State<SemesterFin> {
           validRequirements = null;
         });
       }
+      bool dis = CoursesService.isGlobalDepartmentValidationOK() &&
+          !CoursesService.departmentOption;
       if (isValidNameInList) {
-        setState(() {
-          validNameInList = 'Invalid Name Or Credit ,there is no record  ';
-        });
+        if (!dis) {
+          setState(() {
+            validNameInList = 'Invalid Name Or Credit ,there is no record  ';
+          });
+        } else {
+          setState(() {
+            validNameInList = 'you have to finish requirements Courses   ';
+          });
+        }
       } else {
         setState(() {
           validNameInList = null;
@@ -848,9 +856,14 @@ class _SemesterFinState extends State<SemesterFin> {
                   : MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
                     addCourse();
+                    if (CoursesService.isGlobalDepartmentValidationOK() &&
+                        CoursesService.departmentOption &&
+                        CoursesService.systemOption) {
+                      departmentMessage(context);
+                    }
                   },
                   child: Container(
                     alignment: Alignment.center,

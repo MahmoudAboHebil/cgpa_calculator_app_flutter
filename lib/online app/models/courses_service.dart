@@ -194,7 +194,13 @@ class CoursesService {
 
     //
   ];
-
+  static List<String> divisions = [
+    // 'Computer Science (Special) Alex ',
+    'Natural Sciences Division  Alex',
+  ];
+  static List<String> departments = [
+    'Computer Science (Special) Alex ',
+  ];
   static List getDepartmentList() {
     if (departmentName == 'Computer Science (Special) Alex ') {
       return majorCS;
@@ -287,35 +293,51 @@ class CoursesService {
 
   static bool isGlobalDepartmentValidationOK() {
     List<bool> val = [true];
-    List<String> validCourseName = [];
-    List<String> collegeRequirements = [];
+    List<List> validCourse = [];
+    List<List> collegeRequirements = [];
     for (List course in CoursesService.getDivisionList()) {
-      collegeRequirements.add(course[0]);
+      collegeRequirements.add([course[0], course[1]]);
     }
     for (List semester in allSemesters) {
       for (List course in semester) {
-        if (course[1] != null && course[3] != null) {
+        if (course[1] != null && course[2] != null && course[3] != null) {
           if (course[3] != 'U' &&
               course[3] != 'F' &&
               course[3] != 'Non' &&
               course[4] == null) {
-            validCourseName.add(course[1]);
+            validCourse.add([course[1], course[2]]);
           } else if (course[4] != null &&
+              course[1] != null &&
+              course[2] != null &&
               course[4] != 'U' &&
               course[4] != 'F' &&
               course[4] != 'Non') {
-            validCourseName.add(course[1]);
+            validCourse.add([course[1], course[2]]);
           }
         }
       }
     }
-    for (String name in collegeRequirements) {
-      if (!validCourseName.contains(name)) {
+    List<String> validCourseNames = [];
+    for (List list in validCourse) {
+      validCourseNames.add(list[0]);
+    }
+    List<String> validCourseReq = [];
+    for (List list in collegeRequirements) {
+      validCourseReq.add(list[0]);
+    }
+    for (List list in collegeRequirements) {
+      if (!validCourseNames.contains(list[0])) {
         val.add(false);
+      } else {
+        int index = validCourseNames.indexOf(list[0]);
+        String cre = validCourse[index][1];
+        if (cre != list[1]) {
+          val.add(false);
+        }
       }
     }
 
-    return !val.contains(false) && departmentOption;
+    return !val.contains(false);
   }
 
   static bool courseEnrollingSystem(String courseName, int semestId) {
