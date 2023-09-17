@@ -95,12 +95,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void addUserInfo(String? email, String? name, String? imageURl,
       String? division, String department) async {
-    bool depOp = CoursesService.departments.contains(department) &&
-        department != widget.department;
-    bool divOp = CoursesService.divisions.contains(division) &&
-        division != widget.division;
+    bool depOp = department != widget.department;
+    bool divOp = division != widget.division;
 
     if (depOp && divOp) {
+      bool divV = CoursesService.divisions.contains(division);
+      bool depV = CoursesService.departments.contains(department);
+
       await FirebaseFirestore.instance
           .collection('UsersInfo')
           .doc(email)
@@ -110,10 +111,11 @@ class _ProfilePageState extends State<ProfilePage> {
         'image': '$imageURl',
         'division': division ?? '',
         'department': department ?? '',
-        'departmentOption': depOp,
-        'divisionOption': divOp,
+        'departmentOption': depV,
+        'divisionOption': divV,
       });
     } else if (depOp) {
+      bool depV = CoursesService.departments.contains(department);
       await FirebaseFirestore.instance
           .collection('UsersInfo')
           .doc(email)
@@ -123,9 +125,11 @@ class _ProfilePageState extends State<ProfilePage> {
         'image': '$imageURl',
         'division': division ?? '',
         'department': department ?? '',
-        'departmentOption': depOp,
+        'departmentOption': depV,
       });
     } else if (divOp) {
+      bool divV = CoursesService.divisions.contains(division);
+
       await FirebaseFirestore.instance
           .collection('UsersInfo')
           .doc(email)
@@ -135,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'image': '$imageURl',
         'division': division ?? '',
         'department': department ?? '',
-        'divisionOption': divOp,
+        'divisionOption': divV,
       });
     } else {
       await FirebaseFirestore.instance

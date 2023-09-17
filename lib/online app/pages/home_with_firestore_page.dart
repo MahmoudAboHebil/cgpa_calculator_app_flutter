@@ -407,6 +407,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                           allSemesters[index],
                           allSemesters[index][0][0],
                           index,
+                          department,
                           () {
                             setState(() {
                               calcCGPA();
@@ -657,6 +658,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                     addSemester();
                     if (CoursesService.isGlobalDepartmentValidationOK() &&
                         CoursesService.departmentOption &&
+                        department.isEmpty &&
                         CoursesService.systemOption) {
                       departmentMessage(context);
                     }

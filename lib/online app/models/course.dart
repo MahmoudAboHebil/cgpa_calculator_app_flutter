@@ -112,13 +112,15 @@ class _CourseState extends State<Course> {
 
   bool isValidCreditSystme() {
     var creditInput = credit ?? '';
+    var courseName = name ?? '';
     var creditList = '';
 
     bool isInList = true;
 
     // disable validation when departmentOption is false only after Requirements is succeed
     bool val = CoursesService.isGlobalDepartmentValidationOK() &&
-        !CoursesService.departmentOption;
+        !CoursesService.departmentOption &&
+        !CoursesService.getCoursesNames().contains(name);
     if (CoursesService.systemOption) {
       if (creditInput.isNotEmpty &&
           creditInput.trim().isNotEmpty &&

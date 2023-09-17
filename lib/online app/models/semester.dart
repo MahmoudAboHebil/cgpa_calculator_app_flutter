@@ -12,12 +12,20 @@ class SemesterFin extends StatefulWidget {
   List semesterCourses;
   int semesterId;
   int index;
+  String department;
   Function calcCGPA;
   bool isChanged;
   Function ChangeList;
   GlobalKey<AnimatedListState> _allSemestersKey;
-  SemesterFin(this.semesterCourses, this.semesterId, this.index, this.calcCGPA,
-      this._allSemestersKey, this.isChanged, this.ChangeList,
+  SemesterFin(
+      this.semesterCourses,
+      this.semesterId,
+      this.index,
+      this.department,
+      this.calcCGPA,
+      this._allSemestersKey,
+      this.isChanged,
+      this.ChangeList,
       {Key? key})
       : super(key: key);
 
@@ -224,15 +232,11 @@ class _SemesterFinState extends State<SemesterFin> {
       bool dis = CoursesService.isGlobalDepartmentValidationOK() &&
           !CoursesService.departmentOption;
       if (isValidNameInList) {
-        if (!dis) {
-          setState(() {
-            validNameInList = 'Invalid Name Or Credit ,there is no record  ';
-          });
-        } else {
-          setState(() {
-            validNameInList = 'you have to finish requirements Courses   ';
-          });
-        }
+        setState(() {
+          validNameInList = 'Invalid Name Or Credit ,there is no record  ';
+
+          // validNameInList = 'you have to finish requirements Courses   ';
+        });
       } else {
         setState(() {
           validNameInList = null;
@@ -319,7 +323,7 @@ class _SemesterFinState extends State<SemesterFin> {
         return SlideTransition(
           position: animation.drive(_offset),
           child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
-              () {}, widget._allSemestersKey, false, () {}),
+              widget.department, () {}, widget._allSemestersKey, false, () {}),
         );
       }, duration: Duration(milliseconds: 250));
 
@@ -861,6 +865,7 @@ class _SemesterFinState extends State<SemesterFin> {
                     addCourse();
                     if (CoursesService.isGlobalDepartmentValidationOK() &&
                         CoursesService.departmentOption &&
+                        widget.department.isEmpty &&
                         CoursesService.systemOption) {
                       departmentMessage(context);
                     }

@@ -310,7 +310,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: department.isEmpty || division.isEmpty ? 250 : 260,
+              height: department.isEmpty || division.isEmpty ? 250 : 270,
               color: Color(0xff4562a7),
               child: headerContent(),
               padding: EdgeInsets.all(10),
