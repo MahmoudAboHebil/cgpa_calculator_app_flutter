@@ -37,54 +37,54 @@ class CoursesService {
         []
       ]
     ],
-    [
-      'Computer Programming and Applications',
-      '2',
-      '040102102',
-      [[], []]
-    ],
-    [
-      'General Physics (1)',
-      '3',
-      '040204101',
-      [[], []]
-    ],
-    [
-      'General Physics (2)',
-      '3',
-      '040204102',
-      [[], []]
-    ],
-    [
-      'General Chemistry (1)',
-      '2',
-      '040306101',
-      [[], []]
-    ],
-    [
-      'General Chemistry (2)',
-      '2',
-      '040306102',
-      [[], []]
-    ],
-    [
-      'General Chemistry Lab (1)',
-      '1',
-      '040306103',
-      [[], []]
-    ],
-    [
-      'General Chemistry Lab (2)',
-      '1',
-      '040306104',
-      [[], []]
-    ],
-    [
-      'General Chemistry (3)',
-      '2',
-      '040306106',
-      [[], []]
-    ],
+    // [
+    //   'Computer Programming and Applications',
+    //   '2',
+    //   '040102102',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Physics (1)',
+    //   '3',
+    //   '040204101',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Physics (2)',
+    //   '3',
+    //   '040204102',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Chemistry (1)',
+    //   '2',
+    //   '040306101',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Chemistry (2)',
+    //   '2',
+    //   '040306102',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Chemistry Lab (1)',
+    //   '1',
+    //   '040306103',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Chemistry Lab (2)',
+    //   '1',
+    //   '040306104',
+    //   [[], []]
+    // ],
+    // [
+    //   'General Chemistry (3)',
+    //   '2',
+    //   '040306106',
+    //   [[], []]
+    // ],
   ];
   static List universityRequirements = [
     ['مبادئ علم الفلسفة', '2'],

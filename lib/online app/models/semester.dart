@@ -76,6 +76,7 @@ class _SemesterFinState extends State<SemesterFin> {
     super.initState();
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
+
       Future.delayed(Duration.zero, () {
         if (!isValide()) {
           // print('fffffffffffffffffffffffffffffffffff');
@@ -200,6 +201,7 @@ class _SemesterFinState extends State<SemesterFin> {
           val.add(false);
         }
       }
+
       for (String v in creditsCoursesNotInListIds) {
         if (coursesIDs.contains(v)) {
           val.add(true);
@@ -207,6 +209,7 @@ class _SemesterFinState extends State<SemesterFin> {
           val.add(false);
         }
       }
+
       bool isValidNameInList = val.contains(true);
 
       for (String v in namesCoursesNotInRequirements) {
@@ -229,14 +232,26 @@ class _SemesterFinState extends State<SemesterFin> {
           validRequirements = null;
         });
       }
-      bool dis = CoursesService.isGlobalDepartmentValidationOK() &&
-          !CoursesService.departmentOption;
       if (isValidNameInList) {
-        setState(() {
-          validNameInList = 'Invalid Name Or Credit ,there is no record  ';
-
-          // validNameInList = 'you have to finish requirements Courses   ';
-        });
+        List<bool> val4 = [];
+        for (String v in namesCoursesNotInListIds) {
+          if (coursesIDs.contains(v)) {
+            val4.add(true);
+          } else {
+            val4.add(false);
+          }
+        }
+        if (val4.contains(true) &&
+            !CoursesService.isGlobalDepartmentValidationOK() &&
+            !CoursesService.departmentOption) {
+          setState(() {
+            validNameInList = 'you have to finish requirements Courses   ';
+          });
+        } else {
+          setState(() {
+            validNameInList = 'Invalid Name Or Credit ,there is no record  ';
+          });
+        }
       } else {
         setState(() {
           validNameInList = null;
