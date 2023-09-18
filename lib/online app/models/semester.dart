@@ -245,7 +245,8 @@ class _SemesterFinState extends State<SemesterFin> {
             !CoursesService.isGlobalDepartmentValidationOK() &&
             !CoursesService.departmentOption) {
           setState(() {
-            validNameInList = 'you have to finish requirements Courses   ';
+            validNameInList =
+                'you have to finish requirements Courses (متطلب كلية)';
           });
         } else {
           setState(() {

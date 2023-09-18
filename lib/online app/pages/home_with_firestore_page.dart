@@ -25,6 +25,7 @@ class MyBehavior extends ScrollBehavior {
 }
 
 bool isTab = false;
+int earnCredit = 0;
 
 List allSemesters = [
   // // semester one
@@ -162,7 +163,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   var uuid = Uuid();
   bool _visible = true;
   double CGPA = 0.0;
-  int earnCredit = 0;
   double CGPAPage2 = 0.0;
   int totalCreditPage2 = 0;
   int totalCredit = 0;
