@@ -41,10 +41,15 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     });
   }
 
-  void setChanges(bool collageOption, bool departmentOption) async {
+  void setCollageChanges(bool collageOption) async {
+    await FirebaseFirestore.instance.collection('UsersInfo').doc(email).update({
+      'divisionOption': collageOption,
+    });
+  }
+
+  void setDepartmentChanges(bool departmentOption) async {
     await FirebaseFirestore.instance.collection('UsersInfo').doc(email).update({
       'departmentOption': departmentOption,
-      'divisionOption': collageOption,
     });
   }
 
@@ -94,6 +99,10 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     collageOption = userInfo['divisionOption'];
 
                     departmentOption = userInfo['departmentOption'];
+                    if (!CoursesService.isGlobalDepartmentValidationOK() ||
+                        !CoursesService.departments.contains(department)) {
+                      departmentOption = false;
+                    }
                   });
                 });
               }
@@ -221,7 +230,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     }
   }
 
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message() {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> message(
+      String text) {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
       // behavior: SnackBarBehavior.floating,
@@ -238,7 +248,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
               color: Color(0xff4562a7),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(
@@ -249,7 +259,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'You have chose available department at profile page',
+                        text,
                         style: TextStyle(fontSize: 14, color: Colors.white),
                         maxLines: 2,
                       )
@@ -439,7 +449,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                             onTap: () {
                               setState(() {
                                 collageOption = !collageOption;
-                                setChanges(collageOption, departmentOption);
+                                setCollageChanges(collageOption);
                                 CoursesService.systemOption = collageOption;
                               });
                               Navigator.pushReplacement(
@@ -452,8 +462,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                             child: Text('Enable Collage System'),
                           ),
                         ),
-                        CoursesService.isGlobalDepartmentValidationOK() &&
-                                collageOption
+                        collageOption
                             ? ListTile(
                                 leading: Container(
                                   height: 18,
@@ -482,11 +491,21 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                 title: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      if (CoursesService.departments
+                                      if (!CoursesService.departments
                                           .contains(department)) {
+                                        Navigator.pop(context);
+                                        message(
+                                            'You have chose available department at profile page');
+                                      } else if (CoursesService.departments
+                                              .contains(department) &&
+                                          !CoursesService
+                                              .isGlobalDepartmentValidationOK()) {
+                                        Navigator.pop(context);
+                                        message(
+                                            'you have to finish requirements Courses ');
+                                      } else {
                                         departmentOption = !departmentOption;
-                                        setChanges(
-                                            collageOption, departmentOption);
+                                        setDepartmentChanges(departmentOption);
                                         CoursesService.departmentOption =
                                             departmentOption;
                                         Navigator.pushReplacement(
@@ -495,9 +514,6 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                               builder: (context) =>
                                                   HomeWithFireStorePage(),
                                             ));
-                                      } else {
-                                        Navigator.pop(context);
-                                        message();
                                       }
                                     });
                                   },

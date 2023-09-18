@@ -203,16 +203,22 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       homeWithFireStoreServices = null;
     });
     getCurrentUser();
-    setState(() {});
-    _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
   }
 
   Widget getInfo() {
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
     if (_usersInfo != null && loggedInUser != null) {
       return StreamBuilder(
         stream: _usersInfo!.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData &&
+              loggedInUser != null &&
+              snapshot.data != null) {
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
               if (userInfo['email'] == loggedInUser!.email) {
@@ -633,8 +639,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                                   physics:
                                       const AlwaysScrollableScrollPhysics(),
                                   children: [
-                                    showSpinner ? Container() : getInfo(),
                                     showSpinner ? Container() : Content(),
+                                    showSpinner ? Container() : getInfo(),
                                     SizedBox(
                                       height: 100,
                                     )
