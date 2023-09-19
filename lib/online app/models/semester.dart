@@ -488,7 +488,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               '$emptyField',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             )
                           : SizedBox(
@@ -500,7 +500,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               '$creditMoreThanThree',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             )
                           : SizedBox(
@@ -512,7 +512,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               '$creditEqZero',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             )
                           : SizedBox(
@@ -524,7 +524,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               '$repeatedField',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             )
                           : SizedBox(
@@ -536,7 +536,8 @@ class _SemesterFinState extends State<SemesterFin> {
                               '$validNameInList',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
-                              maxLines: 1,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                             )
                           : SizedBox(
