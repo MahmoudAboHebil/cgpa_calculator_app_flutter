@@ -29,28 +29,31 @@ class CoursesService {
   }
 
   static List returnListWithoutRepeatCourses(
-      List firstList, List returnSecondList) {
-    List<String> sc_names = [];
+      List firstListMajor, List secondListMinor) {
     List<String> ft_names = [];
     List<String> all_names = [];
-    for (List list in firstList) {
+
+    for (List list in firstListMajor) {
       all_names.add(list[4]);
       ft_names.add(list[4]);
     }
-    for (List list in returnSecondList) {
-      sc_names.add(list[4]);
+    for (List list in secondListMinor) {
       all_names.add(list[4]);
     }
     all_names = LinkedHashSet<String>.from(all_names).toList();
-    List returnList = [];
-    for (List list in returnSecondList) {
-      if (all_names.contains(list[4])) {
-        returnList.add(list);
+
+    List returnList = firstListMajor;
+
+    for (List fl in firstListMajor) {
+      if (all_names.contains(fl[4])) {
+        all_names.remove(fl[4]);
       }
     }
-
-    // print('##################################################################');
-    // print(returnList);
+    for (List sl in secondListMinor) {
+      if (all_names.contains(sl[4])) {
+        returnList.add(sl);
+      }
+    }
 
     return returnList;
   }
@@ -58,31 +61,15 @@ class CoursesService {
   static List getDepartmentList() {
     List list = [];
     if (departmentName == 'Computer Science and Statistics (Alex)') {
-      for (List lt1 in ComputerScience.mandatoryMajorCS) {
-        list.add(lt1);
-      }
-      list = returnListWithoutRepeatCourses(list, list);
-      List l1 =
-          returnListWithoutRepeatCourses(list, Statistics.mandatoryMinorStat);
+      List l1 = returnListWithoutRepeatCourses(
+          ComputerScience.mandatoryMajorCS, Statistics.mandatoryMinorStat);
 
-      for (List lt1 in l1) {
-        list.add(lt1);
-      }
-      list = returnListWithoutRepeatCourses(list, list);
+      List l2 = returnListWithoutRepeatCourses(
+          ComputerScience.electiveMajorCS, Statistics.electiveMinorStat);
 
-      // List l2 =
-      //     returnListWithoutRepeatCourses(list, ComputerScience.electiveMajorCS);
-      // for (List lt1 in l2) {
-      //   list.add(lt1);
-      // }
-      //
-      // List l3 =
-      //     returnListWithoutRepeatCourses(list, Statistics.electiveMinorStat);
-      // for (List lt1 in l3) {
-      //   list.add(lt1);
-      // }
-      print(list.length);
-      return list;
+      List l3 = returnListWithoutRepeatCourses(l1, l2);
+
+      return l3;
     }
 
     return [];
