@@ -491,19 +491,10 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                 title: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      if (!CoursesService.departments
-                                          .contains(department)) {
-                                        Navigator.pop(context);
-                                        message(
-                                            'You have chose available department at profile page');
-                                      } else if (CoursesService.departments
+                                      if (CoursesService.departments
                                               .contains(department) &&
-                                          !CoursesService
+                                          CoursesService
                                               .isGlobalDepartmentValidationOK()) {
-                                        Navigator.pop(context);
-                                        message(
-                                            'you have to finish requirements Courses ');
-                                      } else {
                                         departmentOption = !departmentOption;
                                         setDepartmentChanges(departmentOption);
                                         CoursesService.departmentOption =
@@ -514,6 +505,17 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                               builder: (context) =>
                                                   HomeWithFireStorePage(),
                                             ));
+                                      } else if (!CoursesService.departments
+                                              .contains(department) &&
+                                          CoursesService
+                                              .isGlobalDepartmentValidationOK()) {
+                                        Navigator.pop(context);
+                                        message(
+                                            'You have chose available department at profile page');
+                                      } else {
+                                        Navigator.pop(context);
+                                        message(
+                                            'you have to finish requirements Courses ');
                                       }
                                     });
                                   },

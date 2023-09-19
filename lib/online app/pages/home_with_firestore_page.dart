@@ -77,7 +77,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
                   height: 20,
                 ),
                 Text(
-                  "Now, you can choose your department",
+                  "Now, you can choose your department at profile page",
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -88,7 +88,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
                   height: 10,
                 ),
                 Text(
-                  "Is your department Computer Science (Special) Alex ?",
+                  "Is your department Computer Science and Statistics (Alex)?",
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -125,7 +125,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
                       .doc(loggedInUser!.email)
                       .update({
                     'departmentOption': true,
-                    'department': 'Computer Science (Special) Alex ',
+                    'department': 'Computer Science and Statistics (Alex)',
                   });
                   Navigator.pushReplacement(
                     context,
