@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:cgp_calculator/online app/pages/home_with_firestore_page.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/computer_science.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/free_choice_courses.dart';
@@ -59,7 +58,6 @@ class CoursesService {
   }
 
   static List getDepartmentList() {
-    List list = [];
     if (departmentName == 'Computer Science and Statistics (Alex)') {
       List l1 = returnListWithoutRepeatCourses(
           ComputerScience.mandatoryMajorCS, Statistics.mandatoryMinorStat);
@@ -193,7 +191,8 @@ class CoursesService {
     return !val.contains(false);
   }
 
-  static bool courseEnrollingSystem(String courseName, int semestId) {
+  static bool courseEnrollingSystem(
+      String courseName, int semestId, List listInSemester) {
     Function eq = const ListEquality().equals;
 
     bool isValidMustCourses = true;
@@ -288,12 +287,27 @@ class CoursesService {
         }
       }
     }
+    List<bool> isInValidSemester = [true];
 
     if (departmentOption) {
       List<String> departCoursesNames = [];
+      List<String> divNames = [];
+
+      for (List divC in getDivisionList()) {
+        divNames.add(divC[0]);
+      }
       for (List list in getDepartmentList()) {
         departCoursesNames.add(list[0]);
       }
+
+      for (List course in listInSemester) {
+        if (divNames.contains(course[1]) &&
+            departCoursesNames.contains(courseName)) {
+          isInValidSemester.add(false);
+        }
+      }
+      print(isInValidSemester);
+
       if (!isGlobalDepartmentValidationOK() &&
           departmentOption &&
           departCoursesNames.contains(courseName)) {
@@ -324,7 +338,10 @@ class CoursesService {
         isValidMustCourses = false;
       }
     }
-    return isValidMustCourses && isValidOneCourses && isValidDp;
+    return isValidMustCourses &&
+        isValidOneCourses &&
+        isValidDp &&
+        !isInValidSemester.contains(false);
   }
 
   static List<String> getSuggestions(
@@ -364,7 +381,7 @@ class CoursesService {
             ///  TODO: in the next line you will not allow the user to improve their grade .
             !coursesNamesEntered.contains(course[0]) &&
                 !namesCoursesInSemest.contains(course[0]) &&
-                courseEnrollingSystem(course[0], semestId)) {
+                courseEnrollingSystem(course[0], semestId, listInSemester)) {
           matches.add(course[0]);
         }
       }
@@ -375,7 +392,7 @@ class CoursesService {
               ///  TODO: in the next line you will not allow the user to improve their grade .
               !coursesNamesEntered.contains(course[0]) &&
                   !namesCoursesInSemest.contains(course[0]) &&
-                  courseEnrollingSystem(course[0], semestId)) {
+                  courseEnrollingSystem(course[0], semestId, listInSemester)) {
             matches.add(course[0]);
           }
         }

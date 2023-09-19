@@ -187,7 +187,8 @@ class _CourseState extends State<Course> {
         }
         // is the name valid about courses requirements
 
-        if (!CoursesService.courseEnrollingSystem(Name, semesterID)) {
+        if (!CoursesService.courseEnrollingSystem(
+            Name, semesterID, widget.listCoursesInSemester)) {
           List<int> allSemesterIds = [];
           List<int> allSemesterIdsBeforeTheCurrentSemest = [];
           for (List semester in allSemesters) {
