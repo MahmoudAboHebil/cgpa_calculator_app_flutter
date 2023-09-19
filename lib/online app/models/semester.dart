@@ -1,6 +1,3 @@
-import 'dart:collection';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -880,10 +877,37 @@ class _SemesterFinState extends State<SemesterFin> {
                   onTap: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
                     addCourse();
+
                     if (CoursesService.isGlobalDepartmentValidationOK() &&
                         CoursesService.departmentOption &&
                         widget.department.isEmpty &&
                         CoursesService.systemOption) {
+                      findErrors();
+                      if (emptyField == null &&
+                          creditEqZero == null &&
+                          creditMoreThanThree == null &&
+                          validNameInList == null &&
+                          validRequirements == null &&
+                          repeatedField == null) {
+                        collectDate();
+                        calcGPA();
+                        widget.calcCGPA();
+                        setState(() {
+                          widget.isChanged = false;
+                          widget.ChangeList(widget.index, false, false);
+                        });
+                      }
+                      setState(() {
+                        emptyField = null;
+                        repeatedField = null;
+                        validNameInList = null;
+                        validRequirements = null;
+                        creditMoreThanThree = null;
+                        creditEqZero = null;
+                        errorTypeGrade.clear();
+                        errorTypeCredit.clear();
+                        errorTypeName.clear();
+                      });
                       departmentMessage(context);
                     }
                   },

@@ -1,17 +1,17 @@
 class NaturalSciences {
   static List collegeRequirementsCourses = [
     calculus_1_andGeometry,
-    // calculus_2_andAlgebra,
-    // mechanics_1,
-    // mechanics_2,
-    // computerProgrammingAndApplications,
-    // generalPhysics_1,
-    // generalPhysics_2,
-    // generalChemistry_1,
-    // generalChemistry_2,
-    // generalChemistry_Lab_1,
-    // generalChemistry_Lab_2,
-    // generalChemistry_3,
+    calculus_2_andAlgebra,
+    mechanics_1,
+    mechanics_2,
+    computerProgrammingAndApplications,
+    generalPhysics_1,
+    generalPhysics_2,
+    generalChemistry_1,
+    generalChemistry_2,
+    generalChemistry_Lab_1,
+    generalChemistry_Lab_2,
+    generalChemistry_3,
   ];
   static final List calculus_1_andGeometry = [
     'Calculus (1) and Geometry _ متطلب كلية ',
