@@ -240,9 +240,7 @@ class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
         ];
       }
     }
-    print('in method ');
-    print(semest);
-    // print(courses);
+
     return semest;
   }
 
@@ -277,8 +275,7 @@ class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
             keys = keys.toSet().toList();
             keys.sort();
             keys.remove(-1);
-            print('3#33333333333 keys  3333333333333333333');
-            print(keys);
+
             if (flag) {
               for (int i = 0; i < keys.length; i++) {
                 if (allSemesters2.length < keys.length) {
@@ -307,7 +304,6 @@ class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
               key: _keySemester,
               physics: ScrollPhysics(),
               itemBuilder: (context, index, animation) {
-                print(allSemesters2);
                 return SizeTransition(
                   // key: ObjectKey(allSemesters[index][0].toString()),
 

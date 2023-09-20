@@ -14,6 +14,15 @@ class CommonDPCourses {
     '040101231',
     [[], []]
   ];
+  static final List linearAlgebra = [
+    'Linear Algebra',
+    '3',
+    '040101203',
+    [
+      ['040101102'],
+      []
+    ]
+  ];
   static final List mathematicalAnalysis = [
     'Mathematical Analysis',
     '3',

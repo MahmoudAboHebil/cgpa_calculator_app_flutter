@@ -1,5 +1,6 @@
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:cgp_calculator/online%20app/pages/welcome_page.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -480,7 +481,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         [maxSemester + 1, null, null, null, null, 'one', uniqueId]
       ]);
       isChangeList.add(false);
-      print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
+      // print([maxSemester + 1, null, null, null, null, 'one', uniqueId]);
       homeWithFireStoreServices!.addCourseInDB(
           maxSemester + 1, uniqueId, null, null, null, null, 'one');
       _keySemester.currentState!
@@ -620,6 +621,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                       child: PageView(
                         scrollDirection: Axis.horizontal,
                         controller: _pageViewController,
+                        allowImplicitScrolling: true,
+                        padEnds: false,
                         onPageChanged: (page) {
                           setState(() {
                             if (page == 1) {

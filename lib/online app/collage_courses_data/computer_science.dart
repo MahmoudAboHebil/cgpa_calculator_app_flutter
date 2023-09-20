@@ -4,24 +4,44 @@ class ComputerScience {
   static List addMajorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
+    String nickDpName = '';
     if (isMandatoryCourse) {
       newName = '$courseName _ رئيسى إجبارى';
+      nickDpName = 'Major-Mandatory';
     } else {
       newName = '$courseName _ رئيسى إختيارى';
+      nickDpName = 'Major-Elective';
     }
-    List newCourse = [newName, course[1], course[2], course[3], courseName];
+    List newCourse = [
+      newName,
+      course[1],
+      course[2],
+      course[3],
+      courseName,
+      nickDpName
+    ];
     return newCourse;
   }
 
   static List addMinorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
+    String nickDpName = '';
     if (isMandatoryCourse) {
       newName = '$courseName _ فرعى إجبارى';
+      nickDpName = 'Minor-Mandatory';
     } else {
       newName = '$courseName _ فرعى إختيارى';
+      nickDpName = 'Minor-Elective';
     }
-    List newCourse = [newName, course[1], course[2], course[3], courseName];
+    List newCourse = [
+      newName,
+      course[1],
+      course[2],
+      course[3],
+      courseName,
+      nickDpName
+    ];
     return newCourse;
   }
 
@@ -36,6 +56,8 @@ class ComputerScience {
     addMajorString(advancedProgramming, true),
     addMajorString(computerProgramming_Practical, true),
     addMajorString(CommonDPCourses.matrices, true),
+
+    // addMajorString(CommonDPCourses.linearAlgebra, true),
     addMajorString(digitalLogicCircuits, true),
     addMajorString(operatingSystems, true),
     addMajorString(databaseManagementSystems, true),
@@ -263,7 +285,10 @@ class ComputerScience {
     '2',
     '040103211',
     [
-      ['040103102'],
+      [
+        // '040103102'  error
+        '040102102'
+      ],
       []
     ]
   ];

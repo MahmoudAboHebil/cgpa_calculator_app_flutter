@@ -6,6 +6,7 @@ import 'package:cgp_calculator/online%20app/collage_courses_data/natural_science
 import 'package:cgp_calculator/online%20app/collage_courses_data/statistics.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../collage_courses_data/common_department_courses.dart';
 import '../collage_courses_data/university_requirement_courses.dart';
 
 class CoursesService {
@@ -57,6 +58,27 @@ class CoursesService {
     return returnList;
   }
 
+  static List editingOnDepartment(List list, List oldCourse, List newCourse) {
+    List newList = [];
+    String oldName = oldCourse[0];
+    for (List cor in list) {
+      if (cor[4] == oldName) {
+        if (cor[5] == 'Major-Mandatory') {
+          newList.add(ComputerScience.addMajorString(newCourse, true));
+        } else if (cor[5] == 'Major-Elective') {
+          newList.add(ComputerScience.addMajorString(newCourse, false));
+        } else if (cor[5] == 'Minor-Mandatory') {
+          newList.add(ComputerScience.addMinorString(newCourse, true));
+        } else {
+          newList.add(ComputerScience.addMinorString(newCourse, false));
+        }
+      } else {
+        newList.add(cor);
+      }
+    }
+    return newList;
+  }
+
   static List getDepartmentList() {
     if (departmentName == 'Computer Science and Statistics (Alex)') {
       List l1 = returnListWithoutRepeatCourses(
@@ -67,7 +89,10 @@ class CoursesService {
 
       List l3 = returnListWithoutRepeatCourses(l1, l2);
 
-      return l3;
+      List l4 = editingOnDepartment(
+          l3, CommonDPCourses.matrices, CommonDPCourses.linearAlgebra);
+
+      return l4;
     }
 
     return [];
@@ -306,7 +331,6 @@ class CoursesService {
           isInValidSemester.add(false);
         }
       }
-      print(isInValidSemester);
 
       if (!isGlobalDepartmentValidationOK() &&
           departmentOption &&

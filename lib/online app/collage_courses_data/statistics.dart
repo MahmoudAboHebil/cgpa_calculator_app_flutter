@@ -4,24 +4,44 @@ class Statistics {
   static List addMajorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
+    String nickDpName = '';
     if (isMandatoryCourse) {
       newName = '$courseName _ رئيسى إجبارى';
+      nickDpName = 'Major-Mandatory';
     } else {
       newName = '$courseName _ رئيسى إختيارى';
+      nickDpName = 'Major-Elective';
     }
-    List newCourse = [newName, course[1], course[2], course[3], courseName];
+    List newCourse = [
+      newName,
+      course[1],
+      course[2],
+      course[3],
+      courseName,
+      nickDpName
+    ];
     return newCourse;
   }
 
   static List addMinorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
+    String nickDpName = '';
     if (isMandatoryCourse) {
       newName = '$courseName _ فرعى إجبارى';
+      nickDpName = 'Minor-Mandatory';
     } else {
       newName = '$courseName _ فرعى إختيارى';
+      nickDpName = 'Minor-Elective';
     }
-    List newCourse = [newName, course[1], course[2], course[3], courseName];
+    List newCourse = [
+      newName,
+      course[1],
+      course[2],
+      course[3],
+      courseName,
+      nickDpName
+    ];
     return newCourse;
   }
 
@@ -70,23 +90,23 @@ class Statistics {
     //###########################
     // stat major courses
     addMinorString(
-        CommonDPCourses.introductionToProbabilityAndStatistics, true),
-    addMinorString(statisticalMethods, true),
-    addMinorString(regressionAnalysis, true),
-    addMinorString(theoryOfStatistics_1, true),
-    addMinorString(CommonDPCourses.matrices, true),
-    addMinorString(CommonDPCourses.mathematicalAnalysis, true),
-    addMinorString(non_parametricStatistics, true),
-    addMinorString(simulationAndSamplingTechniques, true),
-    addMinorString(theoryOfStatistics_2, true),
-    addMinorString(multivariateStatisticalAnalysis, true),
-    addMinorString(timeSeriesAnalysis, true),
-    addMinorString(statisticalComputing, true),
-    addMinorString(operationsResearch_1, true),
-    addMinorString(linearStatisticalModels, true),
-    addMinorString(stochasticProcesses, true),
-    addMinorString(operationResearch_2, true),
-    addMinorString(researchProject_statistics, true)
+        CommonDPCourses.introductionToProbabilityAndStatistics, false),
+    addMinorString(statisticalMethods, false),
+    addMinorString(regressionAnalysis, false),
+    addMinorString(theoryOfStatistics_1, false),
+    addMinorString(CommonDPCourses.matrices, false),
+    addMinorString(CommonDPCourses.mathematicalAnalysis, false),
+    addMinorString(non_parametricStatistics, false),
+    addMinorString(simulationAndSamplingTechniques, false),
+    addMinorString(theoryOfStatistics_2, false),
+    addMinorString(multivariateStatisticalAnalysis, false),
+    addMinorString(timeSeriesAnalysis, false),
+    addMinorString(statisticalComputing, false),
+    addMinorString(operationsResearch_1, false),
+    addMinorString(linearStatisticalModels, false),
+    addMinorString(stochasticProcesses, false),
+    addMinorString(operationResearch_2, false),
+    addMinorString(researchProject_statistics, false)
   ];
 
   static final List statisticalMethods = [
