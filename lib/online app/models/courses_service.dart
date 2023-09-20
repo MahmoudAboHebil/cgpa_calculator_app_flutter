@@ -4,7 +4,7 @@ import 'package:cgp_calculator/online%20app/collage_courses_data/computer_scienc
 import 'package:cgp_calculator/online%20app/collage_courses_data/free_choice_courses.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/natural_sciences_division.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/statistics.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 
 import '../collage_courses_data/common_department_courses.dart';
 import '../collage_courses_data/university_requirement_courses.dart';
@@ -218,7 +218,7 @@ class CoursesService {
 
   static bool courseEnrollingSystem(
       String courseName, int semestId, List listInSemester) {
-    Function eq = const ListEquality().equals;
+    Function eq = DeepCollectionEquality.unordered().equals;
 
     bool isValidMustCourses = true;
     bool isValidOneCourses = true;
@@ -248,34 +248,74 @@ class CoursesService {
       val.add(false);
     }
 
-    for (List semester in allSemesters) {
-      for (List course in semester) {
-        if (course[0] < semestId) {
-          if (course[1] != null && course[3] != null) {
-            if (course[3] != 'U' &&
-                course[3] != 'F' &&
-                course[3] != 'Non' &&
-                course[4] == null) {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustBeEnrolled.contains(num)) {
-                  val1.add(num);
+    if (!coursesMustBeEnrolled.contains('m')) {
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[0] < semestId) {
+            if (course[1] != null && course[3] != null) {
+              if (course[3] != 'U' &&
+                  course[3] != 'F' &&
+                  course[3] != 'Non' &&
+                  course[4] == null) {
+                String? num = getCourseNumberByName(course[1]);
+                if (num != null) {
+                  if (coursesMustBeEnrolled.contains(num)) {
+                    val1.add(num);
+                  }
                 }
-              }
-            } else if (course[4] != null &&
-                course[4] != 'U' &&
-                course[4] != 'F' &&
-                course[4] != 'Non') {
-              String? num = getCourseNumberByName(course[1]);
-              if (num != null) {
-                if (coursesMustBeEnrolled.contains(num)) {
-                  val1.add(num);
+              } else if (course[4] != null &&
+                  course[4] != 'U' &&
+                  course[4] != 'F' &&
+                  course[4] != 'Non') {
+                String? num = getCourseNumberByName(course[1]);
+                if (num != null) {
+                  if (coursesMustBeEnrolled.contains(num)) {
+                    val1.add(num);
+                  }
                 }
               }
             }
           }
         }
       }
+    } else {
+      //###################################################
+      // this type 1:
+      List<int> list = [0];
+      for (List semester in allSemesters) {
+        for (List course in semester) {
+          if (course[1] != null) {
+            String? num = getCourseNumberByName(course[1]);
+            if (coursesMustBeEnrolled.contains(num)) {
+              list.add(course[0]);
+            }
+          }
+        }
+      }
+
+      int maxSemester = list.max;
+
+      if (semestId >= maxSemester &&
+          list.length >= coursesMustBeEnrolled.length) {
+        val = [];
+        coursesMustBeEnrolled = [];
+      }
+
+      //###################################################
+      // this type 2:
+      // val1 = [];
+
+      // for (List course in listInSemester) {
+      //   if (course[1] != null) {
+      //     String? num = getCourseNumberByName(course[1]);
+      //     if (num != null) {
+      //       if (coursesMustBeEnrolled.contains(num)) {
+      //         val1.add(num);
+      //       }
+      //     }
+      //   }
+      // }
+      // val1.add('m');
     }
     if (coursesMustOneBeEnrolled.isNotEmpty) {
       for (List semester in allSemesters) {
@@ -350,7 +390,7 @@ class CoursesService {
     }
     if (coursesMustBeEnrolled.contains('4')) {
       if (earnCredit >= 100) {
-        coursesMustBeEnrolled.remove('4');
+        val1.add('4');
         if (!eq(val1, coursesMustBeEnrolled)) {
           isValidMustCourses = false;
         }
