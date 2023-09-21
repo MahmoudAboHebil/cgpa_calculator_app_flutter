@@ -1,3 +1,4 @@
+import 'package:cgp_calculator/online%20app/collage_courses_data/university_requirement_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -359,7 +360,20 @@ class _SemesterFinState extends State<SemesterFin> {
     setState(() {
       for (List list in listOfCoursesInSemester) {
         if (list[1] != null && list[2] != null && list[3] != null) {
-          allCoursesInSemstd.add(list);
+          if (list[1] !=
+              UniversityRequirement.mandatoryUniversityRequirements[0][0]) {
+            allCoursesInSemstd.add(list);
+          } else {
+            String grade1 = list[3];
+            String? grade2 = list[4];
+            int credit = int.parse(list[2]);
+            totalCredit = totalCredit + credit;
+            String grade = grade2 ?? grade1;
+            if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+              //  passed course
+              earnCredit = earnCredit + credit;
+            }
+          }
         }
       }
     });
@@ -374,6 +388,7 @@ class _SemesterFinState extends State<SemesterFin> {
         int credit = int.parse(value[2]);
         double pointOfGrade = 0.0;
         double pointOfCourse = 0.0;
+
         setState(() {
           if (grade == 'A') {
             pointOfGrade = 4.00;
@@ -717,7 +732,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           ),
                           !widget.isChanged
                               ? Text(
-                                  '${GPA.toStringAsFixed(3)}',
+                                  '${GPA.toStringAsFixed(2)}',
                                   style: TextStyle(
                                     color: Color(0xff4562a7),
                                     fontSize: 18,

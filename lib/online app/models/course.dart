@@ -201,14 +201,12 @@ class _CourseState extends State<Course> {
               allSemesterIdsBeforeTheCurrentSemest.add(v);
             }
           }
-          print('$allSemesterIdsBeforeTheCurrentSemest');
           setState(() {
             namesCoursesNotInRequirements.add(courseID.toString());
             namesCoursesNotInRequirements =
                 LinkedHashSet<String>.from(namesCoursesNotInRequirements)
                     .toList();
           });
-          print('##############################################');
 
           isValidRequirements = false;
         } else {

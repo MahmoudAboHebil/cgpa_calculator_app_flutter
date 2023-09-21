@@ -10,8 +10,10 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
 import '../../widgets/my_custom_appbar.dart';
 import '../../widgets/my_navigation_drawer.dart';
+import '../collage_courses_data/university_requirement_courses.dart';
 import '../models/courses_service.dart';
 import '../models/semester.dart';
+import 'courses_page.dart';
 import 'home_with_semester_page.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
@@ -511,126 +513,133 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             double pointOfGrade = 0.0;
             double pointOfGrade2 = 0.0;
             double pointOfCourse = 0.0;
-            setState(() {
-              if (grade1 == 'A') {
-                pointOfGrade = 4.00;
-              } else if (grade1 == 'A-') {
-                pointOfGrade = 3.67;
-              } else if (grade1 == 'B+') {
-                pointOfGrade = 3.33;
-              } else if (grade1 == 'B') {
-                pointOfGrade = 3.00;
-              } else if (grade1 == 'B-') {
-                pointOfGrade = 2.67;
-              } else if (grade1 == 'C+') {
-                pointOfGrade = 2.33;
-              } else if (grade1 == 'C') {
-                pointOfGrade = 2.00;
-              } else if (grade1 == 'C-') {
-                pointOfGrade = 1.67;
-              } else if (grade1 == 'D+') {
-                pointOfGrade = 1.33;
-              } else if (grade1 == 'D') {
-                pointOfGrade = 1.00;
-              } else if (grade1 == 'F') {
-                pointOfGrade = 0.00;
-              } else if (grade1 == 'S') {
-                pointOfGrade = -1.00;
-              } else if (grade1 == 'Non') {
-                pointOfGrade = -3.00;
-              } else {
-                // u grade
-                pointOfGrade = -2.00;
+            if (course[1] ==
+                UniversityRequirement.mandatoryUniversityRequirements[0][0]) {
+              totalCredit = totalCredit + credit;
+              String grade = grade2 ?? grade1;
+              if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+                //  passed course
+                earnCredit = earnCredit + credit;
               }
-              if (grade2 != null && grade2.isNotEmpty) {
-                if (grade2 == 'A') {
-                  pointOfGrade2 = 4.00;
-                } else if (grade2 == 'A-') {
-                  pointOfGrade2 = 3.67;
-                } else if (grade2 == 'B+') {
-                  pointOfGrade2 = 3.33;
-                } else if (grade2 == 'B') {
-                  pointOfGrade2 = 3.00;
-                } else if (grade2 == 'B-') {
-                  pointOfGrade2 = 2.67;
-                } else if (grade2 == 'C+') {
-                  pointOfGrade2 = 2.33;
-                } else if (grade2 == 'C') {
-                  pointOfGrade2 = 2.00;
-                } else if (grade2 == 'C-') {
-                  pointOfGrade2 = 1.67;
-                } else if (grade2 == 'D+') {
-                  pointOfGrade2 = 1.33;
-                } else if (grade2 == 'D') {
-                  pointOfGrade2 = 1.00;
-                } else if (grade2 == 'F') {
-                  pointOfGrade2 = 0.00;
-                } else if (grade2 == 'S') {
-                  pointOfGrade2 = -1.00;
-                } else if (grade2 == 'Non') {
-                  pointOfGrade2 = -3.00;
+            } else {
+              setState(() {
+                if (grade1 == 'A') {
+                  pointOfGrade = 4.00;
+                } else if (grade1 == 'A-') {
+                  pointOfGrade = 3.67;
+                } else if (grade1 == 'B+') {
+                  pointOfGrade = 3.33;
+                } else if (grade1 == 'B') {
+                  pointOfGrade = 3.00;
+                } else if (grade1 == 'B-') {
+                  pointOfGrade = 2.67;
+                } else if (grade1 == 'C+') {
+                  pointOfGrade = 2.33;
+                } else if (grade1 == 'C') {
+                  pointOfGrade = 2.00;
+                } else if (grade1 == 'C-') {
+                  pointOfGrade = 1.67;
+                } else if (grade1 == 'D+') {
+                  pointOfGrade = 1.33;
+                } else if (grade1 == 'D') {
+                  pointOfGrade = 1.00;
+                } else if (grade1 == 'F') {
+                  pointOfGrade = 0.00;
+                } else if (grade1 == 'S') {
+                  pointOfGrade = -1.00;
+                } else if (grade1 == 'Non') {
+                  pointOfGrade = -3.00;
                 } else {
                   // u grade
-                  pointOfGrade2 = -2.00;
+                  pointOfGrade = -2.00;
                 }
-              }
-            });
-            setState(() {
-              print('$grade2');
-              if (grade2 == null) {
-                if (pointOfGrade >= 0.00) {
-                  // not s/u course
-                  totalCredit_without_SU = totalCredit_without_SU + credit;
-                  totalCredit = totalCredit + credit;
-                  pointOfCourse = pointOfGrade * credit;
-                  totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-                } else {
-                  // s/u course
-                  totalCredit = totalCredit + credit;
+                if (grade2 != null && grade2.isNotEmpty) {
+                  if (grade2 == 'A') {
+                    pointOfGrade2 = 4.00;
+                  } else if (grade2 == 'A-') {
+                    pointOfGrade2 = 3.67;
+                  } else if (grade2 == 'B+') {
+                    pointOfGrade2 = 3.33;
+                  } else if (grade2 == 'B') {
+                    pointOfGrade2 = 3.00;
+                  } else if (grade2 == 'B-') {
+                    pointOfGrade2 = 2.67;
+                  } else if (grade2 == 'C+') {
+                    pointOfGrade2 = 2.33;
+                  } else if (grade2 == 'C') {
+                    pointOfGrade2 = 2.00;
+                  } else if (grade2 == 'C-') {
+                    pointOfGrade2 = 1.67;
+                  } else if (grade2 == 'D+') {
+                    pointOfGrade2 = 1.33;
+                  } else if (grade2 == 'D') {
+                    pointOfGrade2 = 1.00;
+                  } else if (grade2 == 'F') {
+                    pointOfGrade2 = 0.00;
+                  } else if (grade2 == 'S') {
+                    pointOfGrade2 = -1.00;
+                  } else if (grade2 == 'Non') {
+                    pointOfGrade2 = -3.00;
+                  } else {
+                    // u grade
+                    pointOfGrade2 = -2.00;
+                  }
                 }
+              });
+              setState(() {
+                if (grade2 == null) {
+                  if (pointOfGrade >= 0.00) {
+                    // not s/u course
+                    totalCredit_without_SU = totalCredit_without_SU + credit;
+                    totalCredit = totalCredit + credit;
+                    pointOfCourse = pointOfGrade * credit;
+                    totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                  } else {
+                    // s/u course
+                    totalCredit = totalCredit + credit;
+                  }
 
-                if (!(pointOfGrade == 0.00 ||
-                    pointOfGrade == -2.00 ||
-                    pointOfGrade == -3.00)) {
-                  //  passed course
-                  earnCredit = earnCredit + credit;
-                }
-              } else if ((pointOfGrade2 == -1.00 ||
-                  pointOfGrade2 == -2.00 ||
-                  pointOfGrade2 == -3.00)) {
-                if (pointOfGrade2 == -1.00 && pointOfGrade == -2.00) {
-                  earnCredit = earnCredit + credit;
-                  totalCredit = totalCredit + credit;
-                } else if (pointOfGrade2 == -2.00 && pointOfGrade == -1.00) {
-                  earnCredit = earnCredit - credit;
-                }
-              } else {
-                double p2 = pointOfGrade2 * credit;
-                double p1 = pointOfGrade * credit;
-
-                if (p2 >= p1 && pointOfGrade2 != 0.00) {
-                  if (p1 == 0.00 && p2 == 0.00) {
-                  } else if (p1 == 0.00 && p2 != 0.00) {
+                  if (!(pointOfGrade == 0.00 ||
+                      pointOfGrade == -2.00 ||
+                      pointOfGrade == -3.00)) {
+                    //  passed course
                     earnCredit = earnCredit + credit;
-                    pointOfCourse = p2 - p1;
-                    totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-                  } else {
-                    pointOfCourse = p2 - p1;
-                    totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                  }
+                } else if ((pointOfGrade2 == -1.00 ||
+                    pointOfGrade2 == -2.00 ||
+                    pointOfGrade2 == -3.00)) {
+                  if (pointOfGrade2 == -1.00 && pointOfGrade == -2.00) {
+                    earnCredit = earnCredit + credit;
+                    totalCredit = totalCredit + credit;
+                  } else if (pointOfGrade2 == -2.00 && pointOfGrade == -1.00) {
+                    earnCredit = earnCredit - credit;
                   }
                 } else {
-                  // p2<p1
-                  if (p2 == 0.00 && p1 != 0.00) {
-                    earnCredit = earnCredit - credit;
-                    totalCredit_without_SU = totalCredit_without_SU + credit;
-                  } else {
-                    totalCredit_without_SU = totalCredit_without_SU + credit;
+                  double p2 = pointOfGrade2 * credit;
+                  double p1 = pointOfGrade * credit;
 
-                    totalPointsOfSemest = totalPointsOfSemest + p2;
+                  if (p2 >= p1 && pointOfGrade2 != 0.00) {
+                    if (p1 == 0.00 && p2 == 0.00) {
+                    } else if (p1 == 0.00 && p2 != 0.00) {
+                      earnCredit = earnCredit + credit;
+                      pointOfCourse = p2 - p1;
+                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                    } else {
+                      pointOfCourse = p2 - p1;
+                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                    }
+                  } else {
+                    // p2<p1
+                    if (p2 == 0.00 && p1 != 0.00) {
+                      earnCredit = earnCredit - credit;
+                      totalCredit_without_SU = totalCredit_without_SU + credit;
+                    } else {
+                      // p1 == 0.00 && p2 == 0.00
+                    }
                   }
                 }
-              }
-            });
+              });
+            }
           }
         }
       }

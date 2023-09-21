@@ -151,14 +151,15 @@ class ComputerScience {
     '1',
     '040103207',
     [
-      ['040103205', '040103201'],
+      ['040103205', '040103201', 'm'],
       []
     ]
   ];
 
   static final List digitalLogicCircuits = [
     'Digital Logic Circuits',
-    '3',
+    // '3', not in reality
+    '2',
     '040103250',
     [[], []]
   ];
@@ -237,7 +238,8 @@ class ComputerScience {
   ];
   static final List ordinaryDifferentialEquations = [
     'Ordinary Differential Equations',
-    '3',
+    // '3', not in  reality
+    '2',
     '040101204',
     [
       ['040101102'],

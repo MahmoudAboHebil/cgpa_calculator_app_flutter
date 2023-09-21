@@ -89,7 +89,7 @@ class AppBar extends StatelessWidget {
                           Padding(
                             padding: EdgeInsets.only(left: 20),
                             child: Text(
-                              '${cgpa.toStringAsFixed(3)}',
+                              '${cgpa.toStringAsFixed(4)}',
                               style: TextStyle(
                                   color: Color(0xff4562a7),
                                   fontSize: 20,

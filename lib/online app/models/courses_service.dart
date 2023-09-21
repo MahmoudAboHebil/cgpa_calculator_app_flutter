@@ -61,6 +61,8 @@ class CoursesService {
   static List editingOnDepartment(List list, List oldCourse, List newCourse) {
     List newList = [];
     String oldName = oldCourse[0];
+    String oldNumber = oldCourse[2];
+    newCourse[2] = oldNumber;
     for (List cor in list) {
       if (cor[4] == oldName) {
         if (cor[5] == 'Major-Mandatory') {
@@ -280,42 +282,75 @@ class CoursesService {
       }
     } else {
       //###################################################
+
       // this type 1:
-      List<int> list = [0];
-      for (List semester in allSemesters) {
-        for (List course in semester) {
-          if (course[1] != null) {
-            String? num = getCourseNumberByName(course[1]);
+      val1 = [];
+
+      for (List course in listInSemester) {
+        if (course[1] != null) {
+          String? num = getCourseNumberByName(course[1]);
+          if (num != null) {
             if (coursesMustBeEnrolled.contains(num)) {
-              list.add(course[0]);
+              val1.add(num);
             }
           }
         }
       }
-
-      int maxSemester = list.max;
-
-      if (semestId >= maxSemester &&
-          list.length >= coursesMustBeEnrolled.length) {
-        val = [];
-        coursesMustBeEnrolled = [];
+      val1.add('m');
+      if (!eq(val1, coursesMustBeEnrolled)) {
+        val1 = [];
+        for (List semester in allSemesters) {
+          for (List course in semester) {
+            if (course[0] < semestId) {
+              if (course[1] != null && course[3] != null) {
+                if (course[3] != 'U' &&
+                    course[3] != 'F' &&
+                    course[3] != 'Non' &&
+                    course[4] == null) {
+                  String? num = getCourseNumberByName(course[1]);
+                  if (num != null) {
+                    if (coursesMustBeEnrolled.contains(num)) {
+                      val1.add(num);
+                    }
+                  }
+                } else if (course[4] != null &&
+                    course[4] != 'U' &&
+                    course[4] != 'F' &&
+                    course[4] != 'Non') {
+                  String? num = getCourseNumberByName(course[1]);
+                  if (num != null) {
+                    if (coursesMustBeEnrolled.contains(num)) {
+                      val1.add(num);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        val1.add('m');
       }
-
       //###################################################
       // this type 2:
-      // val1 = [];
-
-      // for (List course in listInSemester) {
-      //   if (course[1] != null) {
-      //     String? num = getCourseNumberByName(course[1]);
-      //     if (num != null) {
+      // List<int> list = [0];
+      // for (List semester in allSemesters) {
+      //   for (List course in semester) {
+      //     if (course[1] != null) {
+      //       String? num = getCourseNumberByName(course[1]);
       //       if (coursesMustBeEnrolled.contains(num)) {
-      //         val1.add(num);
+      //         list.add(course[0]);
       //       }
       //     }
       //   }
       // }
-      // val1.add('m');
+      //
+      // int maxSemester = list.max;
+      //
+      // if (semestId >= maxSemester &&
+      //     list.length >= coursesMustBeEnrolled.length) {
+      //   val = [];
+      //   coursesMustBeEnrolled = [];
+      // }
     }
     if (coursesMustOneBeEnrolled.isNotEmpty) {
       for (List semester in allSemesters) {
@@ -352,6 +387,10 @@ class CoursesService {
         }
       }
     }
+    val1 = LinkedHashSet<String>.from(val1).toList();
+    coursesMustBeEnrolled =
+        LinkedHashSet<String>.from(coursesMustBeEnrolled).toList();
+
     List<bool> isInValidSemester = [true];
 
     if (departmentOption) {
