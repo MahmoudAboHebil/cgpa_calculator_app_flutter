@@ -10,6 +10,7 @@ import '../online app/pages/profile_page.dart';
 import '../online app/pages/review_page.dart';
 import '../online app/pages/sign_in_page.dart';
 
+// test for error in githup
 Duration _kDuration = Duration(milliseconds: 300);
 Curve _kCurve = Curves.ease;
 
