@@ -366,40 +366,43 @@ class _SemesterFinState extends State<SemesterFin> {
     if (allCoursesInSemstd.isNotEmpty) {
       for (var value in allCoursesInSemstd) {
         String grade1 = value[3];
+        String? grade2 = value[4];
+        String grade = grade2 ?? grade1;
+
         // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 
         int credit = int.parse(value[2]);
         double pointOfGrade = 0.0;
         double pointOfCourse = 0.0;
         setState(() {
-          if (grade1 == 'A') {
+          if (grade == 'A') {
             pointOfGrade = 4.00;
-          } else if (grade1 == 'A-') {
+          } else if (grade == 'A-') {
             pointOfGrade = 3.67;
-          } else if (grade1 == 'B+') {
+          } else if (grade == 'B+') {
             pointOfGrade = 3.33;
-          } else if (grade1 == 'B') {
+          } else if (grade == 'B') {
             pointOfGrade = 3.00;
-          } else if (grade1 == 'B-') {
+          } else if (grade == 'B-') {
             pointOfGrade = 2.67;
-          } else if (grade1 == 'C+') {
+          } else if (grade == 'C+') {
             pointOfGrade = 2.33;
-          } else if (grade1 == 'C') {
+          } else if (grade == 'C') {
             pointOfGrade = 2.00;
-          } else if (grade1 == 'C-') {
+          } else if (grade == 'C-') {
             pointOfGrade = 1.67;
-          } else if (grade1 == 'D+') {
+          } else if (grade == 'D+') {
             pointOfGrade = 1.33;
-          } else if (grade1 == 'D') {
+          } else if (grade == 'D') {
             pointOfGrade = 1.00;
-          } else if (grade1 == 'F') {
+          } else if (grade == 'F') {
             pointOfGrade = 0.00;
-          } else if (grade1 == 'S') {
+          } else if (grade == 'S') {
             pointOfGrade = -1.00;
-          } else if (grade1 == 'Non') {
+          } else if (grade == 'Non') {
             pointOfGrade = -3.00;
           } else {
-            // S grade
+            // u grade
             pointOfGrade = -2.00;
           }
         });

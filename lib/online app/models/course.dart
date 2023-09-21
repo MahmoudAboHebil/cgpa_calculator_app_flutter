@@ -862,9 +862,13 @@ class _CourseState extends State<Course> {
                   widget.courseList[5] = 'two';
                   widget.listCoursesInSemester[widget.index][5] = 'two';
                 });
+                widget.callBackUpdateChange();
               }
+
               widget.callBackUpdateListCoursesInSemester(
                   widget.listCoursesInSemester);
+              widget.calcCGPA();
+              widget.calcGPA();
             });
           },
           child: AbsorbPointer(
