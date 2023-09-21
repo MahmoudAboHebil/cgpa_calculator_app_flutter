@@ -480,8 +480,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   decoration: InputDecoration(
                                     isDense: true,
                                     contentPadding: EdgeInsets.only(bottom: 10),
-                                    hintText:
-                                        'Enter your (division - شعبة) Option',
+                                    hintText: 'Enter your (division - شعبة)',
                                     hintStyle: TextStyle(
                                         color: Colors.grey, fontSize: 18),
                                     enabledBorder: UnderlineInputBorder(
@@ -759,16 +758,24 @@ class _ContentSignUpState extends State<ContentSignUp> {
                               onTap: () async {
                                 final prov = Provider.of<AuthServer>(context,
                                     listen: false);
+                                await prov.googleLogout();
                                 // await prov.googleLogout();
                                 setState(() {
                                   showProgress = true;
                                 });
                                 await prov.googleLogin();
-                                addUserInfo(
-                                    prov.gUser!.email.toLowerCase(),
-                                    prov.gUser!.displayName,
-                                    prov.gUser!.photoUrl,
-                                    null);
+                                if (prov.gUser != null) {
+                                  addUserInfo(
+                                      prov.gUser!.email.toLowerCase(),
+                                      prov.gUser!.displayName,
+                                      prov.gUser!.photoUrl,
+                                      null);
+                                } else {
+                                  setState(() {
+                                    showProgress = false;
+                                  });
+                                }
+
                                 setState(() {
                                   showProgress = false;
                                 });

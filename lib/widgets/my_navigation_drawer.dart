@@ -262,7 +262,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                       Text(
                         text,
                         style: TextStyle(fontSize: 14, color: Colors.white),
-                        maxLines: 2,
+                        maxLines: 3,
                       )
                     ],
                   ),
@@ -516,7 +516,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                       } else {
                                         Navigator.pop(context);
                                         message(
-                                            'you have to finish requirements Courses ');
+                                            'you have to finish requirements Courses (متطلب كلية)');
                                       }
                                     });
                                   },

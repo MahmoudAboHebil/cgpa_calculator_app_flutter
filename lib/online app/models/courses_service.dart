@@ -18,11 +18,11 @@ class CoursesService {
   static List<String> divisions = [
     // 'Computer Science (Special) Alex ',
 
-    'Natural Sciences Division  Alex',
+    'Natural Sciences Division (Alex)',
   ];
   static List<String> departments = ['Computer Science and Statistics (Alex)'];
   static List getDivisionList() {
-    if (divisionName == 'Natural Sciences Division  Alex') {
+    if (divisionName == 'Natural Sciences Division (Alex)') {
       return NaturalSciences.collegeRequirementsCourses;
     }
     return [];

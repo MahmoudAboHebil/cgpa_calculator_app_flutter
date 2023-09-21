@@ -32,7 +32,8 @@ class SemesterFin extends StatefulWidget {
 }
 
 class _SemesterFinState extends State<SemesterFin> {
-  final _keyAniListCourses = GlobalKey<AnimatedListState>();
+  GlobalKey<AnimatedListState> _keyAniListCourses =
+      GlobalKey<AnimatedListState>(debugLabel: '__RIKEY Courses __');
   // late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
   var uuid = Uuid();

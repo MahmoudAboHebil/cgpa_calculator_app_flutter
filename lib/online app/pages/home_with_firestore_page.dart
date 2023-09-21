@@ -3,6 +3,7 @@ import 'package:cgp_calculator/online%20app/pages/welcome_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +30,7 @@ class MyBehavior extends ScrollBehavior {
 
 bool isTab = false;
 int earnCredit = 0;
+bool flag3 = true;
 
 List allSemesters = [
   // // semester one
@@ -155,11 +157,15 @@ class HomeWithFireStorePage extends StatefulWidget {
 }
 
 class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
-  final _keySemester = GlobalKey<AnimatedListState>();
+  GlobalKey<AnimatedListState> _keySemester =
+      GlobalKey<AnimatedListState>(debugLabel: '__RIKEY1  semest __');
   final _pageViewController = PageController();
   final _auth = FirebaseAuth.instance;
   CollectionReference? _usersInfo =
       FirebaseFirestore.instance.collection('UsersInfo');
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+  final _controller_div = TextEditingController();
+
   List<bool> isChangeList =
       []; // to update calc_GPA button when there is any changing  in the course
   List keySemesters = [];
@@ -172,9 +178,147 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   bool flag = true;
   bool flag2 = true;
   bool calcFlag = true;
-  String division = '';
+  String division = 'non';
   String department = '';
+
   // bool showSpinner2 = true;
+  Future<dynamic> divisionMessage() {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              alignment: Alignment.center,
+              backgroundColor: Color(0xffb8c8d1),
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Please, Enter your division ",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color(0xff004d60),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    child: TypeAheadFormField(
+                      textFieldConfiguration: TextFieldConfiguration(
+                        textAlign: TextAlign.center,
+                        controller: _controller_div,
+                        textAlignVertical: TextAlignVertical.bottom,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xff004d60),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            division = value;
+                          });
+                        },
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.only(bottom: 5),
+                          hintText: 'Enter your (division - شعبة)',
+                          hintStyle:
+                              TextStyle(color: Colors.grey, fontSize: 18),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0xff4562a7),
+                            ),
+                          ),
+                        ),
+                      ),
+                      suggestionsCallback: (pattern) async {
+                        return CoursesService.divisions;
+                      },
+                      itemBuilder: (context, String suggestion) {
+                        return Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text(suggestion,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xff4562a7),
+                                )),
+                          ),
+                        );
+                      },
+                      suggestionsBoxController: suggestionBoxController,
+                      onSuggestionSelected: (String suggestion) {
+                        setState(() {
+                          division = suggestion;
+                          _controller_div.text = suggestion;
+                        });
+                      },
+                      itemSeparatorBuilder: (context, index) {
+                        return Divider(
+                          color: Colors.white,
+                        );
+                      },
+                      suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                        constraints: BoxConstraints(
+                          maxHeight: 250,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                        elevation: 8.0,
+                        color: Color(0xffb8c8d1),
+                      ),
+                      // hideSuggestionsOnKeyboardHide: true,
+                      // hideKeyboard: true,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "for collage system you need to choose one of the available divisions form the list",
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xff4562a7),
+                    ),
+                  ),
+                ],
+              ),
+              // alignment: Alignment.center,
+
+              actions: [
+                TextButton(
+                  child: Text("OK",
+                      style: TextStyle(color: Colors.green, fontSize: 20)),
+                  onPressed: () async {
+                    if (_controller_div.text.isNotEmpty) {
+                      bool div = (CoursesService.divisions
+                              .contains(_controller_div.text)
+                          ? true
+                          : false);
+                      await FirebaseFirestore.instance
+                          .collection('UsersInfo')
+                          .doc(loggedInUser!.email)
+                          .update({
+                        'division': _controller_div.text,
+                        'divisionOption': div,
+                      });
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ));
+  }
+
   callBackChangeList(int index, bool value, remove) {
     setState(() {
       if (remove) {
@@ -201,6 +345,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       semestersRef = null;
       loggedInUser = null;
       showSpinner = true;
+      CGPA = 0.000;
+      totalCredit = 0;
+      earnCredit = 0;
+
       allSemesters.clear();
       allSemesters2.clear();
       homeWithFireStoreServices = null;
@@ -238,6 +386,14 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           if (CoursesService.departments.contains(department)) {
             CoursesService.departmentName = department;
           }
+          Future.delayed(Duration.zero, () {
+            if (flag3 && division.isEmpty) {
+              divisionMessage();
+              setState(() {
+                flag3 = false;
+              });
+            }
+          });
 
           return Container();
         },
@@ -660,13 +816,16 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (flag2 && loggedInUser != null && _courses != null) {
-      setState(() {
-        homeWithFireStoreServices =
-            HomeWithFireStoreServices(_courses!, loggedInUser!);
-        flag2 = false;
-      });
-    }
+    Future.delayed(Duration.zero, () {
+      if (flag2 && loggedInUser != null && _courses != null) {
+        setState(() {
+          homeWithFireStoreServices =
+              HomeWithFireStoreServices(_courses!, loggedInUser!);
+          flag2 = false;
+        });
+      }
+    });
+
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();

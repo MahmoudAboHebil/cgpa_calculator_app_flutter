@@ -252,7 +252,7 @@ class _ContentState extends State<Content> {
         'image': imageURl ?? '',
         'division': '',
         'department': '',
-        'departmentOption': false,
+        'departmentOption': true,
         'divisionOption': false,
       });
     }
@@ -557,6 +557,8 @@ class _ContentState extends State<Content> {
                       final prov =
                           Provider.of<AuthServer>(context, listen: false);
                       // await prov.googleLogout();
+                      await prov.googleLogout();
+
                       setState(() {
                         showProgress = true;
                       });
@@ -564,6 +566,10 @@ class _ContentState extends State<Content> {
                       if (prov.gUser != null) {
                         addUserInfo(prov.gUser!.email.toLowerCase(),
                             prov.gUser!.displayName, prov.gUser!.photoUrl);
+                      } else {
+                        setState(() {
+                          showProgress = false;
+                        });
                       }
 
                       setState(() {
