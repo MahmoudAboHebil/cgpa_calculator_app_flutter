@@ -558,6 +558,7 @@ class _ContentState extends State<Content> {
                           Provider.of<AuthServer>(context, listen: false);
                       // await prov.googleLogout();
                       await prov.googleLogout();
+                      prov.gUser = null;
 
                       setState(() {
                         showProgress = true;

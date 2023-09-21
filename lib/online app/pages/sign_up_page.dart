@@ -759,6 +759,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                 final prov = Provider.of<AuthServer>(context,
                                     listen: false);
                                 await prov.googleLogout();
+                                prov.gUser = null;
                                 // await prov.googleLogout();
                                 setState(() {
                                   showProgress = true;

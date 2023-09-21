@@ -15,6 +15,7 @@ class SemesterFin extends StatefulWidget {
   bool isChanged;
   Function ChangeList;
   GlobalKey<AnimatedListState> _allSemestersKey;
+  final GlobalKey<AnimatedListState> testKey;
   SemesterFin(
       this.semesterCourses,
       this.semesterId,
@@ -24,6 +25,7 @@ class SemesterFin extends StatefulWidget {
       this._allSemestersKey,
       this.isChanged,
       this.ChangeList,
+      this.testKey,
       {Key? key})
       : super(key: key);
 
@@ -32,8 +34,6 @@ class SemesterFin extends StatefulWidget {
 }
 
 class _SemesterFinState extends State<SemesterFin> {
-  GlobalKey<AnimatedListState> _keyAniListCourses =
-      GlobalKey<AnimatedListState>(debugLabel: '__RIKEY Courses __');
   // late List<GlobalObjectKey<_CourseFinState>> _courseKeys;
   Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
   var uuid = Uuid();
@@ -320,7 +320,7 @@ class _SemesterFinState extends State<SemesterFin> {
     int insertIndex = listOfCoursesInSemester.isEmpty
         ? listOfCoursesInSemester.length
         : listOfCoursesInSemester.length - 1;
-    _keyAniListCourses.currentState!
+    widget.testKey.currentState!
         .insertItem(insertIndex, duration: Duration(milliseconds: 250));
     // print('theListAfterAdd:${listOfCoursesInSemester}');
     Future.delayed(Duration(milliseconds: 270), () {
@@ -337,8 +337,16 @@ class _SemesterFinState extends State<SemesterFin> {
           (context, animation) {
         return SlideTransition(
           position: animation.drive(_offset),
-          child: SemesterFin(deletedSemest, widget.semesterId, widget.index,
-              widget.department, () {}, widget._allSemestersKey, false, () {}),
+          child: SemesterFin(
+              deletedSemest,
+              widget.semesterId,
+              widget.index,
+              widget.department,
+              () {},
+              widget._allSemestersKey,
+              false,
+              () {},
+              widget.testKey),
         );
       }, duration: Duration(milliseconds: 250));
 
@@ -877,7 +885,7 @@ class _SemesterFinState extends State<SemesterFin> {
                       widget.calcCGPA();
                     },
                     callBackToUpdateGPA,
-                    _keyAniListCourses,
+                    widget.testKey,
                     homeWithFireStoreServices!,
                   ),
                 );
@@ -885,7 +893,7 @@ class _SemesterFinState extends State<SemesterFin> {
               initialItemCount: listOfCoursesInSemester.length,
               shrinkWrap: true,
               physics: ScrollPhysics(),
-              key: _keyAniListCourses,
+              key: widget.testKey,
             ),
             Row(
               mainAxisAlignment: widget.isChanged
