@@ -581,8 +581,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                           _keySemester,
                           isChangeList[index],
                           callBackChangeList,
-                          GlobalKey<AnimatedListState>(
-                              debugLabel: allSemesters[index][0][0].toString()),
                         )
                       : Container(),
                 );

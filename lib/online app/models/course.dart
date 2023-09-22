@@ -979,8 +979,40 @@ class _CourseState extends State<Course> {
                                       // print(
                                       //     '######################44#####################');
                                       setState(() {
-                                        errorGrade();
+                                        // auto grade2 if grade 1 fail
+                                        for (List semester in allSemesters) {
+                                          for (List course in semester) {
+                                            if (course[1] ==
+                                                _controller_Name.text) {
+                                              if ((course[3] == 'U' ||
+                                                      course[3] == 'Non' ||
+                                                      course[3] == 'F') &&
+                                                  course[4] == null) {
+                                                val = true;
 
+                                                selectedValue1 = course[3];
+                                                selectedValueIs1Null = false;
+                                                print(
+                                                    '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+                                                print(val);
+                                              } else if ((course[4] == 'U' ||
+                                                      course[4] == 'Non' ||
+                                                      course[4] == 'F') &&
+                                                  course[4] != null) {
+                                                val = true;
+
+                                                selectedValue1 = course[4];
+                                              }
+                                              widget.courseList[3] =
+                                                  selectedValue1;
+                                              widget.listCoursesInSemester[
+                                                      widget.index][3] =
+                                                  selectedValue1;
+                                              widget.listCoursesInSemester[
+                                                  widget.index][5] = 'two';
+                                            }
+                                          }
+                                        }
                                         widget.courseList[1] = value;
                                         name = value;
                                         if (value.isNotEmpty) {
@@ -990,7 +1022,12 @@ class _CourseState extends State<Course> {
                                           widget.listCoursesInSemester[
                                               widget.index][1] = null;
                                         }
-                                        widget
+
+                                        errorGrade();
+
+                                        allSemesters[widget.semesterIndex][
+                                            widget
+                                                .index] = widget
                                             .callBackUpdateListCoursesInSemester(
                                                 widget.listCoursesInSemester);
                                         widget.callBackUpdateChange();
@@ -1058,6 +1095,40 @@ class _CourseState extends State<Course> {
                                     this._controller_Name.text = suggestion;
 
                                     setState(() {
+                                      // auto grade2 if grade 1 fail
+                                      for (List semester in allSemesters) {
+                                        for (List course in semester) {
+                                          if (course[1] ==
+                                              _controller_Name.text) {
+                                            if ((course[3] == 'U' ||
+                                                    course[3] == 'Non' ||
+                                                    course[3] == 'F') &&
+                                                course[4] == null) {
+                                              val = true;
+
+                                              selectedValue1 = course[3];
+                                              selectedValueIs1Null = false;
+                                              print(
+                                                  '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+                                              print(val);
+                                            } else if ((course[4] == 'U' ||
+                                                    course[4] == 'Non' ||
+                                                    course[4] == 'F') &&
+                                                course[4] != null) {
+                                              val = true;
+
+                                              selectedValue1 = course[4];
+                                            }
+                                            widget.courseList[3] =
+                                                selectedValue1;
+                                            widget.listCoursesInSemester[widget
+                                                .index][3] = selectedValue1;
+                                            widget.listCoursesInSemester[
+                                                widget.index][5] = 'two';
+                                          }
+                                        }
+                                      }
+
                                       errorGrade();
                                       widget.courseList[1] = suggestion;
                                       name = suggestion;
@@ -1081,6 +1152,12 @@ class _CourseState extends State<Course> {
                                         widget.listCoursesInSemester[
                                             widget.index][2] = null;
                                       }
+
+                                      allSemesters[widget.semesterIndex]
+                                              [widget.index] =
+                                          widget.listCoursesInSemester[
+                                              widget.index];
+
                                       widget
                                           .callBackUpdateListCoursesInSemester(
                                               widget.listCoursesInSemester);
@@ -1119,7 +1196,44 @@ class _CourseState extends State<Course> {
                                 ),
                                 onChanged: (value) {
                                   setState(() {
-                                    errorGrade();
+                                    // auto grade2 if grade 1 fail
+                                    for (List semester in allSemesters) {
+                                      for (List course in semester) {
+                                        if (course[1] ==
+                                            _controller_Name.text) {
+                                          if ((course[3] == 'U' ||
+                                                  course[3] == 'Non' ||
+                                                  course[3] == 'F') &&
+                                              course[4] == null) {
+                                            val = true;
+
+                                            selectedValue1 = course[3];
+                                            selectedValueIs1Null = false;
+                                            print(
+                                                '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+                                            print(val);
+                                          } else if ((course[4] == 'U' ||
+                                                  course[4] == 'Non' ||
+                                                  course[4] == 'F') &&
+                                              course[4] != null) {
+                                            val = true;
+
+                                            selectedValue1 = course[4];
+                                          }
+                                          credit = course[2];
+                                          _controller_Credit.text = course[2];
+                                          widget.courseList[3] = selectedValue1;
+                                          widget.courseList[2] = course[2];
+                                          widget.listCoursesInSemester[
+                                              widget.index][3] = selectedValue1;
+                                          widget.listCoursesInSemester[
+                                              widget.index][5] = 'two';
+                                          widget.listCoursesInSemester[
+                                              widget.index][2] = course[2];
+                                        }
+                                      }
+                                    }
+
                                     widget.courseList[1] = value;
                                     name = value;
                                     if (value.isNotEmpty) {
@@ -1129,6 +1243,13 @@ class _CourseState extends State<Course> {
                                       widget.listCoursesInSemester[widget.index]
                                           [1] = null;
                                     }
+
+                                    errorGrade();
+
+                                    allSemesters[widget.semesterIndex]
+                                            [widget.index] =
+                                        widget.listCoursesInSemester[
+                                            widget.index];
                                     widget.callBackUpdateListCoursesInSemester(
                                         widget.listCoursesInSemester);
                                     widget.callBackUpdateChange();
