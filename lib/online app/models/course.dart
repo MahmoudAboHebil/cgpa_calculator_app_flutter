@@ -992,9 +992,6 @@ class _CourseState extends State<Course> {
 
                                                 selectedValue1 = course[3];
                                                 selectedValueIs1Null = false;
-                                                print(
-                                                    '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
-                                                print(val);
                                               } else if ((course[4] == 'U' ||
                                                       course[4] == 'Non' ||
                                                       course[4] == 'F') &&
@@ -1108,9 +1105,6 @@ class _CourseState extends State<Course> {
 
                                               selectedValue1 = course[3];
                                               selectedValueIs1Null = false;
-                                              print(
-                                                  '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
-                                              print(val);
                                             } else if ((course[4] == 'U' ||
                                                     course[4] == 'Non' ||
                                                     course[4] == 'F') &&
@@ -1209,9 +1203,6 @@ class _CourseState extends State<Course> {
 
                                             selectedValue1 = course[3];
                                             selectedValueIs1Null = false;
-                                            print(
-                                                '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
-                                            print(val);
                                           } else if ((course[4] == 'U' ||
                                                   course[4] == 'Non' ||
                                                   course[4] == 'F') &&

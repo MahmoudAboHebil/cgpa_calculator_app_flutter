@@ -11,51 +11,69 @@ class ExpectTheCGPAPage extends StatefulWidget {
 class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
   TextEditingController _contr_curr_CGPA = TextEditingController();
   TextEditingController _contr_curr_credits = TextEditingController();
-  TextEditingController _contr_Semest_GPA = TextEditingController();
-  TextEditingController _contr_semest_credits = TextEditingController();
-  double newCGPA = 0.0000;
+  TextEditingController _cgga_total = TextEditingController();
+  TextEditingController _credits_total = TextEditingController();
+  double gpaMustHave = 0.0000;
+  int creditsMustHave = 0;
 
   void calcPredictCGPA() {
     String currCGPA = _contr_curr_CGPA.text;
     String currCredits = _contr_curr_credits.text;
-    String semestGPA = _contr_Semest_GPA.text;
-    String semestCredits = _contr_semest_credits.text;
+    String cgga_total = _cgga_total.text;
+    String credits_total = _credits_total.text;
     if (currCredits.isNotEmpty &&
         currCGPA.isNotEmpty &&
-        semestCredits.isNotEmpty &&
-        semestGPA.isNotEmpty) {
+        credits_total.isNotEmpty &&
+        cgga_total.isNotEmpty) {
       try {
-        double currPoints = double.parse(currCGPA) * double.parse(currCredits);
-        double semestPoints =
-            double.parse(semestGPA) * double.parse(semestCredits);
-
+        double totalPoints =
+            double.parse(cgga_total) * int.parse(credits_total);
+        double currrentPoints = double.parse(currCGPA) * int.parse(currCredits);
+        int credits = int.parse(credits_total) - int.parse(currCredits);
         setState(() {
           if ((double.parse(currCredits) +
-                  double.parse(semestCredits) +
+                  double.parse(credits_total) +
                   double.parse(currCGPA) +
-                  double.parse(semestGPA)) ==
+                  double.parse(cgga_total)) ==
               0) {
             print('herrrrrrrrrrrrrrrrrrrrr');
-            newCGPA = 0.000;
+            gpaMustHave = 0.000;
+            creditsMustHave = 0;
           } else {
-            newCGPA = (currPoints + semestPoints) /
-                (double.parse(currCredits) + double.parse(semestCredits));
+            gpaMustHave = (totalPoints - currrentPoints) / (credits);
+            creditsMustHave = credits;
           }
 
-          if (newCGPA > 4.0) {
-            newCGPA = 4.0;
+          if (gpaMustHave > 4.0) {
+            gpaMustHave = 4.0;
           }
         });
       } catch (error) {
         print(error);
         setState(() {
-          newCGPA = 0.000;
+          gpaMustHave = 0.000;
+          creditsMustHave = 0;
         });
       }
     } else {
       setState(() {
-        newCGPA = 0.000;
+        gpaMustHave = 0.000;
+        creditsMustHave = 0;
       });
+    }
+  }
+
+  String? get _totalCreditsError {
+    String currCredits = _contr_curr_credits.text;
+    String credits_total = _credits_total.text;
+    try {
+      if (currCredits.isNotEmpty && credits_total.isNotEmpty) {
+        if (int.parse(credits_total) < int.parse(currCredits)) {
+          return 'must be greater than the current Credits';
+        }
+      }
+    } catch (e) {
+      return 'Invalid field';
     }
   }
 
@@ -234,7 +252,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                   Column(
                                     children: [
                                       Text(
-                                        'Semester GPA',
+                                        ' CGPA you want',
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Color(0xff296E85),
@@ -244,7 +262,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                           width: 150,
                                           height: 75,
                                           child: TextField(
-                                            controller: _contr_Semest_GPA,
+                                            controller: _cgga_total,
                                             inputFormatters: [
                                               FilteringTextInputFormatter.allow(
                                                   RegExp(r"[0-9.]")),
@@ -278,7 +296,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                   Column(
                                     children: [
                                       Text(
-                                        'Semester Credits',
+                                        'Total Credits ',
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Color(0xff296E85),
@@ -288,7 +306,7 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                           width: 150,
                                           height: 75,
                                           child: TextField(
-                                            controller: _contr_semest_credits,
+                                            controller: _credits_total,
                                             inputFormatters: [
                                               FilteringTextInputFormatter
                                                   .digitsOnly
@@ -312,6 +330,8 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                                     color: Color(0xff4562a7)),
                                               ),
                                               hintText: 'Credits',
+                                              errorText: _totalCreditsError,
+                                              errorMaxLines: 2,
                                               hintStyle: TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 18),
@@ -348,10 +368,12 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                                 height: 40,
                               ),
                               Text(
-                                'CGPA will be ',
+                                'You should have Semester with GPA ${gpaMustHave.toStringAsFixed(4)} and Credits $creditsMustHave',
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
                                 style: TextStyle(
                                   wordSpacing: 5,
-                                  fontSize: 25,
+                                  fontSize: 20,
                                   color: Colors.green,
                                 ),
                               ),
@@ -360,10 +382,10 @@ class _ExpectTheCGPAPageState extends State<ExpectTheCGPAPage> {
                               ),
                               CircularPercentIndicator(
                                 radius: 80,
-                                percent: (newCGPA / 4),
+                                percent: (gpaMustHave / 4),
                                 lineWidth: 10,
                                 center: Text(
-                                  '${newCGPA.toStringAsFixed(3)}',
+                                  '${gpaMustHave.toStringAsFixed(4)}',
                                   style: TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold,
