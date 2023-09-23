@@ -76,7 +76,10 @@ class _SemesterFinState extends State<SemesterFin> {
     super.initState();
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
-
+      repeatedSemestersIds = [];
+      namesCoursesNotInListIds = [];
+      namesCoursesNotInRequirements = [];
+      creditsCoursesNotInListIds = [];
       Future.delayed(Duration.zero, () {
         if (!isValide()) {
           // print('fffffffffffffffffffffffffffffffffff');
@@ -370,8 +373,12 @@ class _SemesterFinState extends State<SemesterFin> {
     setState(() {
       for (List list in listOfCoursesInSemester) {
         if (list[1] != null && list[2] != null && list[3] != null) {
+          String grade1 = list[3];
+          String? grade2 = list[4];
+          String grade = grade2 ?? grade1;
           if (list[1] !=
-              UniversityRequirement.mandatoryUniversityRequirements[0][0]) {
+                  UniversityRequirement.mandatoryUniversityRequirements[0][0] &&
+              grade != 'W') {
             allCoursesInSemstd.add(list);
           } else {
             String grade1 = list[3];

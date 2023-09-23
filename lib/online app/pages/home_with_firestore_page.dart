@@ -663,6 +663,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           if (course[1] != null && course[2] != null && course[3] != null) {
             String grade1 = course[3];
             String? grade2 = course[4];
+            String grade = grade2 ?? grade1;
+
             // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
 
             int credit = int.parse(course[2]);
@@ -670,7 +672,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             double pointOfGrade2 = 0.0;
             double pointOfCourse = 0.0;
             if (course[1] ==
-                UniversityRequirement.mandatoryUniversityRequirements[0][0]) {
+                    UniversityRequirement.mandatoryUniversityRequirements[0]
+                        [0] ||
+                grade == 'W') {
               // totalCredit = totalCredit + credit;
               String grade = grade2 ?? grade1;
               // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {

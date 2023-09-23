@@ -284,6 +284,7 @@ class _CourseState extends State<Course> {
     'D+',
     'D',
     'F',
+    'W',
     'S',
     'U'
   ];

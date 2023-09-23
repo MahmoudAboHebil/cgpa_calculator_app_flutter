@@ -182,6 +182,7 @@ class CoursesService {
           if (course[3] != 'U' &&
               course[3] != 'F' &&
               course[3] != 'Non' &&
+              course[3] != 'W' &&
               course[4] == null) {
             validCourse.add([course[1], course[2]]);
           } else if (course[4] != null &&
@@ -189,6 +190,7 @@ class CoursesService {
               course[2] != null &&
               course[4] != 'U' &&
               course[4] != 'F' &&
+              course[4] != 'W' &&
               course[4] != 'Non') {
             validCourse.add([course[1], course[2]]);
           }
@@ -258,6 +260,7 @@ class CoursesService {
               if (course[3] != 'U' &&
                   course[3] != 'F' &&
                   course[3] != 'Non' &&
+                  course[3] != 'W' &&
                   course[4] == null) {
                 String? num = getCourseNumberByName(course[1]);
                 if (num != null) {
@@ -268,6 +271,7 @@ class CoursesService {
               } else if (course[4] != null &&
                   course[4] != 'U' &&
                   course[4] != 'F' &&
+                  course[4] != 'W' &&
                   course[4] != 'Non') {
                 String? num = getCourseNumberByName(course[1]);
                 if (num != null) {
@@ -306,6 +310,7 @@ class CoursesService {
                 if (course[3] != 'U' &&
                     course[3] != 'F' &&
                     course[3] != 'Non' &&
+                    course[3] != 'W' &&
                     course[4] == null) {
                   String? num = getCourseNumberByName(course[1]);
                   if (num != null) {
@@ -316,6 +321,7 @@ class CoursesService {
                 } else if (course[4] != null &&
                     course[4] != 'U' &&
                     course[4] != 'F' &&
+                    course[4] != 'W' &&
                     course[4] != 'Non') {
                   String? num = getCourseNumberByName(course[1]);
                   if (num != null) {
@@ -360,6 +366,7 @@ class CoursesService {
               if (course[3] != 'U' &&
                   course[3] != 'F' &&
                   course[3] != 'Non' &&
+                  course[3] != 'W' &&
                   course[4] == null) {
                 String? num = getCourseNumberByName(course[1]);
                 if (num != null) {
@@ -372,6 +379,7 @@ class CoursesService {
               } else if (course[4] != null &&
                   course[4] != 'U' &&
                   course[4] != 'F' &&
+                  course[4] != 'W' &&
                   course[4] != 'Non') {
                 String? num = getCourseNumberByName(course[1]);
                 if (num != null) {
@@ -459,11 +467,13 @@ class CoursesService {
             if (course[3] != 'U' &&
                 course[3] != 'F' &&
                 course[3] != 'Non' &&
+                course[3] != 'W' &&
                 course[4] == null) {
               coursesNamesEntered.add(course[1]);
             } else if (course[4] != null &&
                 course[4] != 'U' &&
                 course[4] != 'F' &&
+                course[4] != 'W' &&
                 course[4] != 'Non') {
               coursesNamesEntered.add(course[1]);
             }
