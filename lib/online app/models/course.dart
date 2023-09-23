@@ -992,6 +992,14 @@ class _CourseState extends State<Course> {
 
                                                 selectedValue1 = course[3];
                                                 selectedValueIs1Null = false;
+                                                widget.listCoursesInSemester[
+                                                        widget.index][3] =
+                                                    selectedValue1;
+                                                widget.courseList[3] =
+                                                    selectedValue1;
+
+                                                widget.listCoursesInSemester[
+                                                    widget.index][5] = 'two';
                                               } else if ((course[4] == 'U' ||
                                                       course[4] == 'Non' ||
                                                       course[4] == 'F') &&
@@ -999,14 +1007,23 @@ class _CourseState extends State<Course> {
                                                 val = true;
 
                                                 selectedValue1 = course[4];
+                                                selectedValueIs1Null = false;
+
+                                                widget.listCoursesInSemester[
+                                                        widget.index][3] =
+                                                    selectedValue1;
+                                                widget.courseList[3] =
+                                                    selectedValue1;
+
+                                                widget.listCoursesInSemester[
+                                                    widget.index][5] = 'two';
                                               }
-                                              widget.courseList[3] =
-                                                  selectedValue1;
+                                              credit = course[2];
+                                              _controller_Credit.text = credit!;
+                                              widget.courseList[2] = credit!;
+
                                               widget.listCoursesInSemester[
-                                                      widget.index][3] =
-                                                  selectedValue1;
-                                              widget.listCoursesInSemester[
-                                                  widget.index][5] = 'two';
+                                                  widget.index][2] = credit!;
                                             }
                                           }
                                         }
@@ -1105,6 +1122,14 @@ class _CourseState extends State<Course> {
 
                                               selectedValue1 = course[3];
                                               selectedValueIs1Null = false;
+                                              widget.listCoursesInSemester[
+                                                      widget.index][3] =
+                                                  selectedValue1;
+                                              widget.courseList[3] =
+                                                  selectedValue1;
+
+                                              widget.listCoursesInSemester[
+                                                  widget.index][5] = 'two';
                                             } else if ((course[4] == 'U' ||
                                                     course[4] == 'Non' ||
                                                     course[4] == 'F') &&
@@ -1112,13 +1137,23 @@ class _CourseState extends State<Course> {
                                               val = true;
 
                                               selectedValue1 = course[4];
+                                              selectedValueIs1Null = false;
+
+                                              widget.listCoursesInSemester[
+                                                      widget.index][3] =
+                                                  selectedValue1;
+                                              widget.courseList[3] =
+                                                  selectedValue1;
+
+                                              widget.listCoursesInSemester[
+                                                  widget.index][5] = 'two';
                                             }
-                                            widget.courseList[3] =
-                                                selectedValue1;
-                                            widget.listCoursesInSemester[widget
-                                                .index][3] = selectedValue1;
+                                            credit = course[2];
+                                            _controller_Credit.text = credit!;
+                                            widget.courseList[2] = credit!;
+
                                             widget.listCoursesInSemester[
-                                                widget.index][5] = 'two';
+                                                widget.index][2] = credit!;
                                           }
                                         }
                                       }
@@ -1203,6 +1238,13 @@ class _CourseState extends State<Course> {
 
                                             selectedValue1 = course[3];
                                             selectedValueIs1Null = false;
+                                            widget.listCoursesInSemester[widget
+                                                .index][3] = selectedValue1;
+                                            widget.courseList[3] =
+                                                selectedValue1;
+
+                                            widget.listCoursesInSemester[
+                                                widget.index][5] = 'two';
                                           } else if ((course[4] == 'U' ||
                                                   course[4] == 'Non' ||
                                                   course[4] == 'F') &&
@@ -1210,17 +1252,22 @@ class _CourseState extends State<Course> {
                                             val = true;
 
                                             selectedValue1 = course[4];
+                                            selectedValueIs1Null = false;
+
+                                            widget.listCoursesInSemester[widget
+                                                .index][3] = selectedValue1;
+                                            widget.courseList[3] =
+                                                selectedValue1;
+
+                                            widget.listCoursesInSemester[
+                                                widget.index][5] = 'two';
                                           }
                                           credit = course[2];
-                                          _controller_Credit.text = course[2];
-                                          widget.courseList[3] = selectedValue1;
-                                          widget.courseList[2] = course[2];
+                                          _controller_Credit.text = credit!;
+                                          widget.courseList[2] = credit!;
+
                                           widget.listCoursesInSemester[
-                                              widget.index][3] = selectedValue1;
-                                          widget.listCoursesInSemester[
-                                              widget.index][5] = 'two';
-                                          widget.listCoursesInSemester[
-                                              widget.index][2] = course[2];
+                                              widget.index][2] = credit!;
                                         }
                                       }
                                     }
