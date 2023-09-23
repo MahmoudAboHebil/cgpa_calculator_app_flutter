@@ -671,12 +671,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             double pointOfCourse = 0.0;
             if (course[1] ==
                 UniversityRequirement.mandatoryUniversityRequirements[0][0]) {
-              totalCredit = totalCredit + credit;
+              // totalCredit = totalCredit + credit;
               String grade = grade2 ?? grade1;
-              if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
-                //  passed course
-                earnCredit = earnCredit + credit;
-              }
+              // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+              //   //  passed course
+              //   earnCredit = earnCredit + credit;
+              // }
             } else {
               setState(() {
                 if (grade1 == 'A') {

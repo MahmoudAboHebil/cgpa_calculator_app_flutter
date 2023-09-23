@@ -377,12 +377,12 @@ class _SemesterFinState extends State<SemesterFin> {
             String grade1 = list[3];
             String? grade2 = list[4];
             int credit = int.parse(list[2]);
-            totalCredit = totalCredit + credit;
+            // totalCredit = totalCredit + credit;
             String grade = grade2 ?? grade1;
-            if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
-              //  passed course
-              earnCredit = earnCredit + credit;
-            }
+            // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+            //   //  passed course
+            //   earnCredit = earnCredit + credit;
+            // }
           }
         }
       }
