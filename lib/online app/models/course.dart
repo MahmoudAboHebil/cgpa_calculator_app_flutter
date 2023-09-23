@@ -1039,9 +1039,11 @@ class _CourseState extends State<Course> {
 
                                         errorGrade();
 
-                                        allSemesters[widget.semesterIndex][
-                                            widget
-                                                .index] = widget
+                                        allSemesters[widget.semesterIndex]
+                                                [widget.index] =
+                                            widget.listCoursesInSemester[
+                                                widget.index];
+                                        widget
                                             .callBackUpdateListCoursesInSemester(
                                                 widget.listCoursesInSemester);
                                         widget.callBackUpdateChange();
