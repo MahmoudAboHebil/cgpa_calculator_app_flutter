@@ -191,6 +191,8 @@ class _CourseState extends State<Course> {
             Name, semesterID, widget.listCoursesInSemester)) {
           List<int> allSemesterIds = [];
           List<int> allSemesterIdsBeforeTheCurrentSemest = [];
+          print(earnCredit);
+          print(Name);
           for (List semester in allSemesters) {
             for (List course in semester) {
               allSemesterIds.add(course[0]);

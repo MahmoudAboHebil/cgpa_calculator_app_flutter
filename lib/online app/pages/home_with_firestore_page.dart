@@ -29,7 +29,7 @@ class MyBehavior extends ScrollBehavior {
 }
 
 bool isTab = false;
-int earnCredit = 0;
+int earnCredit = -1;
 bool flag3 = true;
 
 List allSemesters = [
@@ -347,7 +347,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       showSpinner = true;
       CGPA = 0.000;
       totalCredit = 0;
-      earnCredit = 0;
+      earnCredit = -1;
 
       allSemesters.clear();
       allSemesters2.clear();

@@ -480,6 +480,10 @@ class _SemesterFinState extends State<SemesterFin> {
         repeatedField == null) {
       return true;
     } else {
+      // p
+      // print(namesCoursesNotInRequirements);
+      //
+      // print('validRequirements: $validRequirements');
       return false;
     }
   }

@@ -232,7 +232,7 @@ class ComputerScience {
     '2',
     '040103490',
     [
-      ['4'],
+      ['Four'],
       []
     ]
   ];
@@ -427,7 +427,7 @@ class ComputerScience {
     '3',
     '040103420',
     [
-      ['4'],
+      ['Four'],
       []
     ]
   ];

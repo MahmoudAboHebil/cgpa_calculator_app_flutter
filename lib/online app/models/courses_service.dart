@@ -435,12 +435,15 @@ class CoursesService {
         isValidOneCourses = true;
       }
     }
-    if (coursesMustBeEnrolled.contains('4')) {
+    if (coursesMustBeEnrolled.contains('Four')) {
       if (earnCredit >= 100) {
-        val1.add('4');
+        val1.add('Four');
+
         if (!eq(val1, coursesMustBeEnrolled)) {
           isValidMustCourses = false;
         }
+      } else if (earnCredit == -1) {
+        val1.add('Four');
       } else {
         isValidMustCourses = false;
       }
@@ -448,6 +451,17 @@ class CoursesService {
       if (!eq(val1, coursesMustBeEnrolled)) {
         isValidMustCourses = false;
       }
+    }
+    if (val1.contains('Four')) {
+      // print('isValidMustCourses :$isValidMustCourses');
+      // print('isValidOneCourses :$isValidOneCourses');
+      // print('isValidDp :$isValidDp');
+      // print(
+      //     '!isInValidSemester.contains(false) :${!isInValidSemester.contains(false)}');
+      // print(isValidMustCourses &&
+      //     isValidOneCourses &&
+      //     isValidDp &&
+      //     !isInValidSemester.contains(false));
     }
     return isValidMustCourses &&
         isValidOneCourses &&
