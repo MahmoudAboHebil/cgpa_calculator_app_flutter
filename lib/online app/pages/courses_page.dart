@@ -1,8 +1,11 @@
+import 'package:cgp_calculator/online%20app/collage_courses_data/natural_sciences_division.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter_textfield_autocomplete/flutter_textfield_autocomplete.dart';
 import 'package:textfield_search/textfield_search.dart';
+
+import 'home_with_firestore_page.dart';
 
 List<List<String>> courseDataList = [
   [
@@ -42,7 +45,12 @@ class _CoursesPageState extends State<CoursesPage> {
               backgroundColor: Colors.transparent,
               leading: GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeWithFireStorePage(),
+                    ),
+                  );
                 },
                 child: Container(
                   margin: EdgeInsets.only(left: 10, top: 5),
@@ -56,7 +64,7 @@ class _CoursesPageState extends State<CoursesPage> {
               elevation: 0,
             ),
             backgroundColor: Color(0xffb8c8d1),
-            body: Center(child: NavigationExample()),
+            body: Center(child: CoursesBlock()),
             // body: ListView.builder(
             //   shrinkWrap: true,
             //   itemCount: courseDataList.length,
@@ -67,6 +75,246 @@ class _CoursesPageState extends State<CoursesPage> {
             // ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CoursesBlock extends StatefulWidget {
+  const CoursesBlock({super.key});
+
+  @override
+  State<CoursesBlock> createState() => _CoursesBlockState();
+}
+
+class _CoursesBlockState extends State<CoursesBlock> {
+  List listOfCourses = [
+    [
+      // 'Name',
+      // 'nameDetail',
+      // 'credit',
+      // 'grade1',
+      // 'grade2',
+      // 'check',
+    ],
+  ];
+  void setData() {
+    // substring(0, s.indexOf('.')
+    List list = NaturalSciences.collegeRequirementsCourses;
+    for (List course1 in list) {
+      List grade1 = [];
+      List grade2 = [];
+      for (List semester in allSemesters) {
+        for (List course2 in semester) {
+          if (course1[0] == course2[1]) {
+            grade1.add(course2[3]);
+            grade2.add(course2[4]);
+          }
+        }
+      }
+      if (grade1.isNotEmpty) {
+        if (grade2.isEmpty) {
+          setState(() {
+            listOfCourses.add([
+              course1[0].substring(0, [course1[0].indexOf('_')]),
+              course1[0],
+              course1[1],
+              grade1[grade1.length - 1],
+              null
+            ]);
+          });
+        } else {
+          setState(() {
+            listOfCourses.add([
+              course1[0].substring(0, [course1[0].indexOf('_')]),
+              course1[0],
+              course1[1],
+              grade1[grade1.length - 1],
+              grade2[grade2.length - 1],
+            ]);
+          });
+        }
+      } else {}
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: [
+          HeadTitle('Minor-Mandatory    (فرعى إجبارى)'),
+          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
+          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
+          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
+          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
+        ],
+      ),
+    );
+  }
+}
+
+class HeadTitle extends StatelessWidget {
+  final String title;
+  HeadTitle(this.title);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        // height: 100,
+        decoration: BoxDecoration(
+            color: Color(0xffeaf1ed),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: Colors.white, width: 2)),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: Color(0xff004d60),
+                fontSize: 22,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 15),
+                  width: 200,
+                  child: Text(
+                    'Name',
+                    style: TextStyle(
+                      color: Color(0xff004d60),
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Credit',
+                  style: TextStyle(
+                    color: Color(0xff004d60),
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(
+                  width: 25,
+                ),
+                Text(
+                  '1st',
+                  style: TextStyle(
+                    color: Color(0xff004d60),
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                Text(
+                  '2nd',
+                  style: TextStyle(
+                    color: Color(0xff004d60),
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            )
+          ],
+        ));
+  }
+}
+
+class CourseCard extends StatefulWidget {
+  final String name;
+  final String credit;
+  final String? grade1;
+  final String? grade2;
+  final bool check;
+
+  CourseCard(this.name, this.credit, this.grade1, this.grade2, this.check);
+  @override
+  State<CourseCard> createState() => _CourseCardState();
+}
+
+class _CourseCardState extends State<CourseCard> {
+  String grade1 = '';
+  String grade2 = '';
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      grade1 = widget.grade1 ?? '-';
+      grade2 = widget.grade2 ?? '-';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white54,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: EdgeInsets.symmetric(vertical: 2.5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.only(left: 5),
+              child: Text(
+                widget.name,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 18, color: Color(0xff004d60)),
+                maxLines: 1,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 50,
+                alignment: Alignment.center,
+                // decoration: BoxDecoration(
+                //     border: Border(bottom: BorderSide(color: Colors.white))),
+                child: Text(
+                  widget.credit,
+                  style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Container(
+                width: 100,
+                alignment: Alignment.center,
+                // decoration: BoxDecoration(
+                //     border: Border(bottom: BorderSide(color: Colors.white))),
+                child: Text(
+                  '$grade1      $grade2',
+                  style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              widget.check
+                  ? Icon(
+                      Icons.check_box_rounded,
+                      color: Colors.green,
+                    )
+                  : Icon(
+                      Icons.check_box_outline_blank,
+                      color: Colors.grey,
+                    ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:cgp_calculator/online%20app/models/courses_service.dart';
+import 'package:cgp_calculator/online%20app/pages/courses_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -379,6 +380,19 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                           );
                         },
                         child: Text('Review')),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.reviews),
+                    title: GestureDetector(
+                        onTap: () async {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CoursesPage(),
+                            ),
+                          );
+                        },
+                        child: Text('CoursesPage')),
                   ),
                   ListTile(
                     leading: Icon(Icons.person_rounded),

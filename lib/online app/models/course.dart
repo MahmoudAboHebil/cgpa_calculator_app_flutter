@@ -651,7 +651,7 @@ class _CourseState extends State<Course> {
                             children: [
                               selectedValue2 == null
                                   ? Text(
-                                      '2 sd',
+                                      '2 nd',
                                       style: TextStyle(
                                           color: Colors.grey, fontSize: 18),
                                     )
