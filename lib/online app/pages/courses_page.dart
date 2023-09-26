@@ -64,7 +64,11 @@ class _CoursesPageState extends State<CoursesPage> {
               elevation: 0,
             ),
             backgroundColor: Color(0xffb8c8d1),
-            body: Center(child: CoursesBlock()),
+            body: Column(
+              children: [
+                Expanded(child: CoursesBlock()),
+              ],
+            ),
             // body: ListView.builder(
             //   shrinkWrap: true,
             //   itemCount: courseDataList.length,
@@ -89,21 +93,21 @@ class CoursesBlock extends StatefulWidget {
 
 class _CoursesBlockState extends State<CoursesBlock> {
   List listOfCourses = [
-    [
-      // 'Name',
-      // 'nameDetail',
-      // 'credit',
-      // 'grade1',
-      // 'grade2',
-      // 'check',
-    ],
+    // ['name', 'id', '3', 'A', null, true]
   ];
   void setData() {
     // substring(0, s.indexOf('.')
-    List list = NaturalSciences.collegeRequirementsCourses;
-    for (List course1 in list) {
+    setState(() {
+      listOfCourses = [];
+    });
+    for (List course1 in NaturalSciences.collegeRequirementsCourses) {
       List grade1 = [];
       List grade2 = [];
+      String nameDetail = course1[0];
+      String name = nameDetail.substring(0, nameDetail.indexOf('_'));
+      String credit = course1[1];
+      String id = course1[2];
+
       for (List semester in allSemesters) {
         for (List course2 in semester) {
           if (course1[0] == course2[1]) {
@@ -113,45 +117,86 @@ class _CoursesBlockState extends State<CoursesBlock> {
         }
       }
       if (grade1.isNotEmpty) {
-        if (grade2.isEmpty) {
-          setState(() {
-            listOfCourses.add([
-              course1[0].substring(0, [course1[0].indexOf('_')]),
-              course1[0],
-              course1[1],
-              grade1[grade1.length - 1],
-              null
-            ]);
-          });
-        } else {
-          setState(() {
-            listOfCourses.add([
-              course1[0].substring(0, [course1[0].indexOf('_')]),
-              course1[0],
-              course1[1],
-              grade1[grade1.length - 1],
-              grade2[grade2.length - 1],
-            ]);
-          });
-        }
-      } else {}
+        String? grade = grade2[grade2.length - 1] ?? grade1[grade1.length - 1];
+        setState(() {
+          listOfCourses.add([
+            name,
+            id,
+            credit,
+            grade1[grade1.length - 1],
+            grade2[grade2.length - 1],
+            (grade == null ||
+                    grade == 'F' ||
+                    grade == 'Non' ||
+                    grade == 'W' ||
+                    grade == 'U')
+                ? false
+                : true
+          ]);
+        });
+      } else {
+        setState(() {
+          listOfCourses.add([name, id, credit, null, null, false]);
+        });
+      }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setData();
+    print(listOfCourses);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
+      child: ListView(
+        shrinkWrap: true,
         children: [
           HeadTitle('Minor-Mandatory    (فرعى إجبارى)'),
-          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
-          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
-          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
-          CourseCard('testtesttesttesttesttesttesttest', '3', 'A', null, true),
+          ListView.builder(
+            itemBuilder: (context, index) {
+              return CourseCard(
+                  listOfCourses[index][0],
+                  listOfCourses[index][2],
+                  listOfCourses[index][3],
+                  listOfCourses[index][4],
+                  listOfCourses[index][5]);
+            },
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: listOfCourses.length,
+          ),
+          SizedBox(
+            height: 50,
+          )
         ],
       ),
     );
+    // SingleChildScrollView(
+    //   physics: AlwaysScrollableScrollPhysics(),
+    //   child: Column(
+    //     children: [
+    //       HeadTitle('Minor-Mandatory    (فرعى إجبارى)'),
+    //       ListView.builder(
+    //         itemBuilder: (context, index) {
+    //           return CourseCard(
+    //               listOfCourses[index][0],
+    //               listOfCourses[index][2],
+    //               listOfCourses[index][3],
+    //               listOfCourses[index][4],
+    //               listOfCourses[index][5]);
+    //         },
+    //         shrinkWrap: true,
+    //         // physics: AlwaysScrollableScrollPhysics(),
+    //         itemCount: listOfCourses.length,
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }
 
@@ -194,6 +239,9 @@ class HeadTitle extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(
+                  width: 5,
+                ),
                 Text(
                   'Credit',
                   style: TextStyle(
@@ -202,7 +250,7 @@ class HeadTitle extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 25,
+                  width: 10,
                 ),
                 Text(
                   '1st',
@@ -248,7 +296,7 @@ class _CourseCardState extends State<CourseCard> {
     super.initState();
     setState(() {
       grade1 = widget.grade1 ?? '-';
-      grade2 = widget.grade2 ?? '-';
+      grade2 = widget.grade2 ?? '-  ';
     });
   }
 
@@ -288,20 +336,29 @@ class _CourseCardState extends State<CourseCard> {
                 ),
               ),
               SizedBox(
-                width: 5,
+                width: 20,
               ),
               Container(
-                width: 100,
-                alignment: Alignment.center,
+                width: 60,
+                // alignment: Alignment.center,
                 // decoration: BoxDecoration(
                 //     border: Border(bottom: BorderSide(color: Colors.white))),
-                child: Text(
-                  '$grade1      $grade2',
-                  style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$grade1',
+                      style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+                    ),
+                    Text(
+                      '$grade2',
+                      style: TextStyle(fontSize: 18, color: Color(0xff4562a7)),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
-                width: 5,
+                width: 15,
               ),
               widget.check
                   ? Icon(

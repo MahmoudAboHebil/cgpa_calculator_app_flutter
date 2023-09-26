@@ -1,5 +1,5 @@
 class NaturalSciences {
-  static List collegeRequirementsCourses = [
+  static final List collegeRequirementsCourses = [
     calculus_1_andGeometry,
     calculus_2_andAlgebra,
     mechanics_1,
