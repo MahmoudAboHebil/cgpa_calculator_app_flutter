@@ -23,7 +23,8 @@ class CoursesService {
   static List<String> departments = ['Computer Science and Statistics (Alex)'];
   static List getDivisionList() {
     if (divisionName == 'Natural Sciences Division (Alex)') {
-      return NaturalSciences.collegeRequirementsCourses;
+      NaturalSciences naturalSciences = NaturalSciences();
+      return naturalSciences.collegeRequirementsCourses();
     }
     return [];
   }
@@ -59,6 +60,8 @@ class CoursesService {
   }
 
   static List editingOnDepartment(List list, List oldCourse, List newCourse) {
+    ComputerScience computerScience = ComputerScience();
+
     List newList = [];
     String oldName = oldCourse[0];
     String oldNumber = oldCourse[2];
@@ -66,13 +69,13 @@ class CoursesService {
     for (List cor in list) {
       if (cor[4] == oldName) {
         if (cor[5] == 'Major-Mandatory') {
-          newList.add(ComputerScience.addMajorString(newCourse, true));
+          newList.add(computerScience.addMajorString(newCourse, true));
         } else if (cor[5] == 'Major-Elective') {
-          newList.add(ComputerScience.addMajorString(newCourse, false));
+          newList.add(computerScience.addMajorString(newCourse, false));
         } else if (cor[5] == 'Minor-Mandatory') {
-          newList.add(ComputerScience.addMinorString(newCourse, true));
+          newList.add(computerScience.addMinorString(newCourse, true));
         } else {
-          newList.add(ComputerScience.addMinorString(newCourse, false));
+          newList.add(computerScience.addMinorString(newCourse, false));
         }
       } else {
         newList.add(cor);
@@ -83,16 +86,19 @@ class CoursesService {
 
   static List getDepartmentList() {
     if (departmentName == 'Computer Science and Statistics (Alex)') {
+      ComputerScience computerScience = ComputerScience();
+      Statistics statistics = Statistics();
+      CommonDPCourses commonDPCourses = CommonDPCourses();
       List l1 = returnListWithoutRepeatCourses(
-          ComputerScience.mandatoryMajorCS, Statistics.mandatoryMinorStat);
+          computerScience.mandatoryMajorCS(), statistics.mandatoryMinorStat());
 
       List l2 = returnListWithoutRepeatCourses(
-          ComputerScience.electiveMajorCS, Statistics.electiveMinorStat);
+          computerScience.electiveMajorCS(), statistics.electiveMinorStat());
 
       List l3 = returnListWithoutRepeatCourses(l1, l2);
 
       List l4 = editingOnDepartment(
-          l3, CommonDPCourses.matrices, CommonDPCourses.linearAlgebra);
+          l3, commonDPCourses.matrices, commonDPCourses.linearAlgebra);
 
       return l4;
     }
@@ -101,15 +107,17 @@ class CoursesService {
   }
 
   static List<String> getCoursesNames() {
+    UniversityRequirement universityRequirement = UniversityRequirement();
+    FreeChoice freeChoice = FreeChoice();
     List<String> names = [];
     for (List list in getDivisionList()) {
       names.add(list[0]);
     }
-    for (List list in UniversityRequirement.universityRequirementsCourses) {
+    for (List list in universityRequirement.universityRequirementsCourses) {
       names.add(list[0]);
     }
 
-    for (List list in FreeChoice.freeChoiceCourses) {
+    for (List list in freeChoice.freeChoiceCourses) {
       names.add(list[0]);
     }
     if (departmentOption) {
@@ -121,6 +129,8 @@ class CoursesService {
   }
 
   static String getCredit(String courseName) {
+    UniversityRequirement universityRequirement = UniversityRequirement();
+    FreeChoice freeChoice = FreeChoice();
     String credit = '';
     for (List course in getDivisionList()) {
       if (course[0] == courseName) {
@@ -128,14 +138,14 @@ class CoursesService {
         return credit;
       }
     }
-    for (List course in UniversityRequirement.universityRequirementsCourses) {
+    for (List course in universityRequirement.universityRequirementsCourses) {
       if (course[0] == courseName) {
         credit = course[1];
         return credit;
       }
     }
 
-    for (List course in FreeChoice.freeChoiceCourses) {
+    for (List course in freeChoice.freeChoiceCourses) {
       if (course[0] == courseName) {
         credit = course[1];
         return credit;
@@ -471,6 +481,8 @@ class CoursesService {
 
   static List<String> getSuggestions(
       String query, List listInSemester, int semestId) {
+    UniversityRequirement universityRequirement = UniversityRequirement();
+    FreeChoice freeChoice = FreeChoice();
     List<String> matches = <String>[];
     if (systemOption) {
       // avoiding repeating course in the list
@@ -524,7 +536,7 @@ class CoursesService {
           }
         }
       }
-      for (List course in UniversityRequirement.universityRequirementsCourses) {
+      for (List course in universityRequirement.universityRequirementsCourses) {
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .
@@ -534,7 +546,7 @@ class CoursesService {
         }
       }
 
-      for (List course in FreeChoice.freeChoiceCourses) {
+      for (List course in freeChoice.freeChoiceCourses) {
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .

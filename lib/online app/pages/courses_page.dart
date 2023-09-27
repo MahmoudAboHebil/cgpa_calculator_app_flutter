@@ -1,4 +1,8 @@
+import 'package:cgp_calculator/online%20app/collage_courses_data/computer_science.dart';
+import 'package:cgp_calculator/online%20app/collage_courses_data/free_choice_courses.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/natural_sciences_division.dart';
+import 'package:cgp_calculator/online%20app/collage_courses_data/statistics.dart';
+import 'package:cgp_calculator/online%20app/collage_courses_data/university_requirement_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:searchfield/searchfield.dart';
@@ -33,6 +37,7 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
+  ComputerScience computerScience = ComputerScience();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,19 +69,27 @@ class _CoursesPageState extends State<CoursesPage> {
               elevation: 0,
             ),
             backgroundColor: Color(0xffb8c8d1),
-            body: Column(
+            body: ListView(
+              shrinkWrap: true,
+              physics: AlwaysScrollableScrollPhysics(),
               children: [
-                Expanded(child: CoursesBlock()),
+                // CoursesBlock('College-Mandatory    (متطلب كلية)',
+                //     NaturalSciences.collegeRequirementsCourses),
+                CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
+                    computerScience.mandatoryMajorCS()),
+                // CoursesBlock('Major-Elective    (رئيسى إختيارى)',
+                //     ComputerScience.electiveMajorCS),
+                //
+                // CoursesBlock('Minor-Mandatory    (فرعى إختيارى)',
+                //     Statistics.mandatoryMinorStat),
+                // CoursesBlock('Minor-Elective    (فرعى إختيارى)',
+                //     Statistics.electiveMinorStat),
+                // CoursesBlock('University-Courses    (متطلب جامعة)',
+                //     UniversityRequirement.universityRequirementsCourses),
+                // CoursesBlock('FreeChoice-Courses    (إختيار حر)',
+                //     FreeChoice.freeChoiceCourses),
               ],
             ),
-            // body: ListView.builder(
-            //   shrinkWrap: true,
-            //   itemCount: courseDataList.length,
-            //   itemBuilder: (context, index) => CourseData(
-            //       courseDataList[index][0],
-            //       courseDataList[index][1],
-            //       courseDataList[index][2]),
-            // ),
           ),
         ),
       ),
@@ -85,7 +98,10 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 class CoursesBlock extends StatefulWidget {
-  const CoursesBlock({super.key});
+  String title;
+  List list;
+
+  CoursesBlock(this.title, this.list);
 
   @override
   State<CoursesBlock> createState() => _CoursesBlockState();
@@ -100,13 +116,15 @@ class _CoursesBlockState extends State<CoursesBlock> {
     setState(() {
       listOfCourses = [];
     });
-    for (List course1 in NaturalSciences.collegeRequirementsCourses) {
+    print('#################################');
+    print(widget.list.length);
+    for (List course1 in widget.list) {
       List grade1 = [];
       List grade2 = [];
       String nameDetail = course1[0];
       String name = nameDetail.substring(0, nameDetail.indexOf('_'));
       String credit = course1[1];
-      String id = course1[2];
+      String? id = course1[2];
 
       for (List semester in allSemesters) {
         for (List course2 in semester) {
@@ -146,7 +164,6 @@ class _CoursesBlockState extends State<CoursesBlock> {
   void initState() {
     super.initState();
     setData();
-    print(listOfCourses);
   }
 
   @override
@@ -155,8 +172,9 @@ class _CoursesBlockState extends State<CoursesBlock> {
       margin: EdgeInsets.symmetric(horizontal: 10),
       child: ListView(
         shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         children: [
-          HeadTitle('Minor-Mandatory    (فرعى إجبارى)'),
+          HeadTitle(widget.title),
           ListView.builder(
             itemBuilder: (context, index) {
               return CourseCard(
@@ -176,27 +194,6 @@ class _CoursesBlockState extends State<CoursesBlock> {
         ],
       ),
     );
-    // SingleChildScrollView(
-    //   physics: AlwaysScrollableScrollPhysics(),
-    //   child: Column(
-    //     children: [
-    //       HeadTitle('Minor-Mandatory    (فرعى إجبارى)'),
-    //       ListView.builder(
-    //         itemBuilder: (context, index) {
-    //           return CourseCard(
-    //               listOfCourses[index][0],
-    //               listOfCourses[index][2],
-    //               listOfCourses[index][3],
-    //               listOfCourses[index][4],
-    //               listOfCourses[index][5]);
-    //         },
-    //         shrinkWrap: true,
-    //         // physics: AlwaysScrollableScrollPhysics(),
-    //         itemCount: listOfCourses.length,
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 }
 

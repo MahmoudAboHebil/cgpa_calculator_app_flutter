@@ -363,6 +363,7 @@ class _SemesterFinState extends State<SemesterFin> {
   void calcGPA() {
     int totalCredit_without_SU = 0;
     double totalPointsOfSemest = 0.0;
+    UniversityRequirement universityRequirement = UniversityRequirement();
     setState(() {
       GPA = 0.0;
       earnCredit = 0;
@@ -377,7 +378,7 @@ class _SemesterFinState extends State<SemesterFin> {
           String? grade2 = list[4];
           String grade = grade2 ?? grade1;
           if (list[1] !=
-                  UniversityRequirement.mandatoryUniversityRequirements[0][0] &&
+                  universityRequirement.mandatoryUniversityRequirements[0][0] &&
               grade != 'W') {
             allCoursesInSemstd.add(list);
           } else {

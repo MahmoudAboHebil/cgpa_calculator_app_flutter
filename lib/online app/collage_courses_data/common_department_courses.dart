@@ -1,5 +1,5 @@
 class CommonDPCourses {
-  static final List introductionToProbabilityAndStatistics = [
+  final List introductionToProbabilityAndStatistics = [
     'Introduction to Probability and Statistics',
     '2',
     '040102102',
@@ -8,13 +8,13 @@ class CommonDPCourses {
       ['040101101', '040101111']
     ]
   ];
-  static final List matrices = [
+  final List matrices = [
     'Matrices',
     '2',
     '040101231',
     [[], []]
   ];
-  static final List linearAlgebra = [
+  final List linearAlgebra = [
     'Linear Algebra',
     '3',
     '040101203',
@@ -23,7 +23,7 @@ class CommonDPCourses {
       []
     ]
   ];
-  static final List mathematicalAnalysis = [
+  final List mathematicalAnalysis = [
     'Mathematical Analysis',
     '3',
     '040101232',
@@ -32,7 +32,7 @@ class CommonDPCourses {
       ['040101102', '040101111']
     ]
   ];
-  static final List numericalMethods = [
+  final List numericalMethods = [
     'Numerical Methods',
     '3',
     '040101333',

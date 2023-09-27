@@ -1,7 +1,7 @@
 import 'common_department_courses.dart';
 
 class ComputerScience {
-  static List addMajorString(List course, bool isMandatoryCourse) {
+  List addMajorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
     String nickDpName = '';
@@ -23,7 +23,7 @@ class ComputerScience {
     return newCourse;
   }
 
-  static List addMinorString(List course, bool isMandatoryCourse) {
+  List addMinorString(List course, bool isMandatoryCourse) {
     String courseName = course[0];
     String newName = '';
     String nickDpName = '';
@@ -45,57 +45,65 @@ class ComputerScience {
     return newCourse;
   }
 
-  static List mandatoryMajorCS = [
-    addMajorString(
-        CommonDPCourses.introductionToProbabilityAndStatistics, true),
-    addMajorString(objectOrientedProgramming, true),
-    addMajorString(dataStructuresAndFileProcessing, true),
-    addMajorString(discreteStructures, true),
-    addMajorString(theoryOfComputation, true),
-    addMajorString(networkAndInternetProgramming, true),
-    addMajorString(advancedProgramming, true),
-    addMajorString(computerProgramming_Practical, true),
-    addMajorString(CommonDPCourses.matrices, true),
+  List mandatoryMajorCS() {
+    CommonDPCourses commonDPCourses = CommonDPCourses();
 
-    // addMajorString(CommonDPCourses.linearAlgebra, true),
-    addMajorString(digitalLogicCircuits, true),
-    addMajorString(operatingSystems, true),
-    addMajorString(databaseManagementSystems, true),
-    addMajorString(artificialIntelligence, true),
-    addMajorString(computerGraphics, true),
-    addMajorString(computingAlgorithms, true),
-    addMajorString(systemProgramming, true),
-    addMajorString(computerNetwork, true),
-    addMajorString(researchProject_CS, true),
-  ];
-  static List electiveMajorCS = [
-    addMajorString(ordinaryDifferentialEquations, false),
-    addMajorString(mathematicalLogic_1, false),
-    addMajorString(theoryOfNumbers, false),
-    addMajorString(introductionToInformationSystems, false),
-    addMajorString(introductionToSoftwareEngineering, false),
-    addMajorString(conceptsOfProgrammingLanguages, false),
-    addMajorString(human_ComputerInteraction, false),
-    addMajorString(CommonDPCourses.mathematicalAnalysis, false),
-    addMajorString(computerArchitecturalAndOrganization, false),
-    addMajorString(onlineMultimediaAndInformationAccess, false),
-    addMajorString(intelligentMachines, false),
-    addMajorString(algorithmsInBioinformatics, false),
-    addMajorString(intermediateSoftwareDesignAndEngineering, false),
-    addMajorString(softwareTestingAndQuality, false),
-    addMajorString(objectOrientedDesign, false),
-    addMajorString(CommonDPCourses.numericalMethods, false),
-    addMajorString(systemSimulationAndModeling, false),
-    addMajorString(distributedAndParallelSystems, false),
-    addMajorString(informationStorageAndRetrieval, false),
-    addMajorString(computerAndInformationSecurity, false),
-    addMajorString(advancedComputerNetworks, false),
-    addMajorString(digitalLibraries, false),
-    addMajorString(digitalImageProcessing, false),
-    addMajorString(selectedTopicsInComputer, false),
-  ];
+    return [
+      addMajorString(
+          commonDPCourses.introductionToProbabilityAndStatistics, true),
+      addMajorString(objectOrientedProgramming, true),
+      addMajorString(dataStructuresAndFileProcessing, true),
+      addMajorString(discreteStructures, true),
+      addMajorString(theoryOfComputation, true),
+      addMajorString(networkAndInternetProgramming, true),
+      addMajorString(advancedProgramming, true),
+      addMajorString(computerProgramming_Practical, true),
+      addMajorString(commonDPCourses.matrices, true),
 
-  static final List objectOrientedProgramming = [
+      // addMajorString(CommonDPCourses.linearAlgebra, true),
+      addMajorString(digitalLogicCircuits, true),
+      addMajorString(operatingSystems, true),
+      addMajorString(databaseManagementSystems, true),
+      addMajorString(artificialIntelligence, true),
+      addMajorString(computerGraphics, true),
+      addMajorString(computingAlgorithms, true),
+      addMajorString(systemProgramming, true),
+      addMajorString(computerNetwork, true),
+      addMajorString(researchProject_CS, true),
+    ];
+  }
+
+  List electiveMajorCS() {
+    CommonDPCourses commonDPCourses = CommonDPCourses();
+    return [
+      addMajorString(ordinaryDifferentialEquations, false),
+      addMajorString(mathematicalLogic_1, false),
+      addMajorString(theoryOfNumbers, false),
+      addMajorString(introductionToInformationSystems, false),
+      addMajorString(introductionToSoftwareEngineering, false),
+      addMajorString(conceptsOfProgrammingLanguages, false),
+      addMajorString(human_ComputerInteraction, false),
+      addMajorString(commonDPCourses.mathematicalAnalysis, false),
+      addMajorString(computerArchitecturalAndOrganization, false),
+      addMajorString(onlineMultimediaAndInformationAccess, false),
+      addMajorString(intelligentMachines, false),
+      addMajorString(algorithmsInBioinformatics, false),
+      addMajorString(intermediateSoftwareDesignAndEngineering, false),
+      addMajorString(softwareTestingAndQuality, false),
+      addMajorString(objectOrientedDesign, false),
+      addMajorString(commonDPCourses.numericalMethods, false),
+      addMajorString(systemSimulationAndModeling, false),
+      addMajorString(distributedAndParallelSystems, false),
+      addMajorString(informationStorageAndRetrieval, false),
+      addMajorString(computerAndInformationSecurity, false),
+      addMajorString(advancedComputerNetworks, false),
+      addMajorString(digitalLibraries, false),
+      addMajorString(digitalImageProcessing, false),
+      addMajorString(selectedTopicsInComputer, false),
+    ];
+  }
+
+  final List objectOrientedProgramming = [
     'Object Oriented Programming',
     '2',
     '040103201',
@@ -104,7 +112,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List dataStructuresAndFileProcessing = [
+  final List dataStructuresAndFileProcessing = [
     'Data Structures and File Processing',
     '3',
     '040103202',
@@ -113,13 +121,13 @@ class ComputerScience {
       []
     ]
   ];
-  static final List discreteStructures = [
+  final List discreteStructures = [
     'Discrete Structures',
     '2',
     '040103203',
     [[], []]
   ];
-  static final List theoryOfComputation = [
+  final List theoryOfComputation = [
     'Theory of Computation',
     '2',
     '040103204',
@@ -128,7 +136,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List networkAndInternetProgramming = [
+  final List networkAndInternetProgramming = [
     'Network and Internet Programming',
     '3',
     '040103205',
@@ -137,7 +145,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List advancedProgramming = [
+  final List advancedProgramming = [
     'Advanced Programming',
     '3',
     '040103206',
@@ -146,7 +154,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List computerProgramming_Practical = [
+  final List computerProgramming_Practical = [
     'Computer Programming (Practical)',
     '1',
     '040103207',
@@ -156,14 +164,14 @@ class ComputerScience {
     ]
   ];
 
-  static final List digitalLogicCircuits = [
+  final List digitalLogicCircuits = [
     'Digital Logic Circuits',
     // '3', not in reality
     '2',
     '040103250',
     [[], []]
   ];
-  static final List operatingSystems = [
+  final List operatingSystems = [
     'Operating Systems',
     '3',
     '040103301',
@@ -173,7 +181,7 @@ class ComputerScience {
     ]
   ];
 
-  static final List databaseManagementSystems = [
+  final List databaseManagementSystems = [
     'DatabaseManagement Systems',
     '3',
     '040103302',
@@ -182,7 +190,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List artificialIntelligence = [
+  final List artificialIntelligence = [
     'Artificial Intelligence',
     '3',
     '040103303',
@@ -191,7 +199,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List computerGraphics = [
+  final List computerGraphics = [
     'Computer Graphics',
     '3',
     '040103304',
@@ -200,7 +208,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List computingAlgorithms = [
+  final List computingAlgorithms = [
     'Computing Algorithms',
     '3',
     '040103305',
@@ -209,7 +217,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List systemProgramming = [
+  final List systemProgramming = [
     'System Programming',
     '3',
     '040103306',
@@ -218,7 +226,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List computerNetwork = [
+  final List computerNetwork = [
     'Computer Network',
     '3',
     '040103401',
@@ -227,7 +235,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List researchProject_CS = [
+  final List researchProject_CS = [
     'Research Project (CS)',
     '2',
     '040103490',
@@ -236,7 +244,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List ordinaryDifferentialEquations = [
+  final List ordinaryDifferentialEquations = [
     'Ordinary Differential Equations',
     // '3', not in  reality
     '2',
@@ -246,25 +254,25 @@ class ComputerScience {
       []
     ]
   ];
-  static final List mathematicalLogic_1 = [
+  final List mathematicalLogic_1 = [
     'Mathematical Logic (1)',
     '2',
     '040101205',
     [[], []]
   ];
-  static final List theoryOfNumbers = [
+  final List theoryOfNumbers = [
     'Theory of Numbers',
     '2',
     '040101206',
     [[], []]
   ];
-  static final List introductionToInformationSystems = [
+  final List introductionToInformationSystems = [
     'Introduction to Information Systems',
     '3',
     '040103208',
     [[], []]
   ];
-  static final List introductionToSoftwareEngineering = [
+  final List introductionToSoftwareEngineering = [
     'Introduction to Software Engineering',
     '2',
     '040103209',
@@ -273,7 +281,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List conceptsOfProgrammingLanguages = [
+  final List conceptsOfProgrammingLanguages = [
     'Concepts of Programming Languages',
     '3',
     '040103210',
@@ -282,7 +290,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List human_ComputerInteraction = [
+  final List human_ComputerInteraction = [
     'Human-Computer Interaction',
     '2',
     '040103211',
@@ -295,7 +303,7 @@ class ComputerScience {
     ]
   ];
 
-  static final List computerArchitecturalAndOrganization = [
+  final List computerArchitecturalAndOrganization = [
     'Computer Architectural and Organization',
     '3',
     '040103307',
@@ -304,7 +312,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List onlineMultimediaAndInformationAccess = [
+  final List onlineMultimediaAndInformationAccess = [
     'Online Multimedia and Information Access',
     '3',
     '040103308',
@@ -313,7 +321,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List intelligentMachines = [
+  final List intelligentMachines = [
     'Intelligent Machines',
     '3',
     '040103309',
@@ -322,7 +330,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List algorithmsInBioinformatics = [
+  final List algorithmsInBioinformatics = [
     'Algorithms in Bioinformatics',
     '3',
     '040103310',
@@ -331,7 +339,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List intermediateSoftwareDesignAndEngineering = [
+  final List intermediateSoftwareDesignAndEngineering = [
     'Intermediate Software Design and Engineering',
     '3',
     '040103311',
@@ -340,7 +348,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List softwareTestingAndQuality = [
+  final List softwareTestingAndQuality = [
     'Software Testing and Quality',
     '3',
     '040103312',
@@ -349,7 +357,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List objectOrientedDesign = [
+  final List objectOrientedDesign = [
     'ObjectOriented Design',
     '3',
     '040103313',
@@ -359,7 +367,7 @@ class ComputerScience {
     ]
   ];
 
-  static final List systemSimulationAndModeling = [
+  final List systemSimulationAndModeling = [
     'System Simulation and Modeling',
     '3',
     '040103402',
@@ -368,7 +376,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List distributedAndParallelSystems = [
+  final List distributedAndParallelSystems = [
     'Distributed and Parallel Systems',
     '3',
     '040103403',
@@ -377,7 +385,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List informationStorageAndRetrieval = [
+  final List informationStorageAndRetrieval = [
     'Information Storage and Retrieval',
     '3',
     '040103404',
@@ -386,7 +394,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List computerAndInformationSecurity = [
+  final List computerAndInformationSecurity = [
     'Computer and Information Security',
     '3',
     '040103405',
@@ -395,7 +403,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List advancedComputerNetworks = [
+  final List advancedComputerNetworks = [
     'Advanced Computer Networks',
     '3',
     '040103406',
@@ -404,7 +412,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List digitalLibraries = [
+  final List digitalLibraries = [
     'Digital Libraries',
     '3',
     '040103407',
@@ -413,7 +421,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List digitalImageProcessing = [
+  final List digitalImageProcessing = [
     'Digital Image Processing',
     '3',
     '040103408',
@@ -422,7 +430,7 @@ class ComputerScience {
       []
     ]
   ];
-  static final List selectedTopicsInComputer = [
+  final List selectedTopicsInComputer = [
     'Selected Topics in Computer',
     '3',
     '040103420',

@@ -650,6 +650,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   void calcCGPA() {
     int totalCredit_without_SU = 0;
     double totalPointsOfSemest = 0.0;
+    UniversityRequirement universityRequirement = UniversityRequirement();
     setState(() {
       CGPA = 0.0;
       earnCredit = 0;
@@ -672,7 +673,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             double pointOfGrade2 = 0.0;
             double pointOfCourse = 0.0;
             if (course[1] ==
-                    UniversityRequirement.mandatoryUniversityRequirements[0]
+                    universityRequirement.mandatoryUniversityRequirements[0]
                         [0] ||
                 grade == 'W') {
               // totalCredit = totalCredit + credit;
