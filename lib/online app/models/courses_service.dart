@@ -22,14 +22,92 @@ class CoursesService {
   ];
   static List<String> departments = ['Computer Science and Statistics (Alex)'];
   static List getDivisionList() {
+    NaturalSciences naturalSciences = NaturalSciences();
+
     if (divisionName == 'Natural Sciences Division (Alex)') {
-      NaturalSciences naturalSciences = NaturalSciences();
       return naturalSciences.collegeRequirementsCourses();
     }
     return [];
   }
 
-  static List returnListWithoutRepeatCourses(
+  static List getMajor_Mandatory() {
+    ComputerScience computerScience = ComputerScience();
+    CommonDPCourses commonDPCourses = CommonDPCourses();
+    if (departmentName == 'Computer Science and Statistics (Alex)') {
+      return editingOnDepartment(computerScience.mandatoryMajorCS(),
+          commonDPCourses.matrices, commonDPCourses.linearAlgebra);
+    }
+    return [];
+  }
+
+  static List getMajor_Elective() {
+    ComputerScience computerScience = ComputerScience();
+    CommonDPCourses commonDPCourses = CommonDPCourses();
+
+    if (departmentName == 'Computer Science and Statistics (Alex)') {
+      return returnListWithoutRepeatCourses(
+          editingOnDepartment(computerScience.electiveMajorCS(),
+              commonDPCourses.matrices, commonDPCourses.linearAlgebra),
+          getMajor_Mandatory());
+    }
+
+    return [];
+  }
+
+  static List getMinor_Mandatory() {
+    Statistics statistics = Statistics();
+    CommonDPCourses commonDPCourses = CommonDPCourses();
+
+    if (departmentName == 'Computer Science and Statistics (Alex)') {
+      List returnList = editingOnDepartment(statistics.mandatoryMinorStat(),
+          commonDPCourses.matrices, commonDPCourses.linearAlgebra);
+      returnList =
+          returnListWithoutRepeatCourses(returnList, getMajor_Mandatory());
+      returnList =
+          returnListWithoutRepeatCourses(returnList, getMajor_Elective());
+
+      return returnList;
+    }
+
+    return [];
+  }
+
+  static List getMinor_Elective() {
+    Statistics statistics = Statistics();
+    CommonDPCourses commonDPCourses = CommonDPCourses();
+
+    if (departmentName == 'Computer Science and Statistics (Alex)') {
+      List returnList = editingOnDepartment(statistics.electiveMinorStat(),
+          commonDPCourses.matrices, commonDPCourses.linearAlgebra);
+      returnList =
+          returnListWithoutRepeatCourses(returnList, getMajor_Mandatory());
+      returnList =
+          returnListWithoutRepeatCourses(returnList, getMajor_Elective());
+      returnList =
+          returnListWithoutRepeatCourses(returnList, getMinor_Mandatory());
+
+      return returnList;
+    }
+    return [];
+  }
+
+  static List returnListWithoutRepeatCourses(List firstList, List secondList) {
+    List returnList = [];
+    List<String> sdListNames = [];
+    for (List list in secondList) {
+      sdListNames.add(list[4]);
+    }
+
+    for (int i = 0; i < firstList.length; i++) {
+      if (!sdListNames.contains(firstList[i][4])) {
+        returnList.add(firstList[i]);
+      }
+    }
+
+    return returnList;
+  }
+
+  static List returnListWithoutRepeatCourses_sum(
       List firstListMajor, List secondListMinor) {
     List<String> ft_names = [];
     List<String> all_names = [];
@@ -89,13 +167,13 @@ class CoursesService {
       ComputerScience computerScience = ComputerScience();
       Statistics statistics = Statistics();
       CommonDPCourses commonDPCourses = CommonDPCourses();
-      List l1 = returnListWithoutRepeatCourses(
+      List l1 = returnListWithoutRepeatCourses_sum(
           computerScience.mandatoryMajorCS(), statistics.mandatoryMinorStat());
 
-      List l2 = returnListWithoutRepeatCourses(
+      List l2 = returnListWithoutRepeatCourses_sum(
           computerScience.electiveMajorCS(), statistics.electiveMinorStat());
 
-      List l3 = returnListWithoutRepeatCourses(l1, l2);
+      List l3 = returnListWithoutRepeatCourses_sum(l1, l2);
 
       List l4 = editingOnDepartment(
           l3, commonDPCourses.matrices, commonDPCourses.linearAlgebra);

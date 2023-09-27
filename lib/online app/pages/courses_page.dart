@@ -3,6 +3,7 @@ import 'package:cgp_calculator/online%20app/collage_courses_data/free_choice_cou
 import 'package:cgp_calculator/online%20app/collage_courses_data/natural_sciences_division.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/statistics.dart';
 import 'package:cgp_calculator/online%20app/collage_courses_data/university_requirement_courses.dart';
+import 'package:cgp_calculator/online%20app/models/courses_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:searchfield/searchfield.dart';
@@ -38,8 +39,12 @@ class CoursesPage extends StatefulWidget {
 
 class _CoursesPageState extends State<CoursesPage> {
   ComputerScience computerScience = ComputerScience();
+  UniversityRequirement universityRequirement = UniversityRequirement();
+  FreeChoice freeChoice = FreeChoice();
+
   @override
   Widget build(BuildContext context) {
+    print(CoursesService.getMajor_Elective());
     return Container(
       color: Color(0xffb8c8d1),
       child: SafeArea(
@@ -73,21 +78,20 @@ class _CoursesPageState extends State<CoursesPage> {
               shrinkWrap: true,
               physics: AlwaysScrollableScrollPhysics(),
               children: [
-                // CoursesBlock('College-Mandatory    (متطلب كلية)',
-                //     NaturalSciences.collegeRequirementsCourses),
+                CoursesBlock('College-Mandatory    (متطلب كلية)',
+                    CoursesService.getDivisionList()),
                 CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
-                    computerScience.mandatoryMajorCS()),
-                // CoursesBlock('Major-Elective    (رئيسى إختيارى)',
-                //     ComputerScience.electiveMajorCS),
-                //
-                // CoursesBlock('Minor-Mandatory    (فرعى إختيارى)',
-                //     Statistics.mandatoryMinorStat),
-                // CoursesBlock('Minor-Elective    (فرعى إختيارى)',
-                //     Statistics.electiveMinorStat),
+                    CoursesService.getMajor_Mandatory()),
+                CoursesBlock('Major-Elective    (رئيسى إختيارى)',
+                    CoursesService.getMajor_Elective()),
+                CoursesBlock('Minor-Mandatory    (فرعى إجبارى)',
+                    CoursesService.getMinor_Mandatory()),
+                CoursesBlock('Minor-Elective    (فرعى إختيارى)',
+                    CoursesService.getMinor_Elective()),
                 // CoursesBlock('University-Courses    (متطلب جامعة)',
-                //     UniversityRequirement.universityRequirementsCourses),
+                //     universityRequirement.universityRequirementsCourses),
                 // CoursesBlock('FreeChoice-Courses    (إختيار حر)',
-                //     FreeChoice.freeChoiceCourses),
+                //     freeChoice.freeChoiceCourses),
               ],
             ),
           ),
@@ -116,8 +120,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
     setState(() {
       listOfCourses = [];
     });
-    print('#################################');
-    print(widget.list.length);
+
     for (List course1 in widget.list) {
       List grade1 = [];
       List grade2 = [];
@@ -128,9 +131,13 @@ class _CoursesBlockState extends State<CoursesBlock> {
 
       for (List semester in allSemesters) {
         for (List course2 in semester) {
-          if (course1[0] == course2[1]) {
-            grade1.add(course2[3]);
-            grade2.add(course2[4]);
+          if (course2[1] != null) {
+            String name2 = course2[1].substring(0, course2[1].indexOf('_'));
+
+            if (name2 == name) {
+              grade1.add(course2[3]);
+              grade2.add(course2[4]);
+            }
           }
         }
       }
