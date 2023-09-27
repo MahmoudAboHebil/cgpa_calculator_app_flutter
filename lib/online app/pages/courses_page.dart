@@ -38,61 +38,70 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  ComputerScience computerScience = ComputerScience();
   UniversityRequirement universityRequirement = UniversityRequirement();
   FreeChoice freeChoice = FreeChoice();
 
   @override
   Widget build(BuildContext context) {
-    print(CoursesService.getMajor_Elective());
-    return Container(
-      color: Color(0xffb8c8d1),
-      child: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              leading: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomeWithFireStorePage(),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeWithFireStorePage(),
+            ));
+
+        return false;
+      },
+      child: Container(
+        color: Color(0xffb8c8d1),
+        child: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeWithFireStorePage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(left: 10, top: 5),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                      size: 26,
                     ),
-                  );
-                },
-                child: Container(
-                  margin: EdgeInsets.only(left: 10, top: 5),
-                  child: Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.white,
-                    size: 26,
                   ),
                 ),
+                elevation: 0,
               ),
-              elevation: 0,
-            ),
-            backgroundColor: Color(0xffb8c8d1),
-            body: ListView(
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              children: [
-                CoursesBlock('College-Mandatory    (متطلب كلية)',
-                    CoursesService.getDivisionList()),
-                CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
-                    CoursesService.getMajor_Mandatory()),
-                CoursesBlock('Major-Elective    (رئيسى إختيارى)',
-                    CoursesService.getMajor_Elective()),
-                CoursesBlock('Minor-Mandatory    (فرعى إجبارى)',
-                    CoursesService.getMinor_Mandatory()),
-                CoursesBlock('Minor-Elective    (فرعى إختيارى)',
-                    CoursesService.getMinor_Elective()),
-                // CoursesBlock('University-Courses    (متطلب جامعة)',
-                //     universityRequirement.universityRequirementsCourses),
-                // CoursesBlock('FreeChoice-Courses    (إختيار حر)',
-                //     freeChoice.freeChoiceCourses),
-              ],
+              backgroundColor: Color(0xffb8c8d1),
+              body: ListView(
+                shrinkWrap: true,
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  CoursesBlock('College-Mandatory    (متطلب كلية)',
+                      CoursesService.getDivisionList()),
+                  CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
+                      CoursesService.getMajor_Mandatory()),
+                  CoursesBlock('Major-Elective    (رئيسى إختيارى)',
+                      CoursesService.getMajor_Elective()),
+                  CoursesBlock('Minor-Mandatory    (فرعى إجبارى)',
+                      CoursesService.getMinor_Mandatory()),
+                  CoursesBlock('Minor-Elective    (فرعى إختيارى)',
+                      CoursesService.getMinor_Elective()),
+                  CoursesBlock('University-Courses    (متطلب جامعة)',
+                      universityRequirement.universityRequirementsCourses),
+                  CoursesBlock('FreeChoice-Courses    (إختيار حر)',
+                      freeChoice.freeChoiceCourses),
+                ],
+              ),
             ),
           ),
         ),
@@ -120,20 +129,36 @@ class _CoursesBlockState extends State<CoursesBlock> {
     setState(() {
       listOfCourses = [];
     });
+    String? replace;
+    if (widget.title == 'University-Courses    (متطلب جامعة)') {
+      replace = ' متطلب جامعة _ ';
+    } else if (widget.title == 'FreeChoice-Courses    (إختيار حر)') {
+      replace = ' إختيار حر _ ';
+    }
 
     for (List course1 in widget.list) {
       List grade1 = [];
       List grade2 = [];
       String nameDetail = course1[0];
-      String name = nameDetail.substring(0, nameDetail.indexOf('_'));
+      String name;
+      if (replace != null) {
+        name = nameDetail.replaceAll(replace, '');
+      } else {
+        name = nameDetail.substring(0, nameDetail.indexOf('_'));
+      }
+
       String credit = course1[1];
       String? id = course1[2];
 
       for (List semester in allSemesters) {
         for (List course2 in semester) {
           if (course2[1] != null) {
-            String name2 = course2[1].substring(0, course2[1].indexOf('_'));
-
+            String name2;
+            if (replace != null) {
+              name2 = course2[1].replaceAll(replace, '');
+            } else {
+              name2 = course2[1].substring(0, course2[1].indexOf('_'));
+            }
             if (name2 == name) {
               grade1.add(course2[3]);
               grade2.add(course2[4]);
