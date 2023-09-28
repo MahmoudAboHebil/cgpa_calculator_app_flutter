@@ -209,12 +209,25 @@ class _CoursesBlockState extends State<CoursesBlock> {
           HeadTitle(widget.title),
           ListView.builder(
             itemBuilder: (context, index) {
-              return CourseCard(
-                  listOfCourses[index][0],
-                  listOfCourses[index][2],
-                  listOfCourses[index][3],
-                  listOfCourses[index][4],
-                  listOfCourses[index][5]);
+              return TextButton(
+                style: ButtonStyle(
+                    padding: MaterialStatePropertyAll(EdgeInsets.zero),
+                    textStyle: MaterialStatePropertyAll(
+                        TextStyle(fontWeight: FontWeight.normal))),
+                onPressed: () {
+                  String? id = listOfCourses[index][1];
+                  if (id != null) {
+                    print(CoursesService.getOpenCoursesId(id));
+                  }
+                  print('fffffffff');
+                },
+                child: CourseCard(
+                    listOfCourses[index][0],
+                    listOfCourses[index][2],
+                    listOfCourses[index][3],
+                    listOfCourses[index][4],
+                    listOfCourses[index][5]),
+              );
             },
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),

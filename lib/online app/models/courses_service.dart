@@ -162,6 +162,31 @@ class CoursesService {
     return newList;
   }
 
+  // static List getAllDepartmentCourses() {
+  //   if (departmentName == 'Computer Science and Statistics (Alex)') {
+  //     List allCourses = [];
+  //
+  //     ComputerScience computerScience = ComputerScience();
+  //     Statistics statistics = Statistics();
+  //     CommonDPCourses commonDPCourses = CommonDPCourses();
+  //     for (List list in computerScience.mandatoryMajorCS()) {
+  //       allCourses.add(list);
+  //     }
+  //     for (List list in statistics.mandatoryMinorStat()) {
+  //       allCourses.add(list);
+  //     }
+  //     for (List list in computerScience.electiveMajorCS()) {
+  //       allCourses.add(list);
+  //     }
+  //     for (List list in statistics.electiveMinorStat()) {
+  //       allCourses.add(list);
+  //     }
+  //
+  //     return allCourses;
+  //   }
+  //   return [];
+  // }
+
   static List getDepartmentList() {
     if (departmentName == 'Computer Science and Statistics (Alex)') {
       ComputerScience computerScience = ComputerScience();
@@ -238,6 +263,32 @@ class CoursesService {
       }
     }
     return credit;
+  }
+
+  static List getOpenCoursesId(String id) {
+    List ids = [];
+    for (List course in getDivisionList()) {
+      if (course[3][0].contains(id)) {
+        ids.add(course[2]);
+      }
+      if (course[3][1].contains(id)) {
+        ids.add(course[2]);
+      }
+    }
+
+    for (List course in getDepartmentList()) {
+      if (course[3][0].isNotEmpty) {
+        if (course[3][0].contains(id)) {
+          ids.add(course[2]);
+        }
+      }
+      if (course[3][1].isNotEmpty) {
+        if (course[3][1].contains(id)) {
+          ids.add(course[2]);
+        }
+      }
+    }
+    return ids;
   }
 
   static String? getCourseNumberByName(String courseName) {

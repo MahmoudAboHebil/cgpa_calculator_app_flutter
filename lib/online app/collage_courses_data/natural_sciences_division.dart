@@ -46,7 +46,7 @@ class NaturalSciences {
   final List computerProgrammingAndApplications = [
     'Computer Programming and Applications _ متطلب كلية ',
     '2',
-    '040102102',
+    '040103102',
     [[], []]
   ];
   final List generalPhysics_1 = [
