@@ -210,15 +210,27 @@ class _CoursesBlockState extends State<CoursesBlock> {
 
     Widget mandoteryWidget() {
       return Container(
-        height: 300,
+        height: 165,
         width: 500,
         child: isForth
-            ? Text('Forth Level ',
-                maxLines: 2,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.redAccent,
-                ))
+            ? Column(
+                children: [
+                  Text('Forth Level ',
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.redAccent,
+                      )),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(vertical: 5),
+                  //   child: Divider(
+                  //     height: 1,
+                  //     thickness: 1,
+                  //     color: Colors.black,
+                  //   ),
+                  // )
+                ],
+              )
             : ListView.builder(
                 shrinkWrap: true,
                 itemBuilder: (context, index) => Column(
@@ -261,20 +273,67 @@ class _CoursesBlockState extends State<CoursesBlock> {
                                   color: Color(0xff004d60),
                                 ))
                             : SizedBox(),
-                        (!isForth && !isM) ||
-                                requirementCourses.length == index + 1
-                            ? Padding(
-                                padding: EdgeInsets.symmetric(vertical: 5),
-                                child: Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Colors.black,
-                                ),
-                              )
-                            : SizedBox(),
+                        // (!isForth && !isM) &&
+                        //         requirementCourses.length < index + 1
+                        //     ? Padding(
+                        //         padding: EdgeInsets.symmetric(vertical: 5),
+                        //         child: Divider(
+                        //           height: 1,
+                        //           thickness: 1,
+                        //           color: Colors.black,
+                        //         ),
+                        //       )
+                        //     : SizedBox(),
                       ],
                     ),
                 itemCount: mandotery.length),
+      );
+    }
+
+    Widget optionWidget() {
+      return Container(
+        height: 165,
+        width: 500,
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: (context, index) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        '${CoursesService.getDepartmentCourseNameById(option[index])}',
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.redAccent,
+                        )),
+                    Text('${option[index]}',
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.redAccent,
+                        )),
+                    (index + 1 < option.length)
+                        ? Text('أو',
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xff004d60),
+                            ))
+                        : SizedBox(),
+                    // option.length > index + 1
+                    //     ? Padding(
+                    //         padding: EdgeInsets.symmetric(vertical: 5),
+                    //         child: Divider(
+                    //           height: 1,
+                    //           thickness: 1,
+                    //           color: Colors.black,
+                    //         ),
+                    //       )
+                    //     : SizedBox(),
+                  ],
+                ),
+            itemCount: option.length),
       );
     }
 
@@ -303,7 +362,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
             height: 10,
           ),
           Container(
-            height: 300,
+            height: 165,
             width: 500,
             child: ListView.builder(
                 shrinkWrap: true,
@@ -322,18 +381,20 @@ class _CoursesBlockState extends State<CoursesBlock> {
                               fontSize: 16,
                               color: Colors.green,
                             )),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          child: Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Colors.black,
-                          ),
-                        ),
+                        openCourses.length > index + 1
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                 itemCount: openCourses.length),
-          ),
+          )
         ],
       );
     }
@@ -344,7 +405,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "To open, you need to finish :  ",
+            "To open, you need to finish: ",
             style: TextStyle(
               fontSize: 18,
               color: Color(0xff004d60),
@@ -353,7 +414,19 @@ class _CoursesBlockState extends State<CoursesBlock> {
           SizedBox(
             height: 10,
           ),
-          mandoteryWidget(),
+          (mandotery.isEmpty && option.isEmpty)
+              ? Text(
+                  "No requirements",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xff004d60),
+                  ),
+                )
+              : SizedBox(),
+          (option.isEmpty || mandotery.isNotEmpty)
+              ? mandoteryWidget()
+              : SizedBox(),
+          option.isNotEmpty ? optionWidget() : SizedBox(),
         ],
       );
     }
@@ -363,7 +436,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
         builder: (context) => AlertDialog(
               backgroundColor: Color(0xffb8c8d1),
               content: Container(
-                height: 500,
+                height: 525,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -386,6 +459,15 @@ class _CoursesBlockState extends State<CoursesBlock> {
                         height: 15,
                       ),
                       requirtsWidget(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Divider(
+                          height: 3,
+                          thickness: 3,
+                          color: Color(0xff4562a7),
+                        ),
+                      ),
+                      openWidget(),
                     ],
                   ),
                 ),
