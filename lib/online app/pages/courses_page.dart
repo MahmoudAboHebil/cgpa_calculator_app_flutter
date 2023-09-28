@@ -149,6 +149,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
 
       String credit = course1[1];
       String? id = course1[2];
+      List? reqs = course1[3];
 
       for (List semester in allSemesters) {
         for (List course2 in semester) {
@@ -181,12 +182,13 @@ class _CoursesBlockState extends State<CoursesBlock> {
                     grade == 'W' ||
                     grade == 'U')
                 ? false
-                : true
+                : true,
+            reqs
           ]);
         });
       } else {
         setState(() {
-          listOfCourses.add([name, id, credit, null, null, false]);
+          listOfCourses.add([name, id, credit, null, null, false, reqs]);
         });
       }
     }
@@ -196,6 +198,200 @@ class _CoursesBlockState extends State<CoursesBlock> {
   void initState() {
     super.initState();
     setData();
+  }
+
+  Future<dynamic> message(
+      String courseName, String id, List openCourses, List requirementCourses) {
+    List mandotery = requirementCourses[0];
+    List option = requirementCourses[1];
+
+    bool isForth = mandotery.contains('Four');
+    bool isM = mandotery.contains('m');
+
+    Widget mandoteryWidget() {
+      return Container(
+        height: 300,
+        width: 500,
+        child: isForth
+            ? Text('Forth Level ',
+                maxLines: 2,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.redAccent,
+                ))
+            : ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (context, index) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CoursesService.getDepartmentCourseNameById(
+                                    mandotery[index])
+                                .isNotEmpty
+                            ? Text(
+                                '${CoursesService.getDepartmentCourseNameById(mandotery[index])}',
+                                maxLines: 2,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.redAccent,
+                                ))
+                            : SizedBox(),
+                        (mandotery[index] != 'm' && mandotery[index] != 'Four')
+                            ? Text('${mandotery[index]}',
+                                maxLines: 2,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.redAccent,
+                                ))
+                            : SizedBox(),
+                        (isM && index == 0)
+                            ? Text(' و',
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xff004d60),
+                                ))
+                            : SizedBox(),
+                        (requirementCourses.length == index + 1)
+                            ? Text('مصاحب',
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xff004d60),
+                                ))
+                            : SizedBox(),
+                        (!isForth && !isM) ||
+                                requirementCourses.length == index + 1
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : SizedBox(),
+                      ],
+                    ),
+                itemCount: mandotery.length),
+      );
+    }
+
+    Widget openWidget() {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                "This course will open:  ",
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Color(0xff004d60),
+                ),
+              ),
+              Text(
+                "${openCourses.length}",
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            height: 300,
+            width: 500,
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (context, index) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${openCourses[index][1]} ',
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.green,
+                            )),
+                        Text(openCourses[index][0],
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.green,
+                            )),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                itemCount: openCourses.length),
+          ),
+        ],
+      );
+    }
+
+    Widget requirtsWidget() {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "To open, you need to finish :  ",
+            style: TextStyle(
+              fontSize: 18,
+              color: Color(0xff004d60),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          mandoteryWidget(),
+        ],
+      );
+    }
+
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              backgroundColor: Color(0xffb8c8d1),
+              content: Container(
+                height: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(courseName,
+                              maxLines: 2,
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff4562a7))),
+                          Text(id,
+                              maxLines: 2,
+                              style: TextStyle(
+                                  fontSize: 18, color: Color(0xff4562a7))),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      requirtsWidget(),
+                    ],
+                  ),
+                ),
+              ),
+              // alignment: Alignment.center,
+            ));
   }
 
   @override
@@ -218,6 +414,11 @@ class _CoursesBlockState extends State<CoursesBlock> {
                   String? id = listOfCourses[index][1];
                   if (id != null) {
                     print(CoursesService.getOpenCoursesId(id));
+                    message(
+                        listOfCourses[index][0],
+                        id,
+                        CoursesService.getOpenCoursesId(id),
+                        listOfCourses[index][6]);
                   }
                   print('fffffffff');
                 },

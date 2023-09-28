@@ -269,22 +269,22 @@ class CoursesService {
     List ids = [];
     for (List course in getDivisionList()) {
       if (course[3][0].contains(id)) {
-        ids.add(course[2]);
+        ids.add([course[2], course[0]]);
       }
       if (course[3][1].contains(id)) {
-        ids.add(course[2]);
+        ids.add([course[2], course[0]]);
       }
     }
 
     for (List course in getDepartmentList()) {
       if (course[3][0].isNotEmpty) {
         if (course[3][0].contains(id)) {
-          ids.add(course[2]);
+          ids.add([course[2], course[0]]);
         }
       }
       if (course[3][1].isNotEmpty) {
         if (course[3][1].contains(id)) {
-          ids.add(course[2]);
+          ids.add([course[2], course[0]]);
         }
       }
     }
@@ -306,6 +306,21 @@ class CoursesService {
       }
     }
     return number;
+  }
+
+  static String getDepartmentCourseNameById(String courseId) {
+    String name = '';
+    for (List course in getDepartmentList()) {
+      if (course[2] == courseId) {
+        name = course[0];
+      }
+    }
+    for (List course in getDivisionList()) {
+      if (course[2] == courseId) {
+        name = course[0];
+      }
+    }
+    return name;
   }
 
   static bool isGlobalDepartmentValidationOK() {
