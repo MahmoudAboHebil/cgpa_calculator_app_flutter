@@ -382,9 +382,13 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           }
           if (CoursesService.divisions.contains(division)) {
             CoursesService.divisionName = division;
+          } else {
+            CoursesService.divisionName = '';
           }
           if (CoursesService.departments.contains(department)) {
             CoursesService.departmentName = department;
+          } else {
+            CoursesService.departmentName = '';
           }
           Future.delayed(Duration.zero, () {
             if (flag3 && division.isEmpty) {
@@ -830,7 +834,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         });
       }
     });
+    print('################  #######################');
 
+    print(CoursesService.departmentName);
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();

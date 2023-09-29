@@ -381,19 +381,23 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                         },
                         child: Text('Review')),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.reviews),
-                    title: GestureDetector(
-                        onTap: () async {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CoursesPage(),
-                            ),
-                          );
-                        },
-                        child: Text('CoursesPage')),
-                  ),
+                  email.isNotEmpty &&
+                          CoursesService.divisions.contains(division) &&
+                          collageOption
+                      ? ListTile(
+                          leading: Icon(Icons.reviews),
+                          title: GestureDetector(
+                              onTap: () async {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CoursesPage(),
+                                  ),
+                                );
+                              },
+                              child: Text('College Courses')),
+                        )
+                      : SizedBox(),
                   ListTile(
                     leading: Icon(Icons.person_rounded),
                     title: GestureDetector(

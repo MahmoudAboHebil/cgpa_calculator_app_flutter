@@ -81,6 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
     _controller_dp = TextEditingController(text: widget.department);
     setState(() {
       showDepartment = CoursesService.isGlobalDepartmentValidationOK();
+      print('222222222222222222222222222222222222222222222');
+      print(showDepartment);
     });
   }
 

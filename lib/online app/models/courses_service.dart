@@ -400,7 +400,7 @@ class CoursesService {
       }
     }
 
-    return !val.contains(false);
+    return !val.contains(false) && CoursesService.systemOption;
   }
 
   static bool courseEnrollingSystem(
