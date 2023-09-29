@@ -291,6 +291,35 @@ class CoursesService {
     return ids;
   }
 
+  static String? getCourseNickNameDpByName(String courseName) {
+    UniversityRequirement universityRequirement = UniversityRequirement();
+    FreeChoice freeChoice = FreeChoice();
+    String? nickDp;
+    for (List course in getDivisionList()) {
+      if (course[4] == courseName) {
+        nickDp = course[5];
+      }
+    }
+    if (departmentOption) {
+      for (List course in getDepartmentList()) {
+        if (course[4] == courseName) {
+          nickDp = course[5];
+        }
+      }
+    }
+    for (List course in universityRequirement.universityRequirementsCourses) {
+      if (course[4] == courseName) {
+        nickDp = course[5];
+      }
+    }
+    for (List course in freeChoice.freeChoiceCourses) {
+      if (course[4] == courseName) {
+        nickDp = course[5];
+      }
+    }
+    return nickDp;
+  }
+
   static String? getCourseNumberByName(String courseName) {
     String? number;
     for (List course in getDivisionList()) {
@@ -621,6 +650,34 @@ class CoursesService {
         isValidOneCourses &&
         isValidDp &&
         !isInValidSemester.contains(false);
+  }
+
+  static List<String> getSuggestionsCoursePage(String query) {
+    UniversityRequirement universityRequirement = UniversityRequirement();
+    FreeChoice freeChoice = FreeChoice();
+
+    List<String> matches = [];
+    if (departmentOption) {
+      for (List course in getDepartmentList()) {
+        matches.add(course[4]);
+      }
+    }
+    for (List course in getDivisionList()) {
+      matches.add(course[4]);
+    }
+    for (List course in universityRequirement.universityRequirementsCourses) {
+      matches.add(course[4]);
+    }
+
+    for (List course in freeChoice.freeChoiceCourses) {
+      matches.add(course[4]);
+    }
+
+    if (matches.isNotEmpty) {
+      matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+      return matches;
+    }
+    return ['There are no courses left'];
   }
 
   static List<String> getSuggestions(

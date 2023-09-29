@@ -6,7 +6,7 @@ class CommonDPCourses {
     [
       [],
       ['040101101', '040101111']
-    ]
+    ],
   ];
   final List matrices = [
     'Matrices',
