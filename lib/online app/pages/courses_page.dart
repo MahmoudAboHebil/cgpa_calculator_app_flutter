@@ -12,8 +12,10 @@ import 'package:textfield_search/textfield_search.dart';
 
 import 'home_with_firestore_page.dart';
 
-/// todo: you need to change color of course card when it selected
+/// todo: you need to change color of course card when it selected (no needed)
 /// todo: you need to add delete button
+/// todo: you need to  total gain  credits
+
 List<List<String>> courseDataList = [
   [
     'courseName1',
@@ -46,21 +48,25 @@ class _CoursesPageState extends State<CoursesPage> {
   String? selectDp;
 
   Widget content(String? selectDp) {
+    String? selectedCourse = (selectDp == null) ? null : _selectController.text;
     Widget? selectedWidget;
     Widget college = CoursesBlock('College-Mandatory    (متطلب كلية)',
-        CoursesService.getDivisionList(), _selectFocus);
+        CoursesService.getDivisionList(), _selectFocus, selectedCourse);
     Widget majorMandatory = CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
-        CoursesService.getMajor_Mandatory(), _selectFocus);
+        CoursesService.getMajor_Mandatory(), _selectFocus, selectedCourse);
     Widget majorElective = CoursesBlock('Major-Elective    (رئيسى إختيارى)',
-        CoursesService.getMajor_Elective(), _selectFocus);
+        CoursesService.getMajor_Elective(), _selectFocus, selectedCourse);
     Widget minorMandatory = CoursesBlock('Minor-Mandatory    (فرعى إجبارى)',
-        CoursesService.getMinor_Mandatory(), _selectFocus);
+        CoursesService.getMinor_Mandatory(), _selectFocus, selectedCourse);
     Widget minorElective = CoursesBlock('Minor-Elective    (فرعى إختيارى)',
-        CoursesService.getMinor_Elective(), _selectFocus);
-    Widget university = CoursesBlock('University-Courses    (متطلب جامعة)',
-        universityRequirement.universityRequirementsCourses, _selectFocus);
+        CoursesService.getMinor_Elective(), _selectFocus, selectedCourse);
+    Widget university = CoursesBlock(
+        'University-Courses    (متطلب جامعة)',
+        universityRequirement.universityRequirementsCourses,
+        _selectFocus,
+        selectedCourse);
     Widget freeChoiceCourses = CoursesBlock('FreeChoice-Courses    (إختيار حر)',
-        freeChoice.freeChoiceCourses, _selectFocus);
+        freeChoice.freeChoiceCourses, _selectFocus, selectedCourse);
     if (selectDp == 'College') {
       selectedWidget = college;
     } else if (selectDp == 'Major-Mandatory') {
@@ -284,9 +290,10 @@ class _CoursesPageState extends State<CoursesPage> {
 class CoursesBlock extends StatefulWidget {
   String title;
   List list;
+  String? selectedCourse;
   FocusNode focusNode;
 
-  CoursesBlock(this.title, this.list, this.focusNode);
+  CoursesBlock(this.title, this.list, this.focusNode, this.selectedCourse);
 
   @override
   State<CoursesBlock> createState() => _CoursesBlockState();
@@ -310,59 +317,120 @@ class _CoursesBlockState extends State<CoursesBlock> {
     }
 
     for (List course1 in widget.list) {
-      List grade1 = [];
-      List grade2 = [];
-      String nameDetail = course1[0];
-      String name;
-      if (replace != null) {
-        name = nameDetail.replaceAll(replace, '');
-      } else {
-        name = nameDetail.substring(0, nameDetail.indexOf('_'));
-      }
+      if (widget.selectedCourse != null) {
+        if (course1[4] == widget.selectedCourse) {
+          List grade1 = [];
+          List grade2 = [];
+          String nameDetail = course1[0];
+          String name;
+          if (replace != null) {
+            name = nameDetail.replaceAll(replace, '');
+          } else {
+            name = nameDetail.substring(0, nameDetail.indexOf('_'));
+          }
 
-      String credit = course1[1];
-      String? id = course1[2];
-      List? reqs = course1[3];
+          String credit = course1[1];
+          String? id = course1[2];
+          List? reqs = course1[3];
 
-      for (List semester in allSemesters) {
-        for (List course2 in semester) {
-          if (course2[1] != null) {
-            String name2;
-            if (replace != null) {
-              name2 = course2[1].replaceAll(replace, '');
-            } else {
-              name2 = course2[1].substring(0, course2[1].indexOf('_'));
+          for (List semester in allSemesters) {
+            for (List course2 in semester) {
+              if (course2[1] != null) {
+                String name2;
+                if (replace != null) {
+                  name2 = course2[1].replaceAll(replace, '');
+                } else {
+                  name2 = course2[1].substring(0, course2[1].indexOf('_'));
+                }
+                if (name2 == name) {
+                  grade1.add(course2[3]);
+                  grade2.add(course2[4]);
+                }
+              }
             }
-            if (name2 == name) {
-              grade1.add(course2[3]);
-              grade2.add(course2[4]);
+          }
+          if (grade1.isNotEmpty) {
+            String? grade =
+                grade2[grade2.length - 1] ?? grade1[grade1.length - 1];
+            setState(() {
+              listOfCourses.add([
+                name,
+                id,
+                credit,
+                grade1[grade1.length - 1],
+                grade2[grade2.length - 1],
+                (grade == null ||
+                        grade == 'F' ||
+                        grade == 'Non' ||
+                        grade == 'W' ||
+                        grade == 'U')
+                    ? false
+                    : true,
+                reqs
+              ]);
+            });
+          } else {
+            setState(() {
+              listOfCourses.add([name, id, credit, null, null, false, reqs]);
+            });
+          }
+        }
+      } else {
+        List grade1 = [];
+        List grade2 = [];
+        String nameDetail = course1[0];
+        String name;
+        if (replace != null) {
+          name = nameDetail.replaceAll(replace, '');
+        } else {
+          name = nameDetail.substring(0, nameDetail.indexOf('_'));
+        }
+
+        String credit = course1[1];
+        String? id = course1[2];
+        List? reqs = course1[3];
+
+        for (List semester in allSemesters) {
+          for (List course2 in semester) {
+            if (course2[1] != null) {
+              String name2;
+              if (replace != null) {
+                name2 = course2[1].replaceAll(replace, '');
+              } else {
+                name2 = course2[1].substring(0, course2[1].indexOf('_'));
+              }
+              if (name2 == name) {
+                grade1.add(course2[3]);
+                grade2.add(course2[4]);
+              }
             }
           }
         }
-      }
-      if (grade1.isNotEmpty) {
-        String? grade = grade2[grade2.length - 1] ?? grade1[grade1.length - 1];
-        setState(() {
-          listOfCourses.add([
-            name,
-            id,
-            credit,
-            grade1[grade1.length - 1],
-            grade2[grade2.length - 1],
-            (grade == null ||
-                    grade == 'F' ||
-                    grade == 'Non' ||
-                    grade == 'W' ||
-                    grade == 'U')
-                ? false
-                : true,
-            reqs
-          ]);
-        });
-      } else {
-        setState(() {
-          listOfCourses.add([name, id, credit, null, null, false, reqs]);
-        });
+        if (grade1.isNotEmpty) {
+          String? grade =
+              grade2[grade2.length - 1] ?? grade1[grade1.length - 1];
+          setState(() {
+            listOfCourses.add([
+              name,
+              id,
+              credit,
+              grade1[grade1.length - 1],
+              grade2[grade2.length - 1],
+              (grade == null ||
+                      grade == 'F' ||
+                      grade == 'Non' ||
+                      grade == 'W' ||
+                      grade == 'U')
+                  ? false
+                  : true,
+              reqs
+            ]);
+          });
+        } else {
+          setState(() {
+            listOfCourses.add([name, id, credit, null, null, false, reqs]);
+          });
+        }
       }
     }
   }
