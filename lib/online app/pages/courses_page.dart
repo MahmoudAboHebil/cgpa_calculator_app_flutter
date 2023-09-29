@@ -13,7 +13,7 @@ import 'package:textfield_search/textfield_search.dart';
 import 'home_with_firestore_page.dart';
 
 /// todo: you need to change color of course card when it selected (no needed)
-/// todo: you need to add delete button
+/// todo: you need to add delete button (done)
 /// todo: you need to  total gain  credits
 
 List<List<String>> courseDataList = [
@@ -46,9 +46,12 @@ class _CoursesPageState extends State<CoursesPage> {
   UniversityRequirement universityRequirement = UniversityRequirement();
   FreeChoice freeChoice = FreeChoice();
   String? selectDp;
+  String? selectedCourse;
+  Widget content() {
+    setState(() {
+      selectedCourse = (selectDp == null) ? null : _selectController.text;
+    });
 
-  Widget content(String? selectDp) {
-    String? selectedCourse = (selectDp == null) ? null : _selectController.text;
     Widget? selectedWidget;
     Widget college = CoursesBlock('College-Mandatory    (متطلب كلية)',
         CoursesService.getDivisionList(), _selectFocus, selectedCourse);
@@ -103,7 +106,7 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
-  final _selectController = TextEditingController();
+  TextEditingController _selectController = TextEditingController();
   final _selectFocus = FocusNode();
   @override
   void dispose() {
@@ -156,125 +159,152 @@ class _CoursesPageState extends State<CoursesPage> {
               backgroundColor: Color(0xffb8c8d1),
               body: Column(
                 children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: TypeAheadFormField(
-                      textFieldConfiguration: TextFieldConfiguration(
-                        controller: _selectController,
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.bottom,
-                        focusNode: _selectFocus,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xff004d60),
-                            overflow: TextOverflow.ellipsis),
-                        onChanged: (value) {
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // FocusManager.instance.primaryFocus?.unfocus();
                           setState(() {
+                            selectDp = null;
+                            selectedCourse = null;
+                            _selectController.text = '';
                             isChanged = true;
-                            if (value != 'There are no courses left') {
-                              selectDp =
-                                  CoursesService.getCourseNickNameDpByName(
-                                      _selectController.text);
-                            } else {
-                              selectDp = null;
-                            }
                           });
                         },
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          hintText: 'Enter Course',
-                          hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 18),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: Color(0xffce2029),
+                          ),
                         ),
                       ),
-                      suggestionsCallback: (pattern) async {
-                        return CoursesService.getSuggestionsCoursePage(pattern);
-                      },
-                      itemBuilder: (context, String suggestion) {
-                        return suggestion != 'There are no courses left'
-                            ? Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 10),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Text(suggestion,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Color(0xff4562a7),
-                                      )),
-                                ),
-                              )
-                            : Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 20),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Text(suggestion,
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: Colors.grey.shade700,
-                                      )),
-                                ),
-                              );
-                      },
-                      suggestionsBoxController: suggestionBoxController,
-                      hideOnEmpty: false,
-                      noItemsFoundBuilder: (context) => Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Text('No Items Found!',
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 15),
+                          child: TypeAheadFormField(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: _selectController,
+                              textAlign: TextAlign.center,
+                              textAlignVertical: TextAlignVertical.bottom,
+                              focusNode: _selectFocus,
                               style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey.shade700,
-                              )),
+                                  fontSize: 18,
+                                  color: Color(0xff004d60),
+                                  overflow: TextOverflow.ellipsis),
+                              onChanged: (value) {
+                                setState(() {
+                                  isChanged = true;
+                                  if (value != 'There are no courses left') {
+                                    selectDp = CoursesService
+                                        .getCourseNickNameDpByName(
+                                            _selectController.text);
+                                  } else {
+                                    selectDp = null;
+                                  }
+                                });
+                              },
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                hintText: 'Enter Course',
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 0, color: Colors.transparent)),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 0, color: Colors.transparent)),
+                              ),
+                            ),
+                            suggestionsCallback: (pattern) async {
+                              return CoursesService.getSuggestionsCoursePage(
+                                  pattern);
+                            },
+                            itemBuilder: (context, String suggestion) {
+                              return suggestion != 'There are no courses left'
+                                  ? Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 10),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(suggestion,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Color(0xff4562a7),
+                                            )),
+                                      ),
+                                    )
+                                  : Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 20),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(suggestion,
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.grey.shade700,
+                                            )),
+                                      ),
+                                    );
+                            },
+                            suggestionsBoxController: suggestionBoxController,
+                            hideOnEmpty: false,
+                            noItemsFoundBuilder: (context) => Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text('No Items Found!',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.grey.shade700,
+                                    )),
+                              ),
+                            ),
+
+                            onSuggestionSelected: (String suggestion) {
+                              setState(() {
+                                isChanged = true;
+
+                                if (suggestion != 'There are no courses left') {
+                                  _selectController.text = suggestion;
+                                  selectDp =
+                                      CoursesService.getCourseNickNameDpByName(
+                                          suggestion);
+                                } else {
+                                  selectDp = null;
+                                }
+                              });
+                            },
+                            itemSeparatorBuilder: (context, index) {
+                              return Divider(
+                                color: Colors.white,
+                              );
+                            },
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              constraints: BoxConstraints(
+                                maxHeight: 250,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                              elevation: 8.0,
+                              color: Color(0xffb8c8d1),
+                            ),
+                            // hideSuggestionsOnKeyboardHide: true,
+                            // hideKeyboard: true,
+                          ),
                         ),
                       ),
-
-                      onSuggestionSelected: (String suggestion) {
-                        setState(() {
-                          isChanged = true;
-
-                          if (suggestion != 'There are no courses left') {
-                            _selectController.text = suggestion;
-                            selectDp = CoursesService.getCourseNickNameDpByName(
-                                suggestion);
-                          } else {
-                            selectDp = null;
-                          }
-                        });
-                      },
-                      itemSeparatorBuilder: (context, index) {
-                        return Divider(
-                          color: Colors.white,
-                        );
-                      },
-                      suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                        constraints: BoxConstraints(
-                          maxHeight: 250,
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                        elevation: 8.0,
-                        color: Color(0xffb8c8d1),
-                      ),
-                      // hideSuggestionsOnKeyboardHide: true,
-                      // hideKeyboard: true,
-                    ),
+                    ],
                   ),
                   Expanded(
                     child: ListView(
                       shrinkWrap: true,
                       physics: AlwaysScrollableScrollPhysics(),
-                      children: [content(selectDp)],
+                      children: [content()],
                     ),
                   ),
                 ],
