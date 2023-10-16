@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../online app/auth_servieses.dart';
 import '../online app/pages/expect_the_cgpa_page.dart';
 import '../online app/pages/home_with_firestore_page.dart';
+import '../online app/pages/home_with_semester_page.dart';
 import '../online app/pages/profile_page.dart';
 import '../online app/pages/review_page.dart';
 import '../online app/pages/sign_in_page.dart';
@@ -418,7 +419,10 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                         final prov =
                             Provider.of<AuthServer>(context, listen: false);
                         await prov.googleLogout();
-
+                        setState(() {
+                          allSemesters.clear();
+                          allSemesters2.clear();
+                        });
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(

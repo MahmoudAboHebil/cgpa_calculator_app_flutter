@@ -31,8 +31,81 @@ class MyBehavior extends ScrollBehavior {
 bool isTab = false;
 int earnCredit = -1;
 bool flag3 = true;
+bool flag4 = true;
 
 List allSemesters = [
+  // [
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '1'],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '2'],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '3'],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '4'],
+  // ],
+  // [
+  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '12'],
+  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '22'],
+  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '32'],
+  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '42'],
+  // ],
+  // [
+  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '13'],
+  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '23'],
+  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '33'],
+  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '43'],
+  // ],
+  // [
+  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '14'],
+  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '24'],
+  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '34'],
+  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '44'],
+  // ],
+  // [
+  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '15'],
+  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '25'],
+  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '35'],
+  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '45'],
+  // ],
+  // [
+  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '16'],
+  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '26'],
+  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '36'],
+  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '46'],
+  // ],
+  // [
+  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '112'],
+  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '212'],
+  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '312'],
+  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '412'],
+  // ],
+  // [
+  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '1212'],
+  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '2212'],
+  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '3212'],
+  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '4212'],
+  // ],
+  // [
+  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '1312'],
+  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '2312'],
+  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '3312'],
+  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '4312'],
+  // ],
+  // [
+  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '1412'],
+  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '2412'],
+  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '3412'],
+  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '4412'],
+  // ],
+  // [
+  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '1512'],
+  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '2512'],
+  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '3512'],
+  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '4512'],
+  // ],
+  // [
+  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '1612'],
+  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '2612'],
+  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '3612'],
+  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '4612'],
+  // ],
   // // semester one
   // [
   //   ['1', null, null, null, null, 'one', '1'],
@@ -349,8 +422,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       totalCredit = 0;
       earnCredit = -1;
 
-      allSemesters.clear();
-      allSemesters2.clear();
       homeWithFireStoreServices = null;
     });
     getCurrentUser();
@@ -508,93 +579,128 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   Widget Content() {
     if (_courses != null) {
-      return StreamBuilder(
-        stream: _courses!.snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-          if (streamSnapshot.hasData) {
-            List<int> keys = [];
-            for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-              final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+      if (flag4) {
+        return StreamBuilder(
+          stream: _courses!.snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+            if (streamSnapshot.hasData) {
+              List<int> keys = [];
+              for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+                final DocumentSnapshot course = streamSnapshot.data!.docs[i];
 
-              keys.add(course['semestId']);
-            }
-            maxSemester = keys.max;
-            keys = keys.toSet().toList();
-            keys.sort();
-            keys.remove(-1);
-            if (flag) {
-              for (int i = 0; i < keys.length; i++) {
-                if (allSemesters.length < keys.length) {
-                  allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
+                keys.add(course['semestId']);
+              }
+              maxSemester = keys.max;
+              keys = keys.toSet().toList();
+              keys.sort();
+              keys.remove(-1);
+              if (flag) {
+                for (int i = 0; i < keys.length; i++) {
+                  if (allSemesters.length < keys.length) {
+                    allSemesters
+                        .add(getSemesterCourses(keys[i], streamSnapshot));
+                  }
                 }
-              }
-              if (allSemesters.isEmpty) {
-                // print('jerrrrrrrrrrrrrrr');
-                allSemesters = [
-                  [
+                if (allSemesters.isEmpty) {
+                  // print('jerrrrrrrrrrrrrrr');
+                  allSemesters = [
                     [
-                      1,
-                      null,
-                      null,
-                      null,
-                      null,
-                      'one',
-                      'firstCourse',
+                      [
+                        1,
+                        null,
+                        null,
+                        null,
+                        null,
+                        'one',
+                        'firstCourse',
+                      ]
                     ]
-                  ]
-                ];
-                homeWithFireStoreServices!.addCourseInDB(
-                    1, 'firstCourse', null, null, null, null, 'one');
+                  ];
+                  homeWithFireStoreServices!.addCourseInDB(
+                      1, 'firstCourse', null, null, null, null, 'one');
+                }
+                isChangeList = [];
+                for (int i = 0; i < keys.length; i++) {
+                  isChangeList.add(false);
+                }
+                // print(isChangeList);
+                if (isChangeList.isEmpty) {
+                  isChangeList = [false];
+                }
+                Future.delayed(Duration.zero, () {
+                  calcCGPA();
+                  setState(() {
+                    flag = false;
+                    flag4 = false;
+                  });
+                });
               }
-              isChangeList = [];
-              for (int i = 0; i < keys.length; i++) {
-                isChangeList.add(false);
-              }
-              // print(isChangeList);
-              if (isChangeList.isEmpty) {
-                isChangeList = [false];
-              }
-              Future.delayed(Duration.zero, () {
-                calcCGPA();
-              });
-              flag = false;
+
+              // print(allSemesters.length);
+
+              return AnimatedList(
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                initialItemCount: allSemesters.length,
+                key: _keySemester,
+                itemBuilder: (context, index, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    key: ObjectKey(allSemesters[index][0][0]),
+                    child: allSemesters.isNotEmpty
+                        ? SemesterFin(
+                            allSemesters[index],
+                            allSemesters[index][0][0],
+                            index,
+                            department,
+                            () {
+                              setState(() {
+                                calcCGPA();
+                              });
+                            },
+                            _keySemester,
+                            isChangeList[index],
+                            callBackChangeList,
+                          )
+                        : Container(),
+                  );
+                },
+              );
+            } else {
+              return Container();
             }
-
-            // print(allSemesters.length);
-
-            return AnimatedList(
-              shrinkWrap: true,
-              physics: ScrollPhysics(),
-              initialItemCount: allSemesters.length,
-              key: _keySemester,
-              itemBuilder: (context, index, animation) {
-                return SizeTransition(
-                  sizeFactor: animation,
-                  key: ObjectKey(allSemesters[index][0][0]),
-                  child: allSemesters.isNotEmpty
-                      ? SemesterFin(
-                          allSemesters[index],
-                          allSemesters[index][0][0],
-                          index,
-                          department,
-                          () {
-                            setState(() {
-                              calcCGPA();
-                            });
-                          },
-                          _keySemester,
-                          isChangeList[index],
-                          callBackChangeList,
-                        )
-                      : Container(),
-                );
-              },
+          },
+        );
+      } else {
+        return AnimatedList(
+          shrinkWrap: true,
+          physics: ScrollPhysics(),
+          initialItemCount: allSemesters.length,
+          key: _keySemester,
+          itemBuilder: (context, index, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              key: ObjectKey(allSemesters[index][0][0]),
+              child: allSemesters.isNotEmpty
+                  ? SemesterFin(
+                      allSemesters[index],
+                      allSemesters[index][0][0],
+                      index,
+                      department,
+                      () {
+                        setState(() {
+                          calcCGPA();
+                        });
+                      },
+                      _keySemester,
+                      isChangeList[index],
+                      callBackChangeList,
+                    )
+                  : Container(),
             );
-          } else {
-            return Container();
-          }
-        },
-      );
+          },
+        );
+      }
     } else {
       return Container();
     }
@@ -861,7 +967,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _visible
-                        ? MyCustomAppBar(100, CGPA, earnCredit, totalCredit)
+                        ? MyCustomAppBar(100, CGPA,
+                            earnCredit == -1 ? 0 : earnCredit, totalCredit)
                         : MyCustomAppBar(
                             100, CGPAPage2, totalCreditPage2, totalCreditPage2),
                     Expanded(
@@ -918,6 +1025,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                         CoursesService.systemOption) {
                       departmentMessage(context);
                     }
+                    print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+                    print(allSemesters.toString());
+                    print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
                   },
                   child: Icon(
                     Icons.add,

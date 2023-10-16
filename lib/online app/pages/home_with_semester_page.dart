@@ -16,6 +16,7 @@ class HomeWithSemesterPage extends StatefulWidget {
 }
 
 List<List> allSemesters2 = [];
+bool flag5 = true;
 
 final _keySemester = GlobalKey<AnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
@@ -261,72 +262,101 @@ class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
 
   Widget Content() {
     if (semestersRef != null) {
-      return StreamBuilder(
-        stream: semestersRef!.snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-          if (streamSnapshot.hasData) {
-            List<int> keys = [];
-            for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-              final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-              keys.add(course['semesterIndex']);
-            }
+      if (flag5) {
+        return StreamBuilder(
+          stream: semestersRef!.snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+            if (streamSnapshot.hasData) {
+              List<int> keys = [];
+              for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+                final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+                keys.add(course['semesterIndex']);
+              }
 
-            maxSemester = keys.max;
-            keys = keys.toSet().toList();
-            keys.sort();
-            keys.remove(-1);
+              maxSemester = keys.max;
+              keys = keys.toSet().toList();
+              keys.sort();
+              keys.remove(-1);
 
-            if (flag) {
-              for (int i = 0; i < keys.length; i++) {
-                if (allSemesters2.length < keys.length) {
-                  allSemesters2
-                      .add(getSemesterCourses(keys[i], streamSnapshot));
+              if (flag) {
+                for (int i = 0; i < keys.length; i++) {
+                  if (allSemesters2.length < keys.length) {
+                    allSemesters2
+                        .add(getSemesterCourses(keys[i], streamSnapshot));
+                  }
                 }
+                if (allSemesters2.isEmpty) {
+                  allSemesters2 = [
+                    [
+                      null,
+                      null,
+                      'firstSemest',
+                      1,
+                    ]
+                  ];
+                  addSemestInDB(null, null, 'firstSemest', 1);
+                }
+                Future.delayed(Duration.zero, () {
+                  calcCGPA();
+                  setState(() {
+                    flag = false;
+                    flag5 = false;
+                  });
+                });
               }
-              if (allSemesters2.isEmpty) {
-                allSemesters2 = [
-                  [
-                    null,
-                    null,
-                    'firstSemest',
-                    1,
-                  ]
-                ];
-                addSemestInDB(null, null, 'firstSemest', 1);
-              }
-              Future.delayed(Duration.zero, () {
-                calcCGPA();
-              });
-              flag = false;
-            }
-            return AnimatedList(
-              shrinkWrap: true,
-              key: _keySemester,
-              physics: ScrollPhysics(),
-              itemBuilder: (context, index, animation) {
-                return SizeTransition(
-                  // key: ObjectKey(allSemesters[index][0].toString()),
+              return AnimatedList(
+                shrinkWrap: true,
+                key: _keySemester,
+                physics: ScrollPhysics(),
+                itemBuilder: (context, index, animation) {
+                  return SizeTransition(
+                    // key: ObjectKey(allSemesters[index][0].toString()),
 
-                  sizeFactor: animation,
-                  key: ObjectKey(allSemesters2[index][2]),
-                  child: SemesterWithSGPA(
-                    index,
-                    allSemesters2[index][3],
-                    allSemesters2[index][0],
-                    allSemesters2[index][1],
-                    allSemesters2[index][2],
-                    isValueChanged,
-                    updataCGPA,
-                  ),
-                );
-              },
-              initialItemCount: allSemesters2.length,
+                    sizeFactor: animation,
+                    key: ObjectKey(allSemesters2[index][2]),
+                    child: SemesterWithSGPA(
+                      index,
+                      allSemesters2[index][3],
+                      allSemesters2[index][0],
+                      allSemesters2[index][1],
+                      allSemesters2[index][2],
+                      isValueChanged,
+                      updataCGPA,
+                    ),
+                  );
+                },
+                initialItemCount: allSemesters2.length,
+              );
+            } else {
+              return Container();
+            }
+          },
+        );
+      } else {
+        return AnimatedList(
+          shrinkWrap: true,
+          key: _keySemester,
+          physics: ScrollPhysics(),
+          itemBuilder: (context, index, animation) {
+            return SizeTransition(
+              // key: ObjectKey(allSemesters[index][0].toString()),
+
+              sizeFactor: animation,
+              key: ObjectKey(allSemesters2[index][2]),
+              child: SemesterWithSGPA(
+                index,
+                allSemesters2[index][3],
+                allSemesters2[index][0],
+                allSemesters2[index][1],
+                allSemesters2[index][2],
+                isValueChanged,
+                updataCGPA,
+              ),
             );
-          } else {
-            return Container();
-          }
-        },
-      );
+          },
+          initialItemCount: allSemesters2.length,
+        );
+      }
     } else {
       return Container();
     }
