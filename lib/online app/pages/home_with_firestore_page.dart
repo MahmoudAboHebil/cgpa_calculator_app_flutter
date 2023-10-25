@@ -28,24 +28,21 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
-// bool isTab = false;
+bool isTab = false;
 int earnCredit = -1;
 bool flag3 = true;
-bool flag4 = true;
 
 List allSemesters = [
+  // // semester one
   // [
-  //   [semesterId(semester index), CourseName, credit, grade1, grade2, type,courseId ],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '2'],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '3'],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '4'],
+  //   ['1', null, null, null, null, 'one', '1'],
+  //   ['1', null, null, null, null, 'one', '2']
   // ],
+  // // semester two
   // [
-  //   [semesterId(semester index), CourseName, credit, grade1, grade2, type,courseId ],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '2'],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '3'],
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '4'],
+  //   ['2', null, null, null, null, 'one', '3']
   // ],
+  // // semester three
 ];
 int countOccurrencesUsingLoop(List values, String? element) {
   if (values.isEmpty) {
@@ -147,7 +144,6 @@ Future<dynamic> departmentMessage(BuildContext _context) {
           ));
 }
 
-bool val = true;
 User? loggedInUser;
 CollectionReference? _courses;
 
@@ -353,6 +349,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       totalCredit = 0;
       earnCredit = -1;
 
+      allSemesters.clear();
+      allSemesters2.clear();
       homeWithFireStoreServices = null;
     });
     getCurrentUser();
@@ -382,7 +380,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
             }
           }
-
           if (CoursesService.divisions.contains(division)) {
             CoursesService.divisionName = division;
           } else {
@@ -481,10 +478,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     try {
       final user = await _auth.currentUser;
       if (user != null) {
-        bool exist = await checkExist("${user.email}");
+        bool exist = await checkExist('${user.email}');
         setState(() {
           loggedInUser = user;
-          if (exist) {
+          if (!exist) {
+            setNewUser(user);
+          } else {
             _courses = FirebaseFirestore.instance
                 .collection('UsersCourses')
                 .doc('${user.email}')
@@ -493,8 +492,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 .collection('UsersSemesters')
                 .doc('${user.email}')
                 .collection('Semesters');
-          } else {
-            setNewUser(user);
           }
         });
         // print(loggedInUser!.email);
@@ -515,24 +512,18 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         stream: _courses!.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
           if (streamSnapshot.hasData) {
+            List<int> keys = [];
+            for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
+              final DocumentSnapshot course = streamSnapshot.data!.docs[i];
+
+              keys.add(course['semestId']);
+            }
+            maxSemester = keys.max;
+            keys = keys.toSet().toList();
+            keys.sort();
+            keys.remove(-1);
             if (flag) {
-              List<int> keys = [];
-              for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
-                final DocumentSnapshot course = streamSnapshot.data!.docs[i];
-
-                keys.add(course['semestId']);
-              }
-              maxSemester = keys.max;
-              keys = keys.toSet().toList();
-              keys.sort();
-              keys.remove(-1);
               for (int i = 0; i < keys.length; i++) {
-                // 0: 5
-                // 1: 5
-                // 2: 5
-                // 3: 5
-                // 4: 5
-
                 if (allSemesters.length < keys.length) {
                   allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
                 }
@@ -565,10 +556,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
               Future.delayed(Duration.zero, () {
                 calcCGPA();
-                setState(() {
-                  flag = false;
-                });
               });
+              flag = false;
             }
 
             // print(allSemesters.length);
@@ -845,6 +834,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         });
       }
     });
+    print('################  #######################');
+
+    print(CoursesService.departmentName);
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -856,6 +848,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           child: GestureDetector(
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
+              setState(() {
+                isTab = !isTab;
+              });
             },
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
@@ -863,15 +858,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               body: ModalProgressHUD(
                 inAsyncCall: showSpinner,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // (condition)? (run if true): (run if false)
-
                     _visible
-                        ? MyCustomAppBar(100, CGPA,
-                            earnCredit == -1 ? 0 : earnCredit, totalCredit)
+                        ? MyCustomAppBar(100, CGPA, earnCredit, totalCredit)
                         : MyCustomAppBar(
                             100, CGPAPage2, totalCreditPage2, totalCreditPage2),
-                    //##########################################################
                     Expanded(
                       child: PageView(
                         scrollDirection: Axis.horizontal,
@@ -879,14 +871,11 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                         allowImplicitScrolling: true,
                         padEnds: false,
                         onPageChanged: (page) {
-                          // page =0 => page1
-                          // page=1 => page 2
                           setState(() {
-                            if (page == 0) {
-                              _visible = true;
-                            } else {
-                              // page =1
+                            if (page == 1) {
                               _visible = false;
+                            } else {
+                              _visible = true;
                             }
                           });
                         },
@@ -897,7 +886,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                                 behavior: MyBehavior(),
                                 child: ListView(
                                   shrinkWrap: true,
-                                  physics: AlwaysScrollableScrollPhysics(),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                   children: [
                                     showSpinner ? Container() : Content(),
                                     showSpinner ? Container() : getInfo(),
@@ -922,16 +912,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
-
                     if (CoursesService.isGlobalDepartmentValidationOK() &&
                         CoursesService.departmentOption &&
                         department.isEmpty &&
                         CoursesService.systemOption) {
                       departmentMessage(context);
                     }
-                    print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-                    print(allSemesters.toString());
-                    print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
                   },
                   child: Icon(
                     Icons.add,
