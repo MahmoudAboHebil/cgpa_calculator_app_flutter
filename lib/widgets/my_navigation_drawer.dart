@@ -56,32 +56,6 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     });
   }
 
-  Future showImageDealog() async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        contentPadding: EdgeInsets.all(0),
-        alignment: Alignment.center,
-        content: Container(
-          height: 300,
-          width: 300,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                imageURL,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget headerContent() {
     if (_usersInfo != null && loggedInUser != null) {
       return StreamBuilder(
@@ -112,9 +86,16 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
             }
             // showSpinner = false;
           }
+//###################################\\
 
-          return name.isNotEmpty
-              ? Column(
+          return name.isEmpty
+              ? Center(
+                  child: Text(
+                    'Loading .... ',
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
+                )
+              : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     imageURL.isEmpty
@@ -219,12 +200,6 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                           )
                         : SizedBox(),
                   ],
-                )
-              : Center(
-                  child: Text(
-                    'Loading .... ',
-                    style: TextStyle(fontSize: 25, color: Colors.white),
-                  ),
                 );
         },
       );
@@ -237,6 +212,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
       String text) {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
+      duration: Duration(hours: 3),
+
       // behavior: SnackBarBehavior.floating,
       clipBehavior: Clip.none,
       elevation: 0,
@@ -320,7 +297,6 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
     return Drawer(
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               height: department.isEmpty || division.isEmpty ? 250 : 270,
@@ -550,6 +526,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     ),
                   )
                 : SizedBox(),
+            SizedBox()
           ],
         ),
       ),

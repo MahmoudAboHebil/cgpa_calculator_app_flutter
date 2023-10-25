@@ -28,94 +28,24 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
-bool isTab = false;
+// bool isTab = false;
 int earnCredit = -1;
 bool flag3 = true;
 bool flag4 = true;
 
 List allSemesters = [
   // [
-  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '1'],
+  //   [semesterId(semester index), CourseName, credit, grade1, grade2, type,courseId ],
   //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '2'],
   //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '3'],
   //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '4'],
   // ],
   // [
-  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '12'],
-  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '22'],
-  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '32'],
-  //   [2, 'Mechanics (2)', '2', 'B+', null, 'one', '42'],
+  //   [semesterId(semester index), CourseName, credit, grade1, grade2, type,courseId ],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '2'],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '3'],
+  //   [1, 'Mechanics (2)', '2', 'B+', null, 'one', '4'],
   // ],
-  // [
-  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '13'],
-  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '23'],
-  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '33'],
-  //   [3, 'Mechanics (2)', '2', 'B+', null, 'one', '43'],
-  // ],
-  // [
-  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '14'],
-  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '24'],
-  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '34'],
-  //   [4, 'Mechanics (2)', '2', 'B+', null, 'one', '44'],
-  // ],
-  // [
-  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '15'],
-  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '25'],
-  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '35'],
-  //   [5, 'Mechanics (2)', '2', 'B+', null, 'one', '45'],
-  // ],
-  // [
-  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '16'],
-  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '26'],
-  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '36'],
-  //   [6, 'Mechanics (2)', '2', 'B+', null, 'one', '46'],
-  // ],
-  // [
-  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '112'],
-  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '212'],
-  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '312'],
-  //   [7, 'Mechanics (2)', '2', 'B+', null, 'one', '412'],
-  // ],
-  // [
-  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '1212'],
-  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '2212'],
-  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '3212'],
-  //   [8, 'Mechanics (2)', '2', 'B+', null, 'one', '4212'],
-  // ],
-  // [
-  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '1312'],
-  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '2312'],
-  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '3312'],
-  //   [9, 'Mechanics (2)', '2', 'B+', null, 'one', '4312'],
-  // ],
-  // [
-  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '1412'],
-  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '2412'],
-  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '3412'],
-  //   [10, 'Mechanics (2)', '2', 'B+', null, 'one', '4412'],
-  // ],
-  // [
-  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '1512'],
-  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '2512'],
-  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '3512'],
-  //   [11, 'Mechanics (2)', '2', 'B+', null, 'one', '4512'],
-  // ],
-  // [
-  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '1612'],
-  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '2612'],
-  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '3612'],
-  //   [12, 'Mechanics (2)', '2', 'B+', null, 'one', '4612'],
-  // ],
-  // // semester one
-  // [
-  //   ['1', null, null, null, null, 'one', '1'],
-  //   ['1', null, null, null, null, 'one', '2']
-  // ],
-  // // semester two
-  // [
-  //   ['2', null, null, null, null, 'one', '3']
-  // ],
-  // // semester three
 ];
 int countOccurrencesUsingLoop(List values, String? element) {
   if (values.isEmpty) {
@@ -217,6 +147,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
           ));
 }
 
+bool val = true;
 User? loggedInUser;
 CollectionReference? _courses;
 
@@ -451,6 +382,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
             }
           }
+
           if (CoursesService.divisions.contains(division)) {
             CoursesService.divisionName = division;
           } else {
@@ -549,12 +481,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     try {
       final user = await _auth.currentUser;
       if (user != null) {
-        bool exist = await checkExist('${user.email}');
+        bool exist = await checkExist("${user.email}");
         setState(() {
           loggedInUser = user;
-          if (!exist) {
-            setNewUser(user);
-          } else {
+          if (exist) {
             _courses = FirebaseFirestore.instance
                 .collection('UsersCourses')
                 .doc('${user.email}')
@@ -563,6 +493,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                 .collection('UsersSemesters')
                 .doc('${user.email}')
                 .collection('Semesters');
+          } else {
+            setNewUser(user);
           }
         });
         // print(loggedInUser!.email);
@@ -579,11 +511,11 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   Widget Content() {
     if (_courses != null) {
-      if (flag4) {
-        return StreamBuilder(
-          stream: _courses!.snapshots(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-            if (streamSnapshot.hasData) {
+      return StreamBuilder(
+        stream: _courses!.snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+          if (streamSnapshot.hasData) {
+            if (flag) {
               List<int> keys = [];
               for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
                 final DocumentSnapshot course = streamSnapshot.data!.docs[i];
@@ -594,113 +526,86 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               keys = keys.toSet().toList();
               keys.sort();
               keys.remove(-1);
-              if (flag) {
-                for (int i = 0; i < keys.length; i++) {
-                  if (allSemesters.length < keys.length) {
-                    allSemesters
-                        .add(getSemesterCourses(keys[i], streamSnapshot));
-                  }
+              for (int i = 0; i < keys.length; i++) {
+                // 0: 5
+                // 1: 5
+                // 2: 5
+                // 3: 5
+                // 4: 5
+
+                if (allSemesters.length < keys.length) {
+                  allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
                 }
-                if (allSemesters.isEmpty) {
-                  // print('jerrrrrrrrrrrrrrr');
-                  allSemesters = [
-                    [
-                      [
-                        1,
-                        null,
-                        null,
-                        null,
-                        null,
-                        'one',
-                        'firstCourse',
-                      ]
-                    ]
-                  ];
-                  homeWithFireStoreServices!.addCourseInDB(
-                      1, 'firstCourse', null, null, null, null, 'one');
-                }
-                isChangeList = [];
-                for (int i = 0; i < keys.length; i++) {
-                  isChangeList.add(false);
-                }
-                // print(isChangeList);
-                if (isChangeList.isEmpty) {
-                  isChangeList = [false];
-                }
-                Future.delayed(Duration.zero, () {
-                  calcCGPA();
-                  setState(() {
-                    flag = false;
-                    flag4 = false;
-                  });
-                });
               }
-
-              // print(allSemesters.length);
-
-              return AnimatedList(
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                initialItemCount: allSemesters.length,
-                key: _keySemester,
-                itemBuilder: (context, index, animation) {
-                  return SizeTransition(
-                    sizeFactor: animation,
-                    key: ObjectKey(allSemesters[index][0][0]),
-                    child: allSemesters.isNotEmpty
-                        ? SemesterFin(
-                            allSemesters[index],
-                            allSemesters[index][0][0],
-                            index,
-                            department,
-                            () {
-                              setState(() {
-                                calcCGPA();
-                              });
-                            },
-                            _keySemester,
-                            isChangeList[index],
-                            callBackChangeList,
-                          )
-                        : Container(),
-                  );
-                },
-              );
-            } else {
-              return Container();
+              if (allSemesters.isEmpty) {
+                // print('jerrrrrrrrrrrrrrr');
+                allSemesters = [
+                  [
+                    [
+                      1,
+                      null,
+                      null,
+                      null,
+                      null,
+                      'one',
+                      'firstCourse',
+                    ]
+                  ]
+                ];
+                homeWithFireStoreServices!.addCourseInDB(
+                    1, 'firstCourse', null, null, null, null, 'one');
+              }
+              isChangeList = [];
+              for (int i = 0; i < keys.length; i++) {
+                isChangeList.add(false);
+              }
+              // print(isChangeList);
+              if (isChangeList.isEmpty) {
+                isChangeList = [false];
+              }
+              Future.delayed(Duration.zero, () {
+                calcCGPA();
+                setState(() {
+                  flag = false;
+                });
+              });
             }
-          },
-        );
-      } else {
-        return AnimatedList(
-          shrinkWrap: true,
-          physics: ScrollPhysics(),
-          initialItemCount: allSemesters.length,
-          key: _keySemester,
-          itemBuilder: (context, index, animation) {
-            return SizeTransition(
-              sizeFactor: animation,
-              key: ObjectKey(allSemesters[index][0][0]),
-              child: allSemesters.isNotEmpty
-                  ? SemesterFin(
-                      allSemesters[index],
-                      allSemesters[index][0][0],
-                      index,
-                      department,
-                      () {
-                        setState(() {
-                          calcCGPA();
-                        });
-                      },
-                      _keySemester,
-                      isChangeList[index],
-                      callBackChangeList,
-                    )
-                  : Container(),
+
+            // print(allSemesters.length);
+
+            return AnimatedList(
+              shrinkWrap: true,
+              physics: ScrollPhysics(),
+              initialItemCount: allSemesters.length,
+              key: _keySemester,
+              itemBuilder: (context, index, animation) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  key: ObjectKey(allSemesters[index][0][0]),
+                  child: allSemesters.isNotEmpty
+                      ? SemesterFin(
+                          allSemesters[index],
+                          allSemesters[index][0][0],
+                          index,
+                          department,
+                          () {
+                            setState(() {
+                              calcCGPA();
+                            });
+                          },
+                          _keySemester,
+                          isChangeList[index],
+                          callBackChangeList,
+                        )
+                      : Container(),
+                );
+              },
             );
-          },
-        );
-      }
+          } else {
+            return Container();
+          }
+        },
+      );
     } else {
       return Container();
     }
@@ -940,9 +845,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         });
       }
     });
-    print('################  #######################');
-
-    print(CoursesService.departmentName);
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -954,9 +856,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           child: GestureDetector(
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
-              setState(() {
-                isTab = !isTab;
-              });
             },
             child: Scaffold(
               backgroundColor: Color(0xffb8c8d1),
@@ -964,13 +863,15 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               body: ModalProgressHUD(
                 inAsyncCall: showSpinner,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // (condition)? (run if true): (run if false)
+
                     _visible
                         ? MyCustomAppBar(100, CGPA,
                             earnCredit == -1 ? 0 : earnCredit, totalCredit)
                         : MyCustomAppBar(
                             100, CGPAPage2, totalCreditPage2, totalCreditPage2),
+                    //##########################################################
                     Expanded(
                       child: PageView(
                         scrollDirection: Axis.horizontal,
@@ -978,11 +879,14 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                         allowImplicitScrolling: true,
                         padEnds: false,
                         onPageChanged: (page) {
+                          // page =0 => page1
+                          // page=1 => page 2
                           setState(() {
-                            if (page == 1) {
-                              _visible = false;
-                            } else {
+                            if (page == 0) {
                               _visible = true;
+                            } else {
+                              // page =1
+                              _visible = false;
                             }
                           });
                         },
@@ -993,8 +897,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                                 behavior: MyBehavior(),
                                 child: ListView(
                                   shrinkWrap: true,
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
+                                  physics: AlwaysScrollableScrollPhysics(),
                                   children: [
                                     showSpinner ? Container() : Content(),
                                     showSpinner ? Container() : getInfo(),
@@ -1019,6 +922,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
+
                     if (CoursesService.isGlobalDepartmentValidationOK() &&
                         CoursesService.departmentOption &&
                         department.isEmpty &&
