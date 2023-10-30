@@ -354,10 +354,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       homeWithFireStoreServices = null;
     });
     getCurrentUser();
-    getInfo();
     setState(() {
       _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
     });
+    getInfo();
   }
 
   Widget getInfo() {
@@ -371,7 +371,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       return StreamBuilder(
         stream: _usersInfo!.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          print("snapshot.hasData${snapshot.data != null}");
           if (snapshot.hasData &&
               loggedInUser != null &&
               snapshot.data != null) {
@@ -385,7 +384,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
             }
           }
-
           print('divisiondivisiondivision$division');
           if (division.isNotEmpty) {
             if (CoursesService.divisions.contains(division)) {
@@ -845,9 +843,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
         });
       }
     });
-    print('################  #######################');
 
-    print(CoursesService.departmentName);
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
