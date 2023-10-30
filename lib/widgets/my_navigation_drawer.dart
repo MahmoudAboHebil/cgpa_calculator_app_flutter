@@ -62,8 +62,10 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
         stream: _usersInfo!.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            // 0-7
             for (int i = 0; i < snapshot.data!.docs.length; i++) {
               final DocumentSnapshot userInfo = snapshot.data!.docs[i];
+
               if (userInfo['email'] == loggedInUser!.email) {
                 Future.delayed(Duration.zero, () {
                   setState(() {
@@ -76,6 +78,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                     collageOption = userInfo['divisionOption'];
 
                     departmentOption = userInfo['departmentOption'];
+                    //########################################################
                     if (!CoursesService.isGlobalDepartmentValidationOK() ||
                         !CoursesService.departments.contains(department)) {
                       departmentOption = false;
@@ -212,7 +215,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
       String text) {
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.transparent,
-      duration: Duration(hours: 3),
+      // duration: Duration(hours: 3),
 
       // behavior: SnackBarBehavior.floating,
       clipBehavior: Clip.none,

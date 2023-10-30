@@ -168,6 +168,10 @@ class _CourseState extends State<Course> {
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (CoursesService.systemOption) {
         //  is the name in the courses Of college
+        // print('Name :${CoursesService.departmentName}');
+        // print('departmentOption :${CoursesService.departmentOption}');
+        // print('divisionName :${CoursesService.divisionName}');
+        // print('departmentOption :${CoursesService.departmentOption}');
         if (!CoursesService.getCoursesNames().contains(Name) && !val) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());

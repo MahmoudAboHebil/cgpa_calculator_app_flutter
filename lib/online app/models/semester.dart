@@ -244,6 +244,7 @@ class _SemesterFinState extends State<SemesterFin> {
             val4.add(false);
           }
         }
+        //
         if (val4.contains(true) &&
             !CoursesService.isGlobalDepartmentValidationOK() &&
             !CoursesService.departmentOption) {
@@ -669,6 +670,7 @@ class _SemesterFinState extends State<SemesterFin> {
 
   @override
   Widget build(BuildContext context) {
+    // print(namesCoursesNotInListIds);
     Future.delayed(Duration.zero, () {
       if (isRepeatedSemesterModel()) {
         // print('repeatedCourseInSemestIddddd  $repeatedCourseInSemestId');
@@ -948,6 +950,7 @@ class _SemesterFinState extends State<SemesterFin> {
                         errorTypeCredit.clear();
                         errorTypeName.clear();
                       });
+                      //
                       departmentMessage(context);
                     }
                   },

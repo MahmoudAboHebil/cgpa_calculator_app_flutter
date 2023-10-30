@@ -354,12 +354,16 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       homeWithFireStoreServices = null;
     });
     getCurrentUser();
+    getInfo();
     setState(() {
       _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
     });
   }
 
   Widget getInfo() {
+    // print('_usersInfo${_usersInfo == null}');
+    // print('loggedInUser${loggedInUser == null}');
+
     setState(() {
       _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
     });
@@ -367,6 +371,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       return StreamBuilder(
         stream: _usersInfo!.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          print("snapshot.hasData${snapshot.data != null}");
           if (snapshot.hasData &&
               loggedInUser != null &&
               snapshot.data != null) {
@@ -380,15 +385,21 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               }
             }
           }
-          if (CoursesService.divisions.contains(division)) {
-            CoursesService.divisionName = division;
-          } else {
-            CoursesService.divisionName = '';
+
+          print('divisiondivisiondivision$division');
+          if (division.isNotEmpty) {
+            if (CoursesService.divisions.contains(division)) {
+              CoursesService.divisionName = division;
+            } else {
+              CoursesService.divisionName = '';
+            }
           }
-          if (CoursesService.departments.contains(department)) {
-            CoursesService.departmentName = department;
-          } else {
-            CoursesService.departmentName = '';
+          if (department.isNotEmpty) {
+            if (CoursesService.departments.contains(department)) {
+              CoursesService.departmentName = department;
+            } else {
+              CoursesService.departmentName = '';
+            }
           }
           Future.delayed(Duration.zero, () {
             if (flag3 && division.isEmpty) {
