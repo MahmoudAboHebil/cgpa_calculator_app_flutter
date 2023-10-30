@@ -169,9 +169,13 @@ class _CourseState extends State<Course> {
       if (CoursesService.systemOption) {
         //  is the name in the courses Of college
         // print('Name :${CoursesService.departmentName}');
-        // print('departmentOption :${CoursesService.departmentOption}');
+        // print('departmentOpt`ion :${CoursesService.departmentOption}');
         // print('divisionName :${CoursesService.divisionName}');
         // print('departmentOption :${CoursesService.departmentOption}');
+
+        ///todo: if the value is not at list means ( there is repeating or  half-load )
+        ///todo: if the value is not allowed case CGPA<1.67
+
         if (!CoursesService.getCoursesNames().contains(Name) && !val) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());

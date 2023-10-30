@@ -681,29 +681,132 @@ class CoursesService {
   }
 
   static List<String> getSuggestions(
-      String query, List listInSemester, int semestId) {
+    String query,
+    List listInSemester,
+    int semestId,
+  ) {
     UniversityRequirement universityRequirement = UniversityRequirement();
     FreeChoice freeChoice = FreeChoice();
     List<String> matches = <String>[];
+
+    /// todo: the next line  may be cause some bugs
+    double cgpa = (allSemesters.length > 1 && CGPA != 0.0) ? CGPA : 4.00;
     if (systemOption) {
       // avoiding repeating course in the list
       List<String> coursesNamesEntered = [];
       for (List semester in allSemesters) {
         for (List course in semester) {
-          if (course[1] != null && course[3] != null) {
-            if (course[3] != 'U' &&
-                course[3] != 'F' &&
-                course[3] != 'Non' &&
-                course[3] != 'W' &&
-                course[4] == null) {
-              coursesNamesEntered.add(course[1]);
-            } else if (course[4] != null &&
-                course[4] != 'U' &&
-                course[4] != 'F' &&
-                course[4] != 'W' &&
-                course[4] != 'Non') {
-              coursesNamesEntered.add(course[1]);
+          if (cgpa <= 1.67) {
+            if (course[1] != null && course[3] != null) {
+              if (course[3] != 'A' &&
+                  course[3] != 'A-' &&
+                  course[3] != 'B+' &&
+                  course[3] != 'B' &&
+                  course[3] != 'B-' &&
+                  course[3] != 'C+' &&
+                  course[4] == null) {
+                coursesNamesEntered.add(course[1]);
+              } else if (course[4] != null &&
+                  course[3] != 'A' &&
+                  course[3] != 'A-' &&
+                  course[3] != 'B+' &&
+                  course[3] != 'B' &&
+                  course[3] != 'B-' &&
+                  course[3] != 'C+' &&
+                  course[4] != 'Non') {
+                coursesNamesEntered.add(course[1]);
+              }
+            } else {
+              if (course[1] != null && course[3] != null) {
+                if (course[3] != 'U' &&
+                    course[3] != 'F' &&
+                    course[3] != 'Non' &&
+                    course[3] != 'W' &&
+                    course[4] == null) {
+                  coursesNamesEntered.add(course[1]);
+                } else if (course[4] != null &&
+                    course[4] != 'U' &&
+                    course[4] != 'F' &&
+                    course[4] != 'W' &&
+                    course[4] != 'Non') {
+                  coursesNamesEntered.add(course[1]);
+                }
+              }
             }
+          }
+        }
+
+        List<String> namesCoursesInSemest = [];
+        for (List course in listInSemester) {
+          if (course[1] != null) {
+            namesCoursesInSemest.add(course[1]);
+          }
+        }
+
+        for (List course in getDivisionList()) {
+          bool val;
+          if (!(cgpa <= 1.67)) {
+            val = !coursesNamesEntered.contains(course[0]);
+          } else {
+            val = coursesNamesEntered.contains(course[0]);
+          }
+
+          if (
+
+              ///  TODO: in the next line you will not allow the user to improve their grade .
+              val &&
+                  !namesCoursesInSemest.contains(course[0]) &&
+                  courseEnrollingSystem(course[0], semestId, listInSemester)) {
+            matches.add(course[0]);
+          }
+        }
+        if (departmentOption) {
+          for (List course in getDepartmentList()) {
+            bool val;
+            if (!(cgpa <= 1.67)) {
+              val = !coursesNamesEntered.contains(course[0]);
+            } else {
+              val = coursesNamesEntered.contains(course[0]);
+            }
+            if (
+
+                ///  TODO: in the next line you will not allow the user to improve their grade .
+                val &&
+                    !namesCoursesInSemest.contains(course[0]) &&
+                    courseEnrollingSystem(
+                        course[0], semestId, listInSemester)) {
+              matches.add(course[0]);
+            }
+          }
+        }
+        for (List course
+            in universityRequirement.universityRequirementsCourses) {
+          bool val;
+          if (!(cgpa <= 1.67)) {
+            val = !coursesNamesEntered.contains(course[0]);
+          } else {
+            val = coursesNamesEntered.contains(course[0]);
+          }
+          if (
+
+              ///  TODO: in the next line you will not allow the user to improve their grade .
+              val && !namesCoursesInSemest.contains(course[0])) {
+            matches.add(course[0]);
+          }
+        }
+
+        for (List course in freeChoice.freeChoiceCourses) {
+          bool val;
+          if (!(cgpa <= 1.67)) {
+            val = !coursesNamesEntered.contains(course[0]);
+          } else {
+            val = coursesNamesEntered.contains(course[0]);
+          }
+          if (
+
+              ///  TODO: in the next line you will not allow the user to improve their grade .
+              val && !namesCoursesInSemest.contains(course[0])) {
+            matches.add(course[0]);
           }
         }
       }
@@ -716,10 +819,16 @@ class CoursesService {
       }
 
       for (List course in getDivisionList()) {
+        bool val;
+        if (!(cgpa <= 1.67)) {
+          val = !coursesNamesEntered.contains(course[0]);
+        } else {
+          val = coursesNamesEntered.contains(course[0]);
+        }
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .
-            !coursesNamesEntered.contains(course[0]) &&
+            val &&
                 !namesCoursesInSemest.contains(course[0]) &&
                 courseEnrollingSystem(course[0], semestId, listInSemester)) {
           matches.add(course[0]);
@@ -727,10 +836,16 @@ class CoursesService {
       }
       if (departmentOption) {
         for (List course in getDepartmentList()) {
+          bool val;
+          if (!(cgpa <= 1.67)) {
+            val = !coursesNamesEntered.contains(course[0]);
+          } else {
+            val = coursesNamesEntered.contains(course[0]);
+          }
           if (
 
               ///  TODO: in the next line you will not allow the user to improve their grade .
-              !coursesNamesEntered.contains(course[0]) &&
+              val &&
                   !namesCoursesInSemest.contains(course[0]) &&
                   courseEnrollingSystem(course[0], semestId, listInSemester)) {
             matches.add(course[0]);
@@ -738,26 +853,36 @@ class CoursesService {
         }
       }
       for (List course in universityRequirement.universityRequirementsCourses) {
+        bool val;
+        if (!(cgpa <= 1.67)) {
+          val = !coursesNamesEntered.contains(course[0]);
+        } else {
+          val = coursesNamesEntered.contains(course[0]);
+        }
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .
-            !coursesNamesEntered.contains(course[0]) &&
-                !namesCoursesInSemest.contains(course[0])) {
+            val && !namesCoursesInSemest.contains(course[0])) {
           matches.add(course[0]);
         }
       }
 
       for (List course in freeChoice.freeChoiceCourses) {
+        bool val;
+        if (!(cgpa <= 1.67)) {
+          val = !coursesNamesEntered.contains(course[0]);
+        } else {
+          val = coursesNamesEntered.contains(course[0]);
+        }
         if (
 
             ///  TODO: in the next line you will not allow the user to improve their grade .
-            !coursesNamesEntered.contains(course[0]) &&
-                !namesCoursesInSemest.contains(course[0])) {
+            val && !namesCoursesInSemest.contains(course[0])) {
           matches.add(course[0]);
         }
       }
     }
-
+    matches = LinkedHashSet<String>.from(matches).toList();
     if (matches.isNotEmpty) {
       matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
       return matches;

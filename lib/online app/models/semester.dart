@@ -225,6 +225,9 @@ class _SemesterFinState extends State<SemesterFin> {
       bool isValidRequirements = val2.contains(true);
       // print(
       //     'dhjjjjjjjj$isValidRequirements jjjjj: $namesCoursesNotInRequirements');
+
+      ///todo: if the value is not allowed case CGPA<1.67
+
       if (isValidRequirements) {
         setState(() {
           validRequirements =
@@ -235,6 +238,7 @@ class _SemesterFinState extends State<SemesterFin> {
           validRequirements = null;
         });
       }
+
       if (isValidNameInList) {
         List<bool> val4 = [];
         for (String v in namesCoursesNotInListIds) {
@@ -244,7 +248,6 @@ class _SemesterFinState extends State<SemesterFin> {
             val4.add(false);
           }
         }
-        //
         if (val4.contains(true) &&
             !CoursesService.isGlobalDepartmentValidationOK() &&
             !CoursesService.departmentOption) {
