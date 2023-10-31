@@ -688,6 +688,169 @@ class CoursesService {
     UniversityRequirement universityRequirement = UniversityRequirement();
     FreeChoice freeChoice = FreeChoice();
     List<String> matches = <String>[];
+    //
+    int totalCredit_without_SU = 0;
+    double totalPointsOfSemest = 0.0;
+    double totalCredit = 0;
+    double CGPA = 0.0;
+    earnCredit = 0;
+    totalCredit = 0;
+    if (allSemesters.isNotEmpty) {
+      for (List semester in allSemesters) {
+        // semester = [[],[],]
+
+        for (List course in semester) {
+          if (course[0] < semestId) {
+            if (course[1] != null && course[2] != null && course[3] != null) {
+              String grade1 = course[3];
+              String? grade2 = course[4];
+              String grade = grade2 ?? grade1;
+
+              // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+              int credit = int.parse(course[2]);
+              double pointOfGrade = 0.0;
+              double pointOfGrade2 = 0.0;
+              double pointOfCourse = 0.0;
+              if (course[1] ==
+                      universityRequirement.mandatoryUniversityRequirements[0]
+                          [0] ||
+                  grade == 'W') {
+                // totalCredit = totalCredit + credit;
+                String grade = grade2 ?? grade1;
+                // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+                //   //  passed course
+                //   earnCredit = earnCredit + credit;
+                // }
+              } else {
+                if (grade1 == 'A') {
+                  pointOfGrade = 4.00;
+                } else if (grade1 == 'A-') {
+                  pointOfGrade = 3.67;
+                } else if (grade1 == 'B+') {
+                  pointOfGrade = 3.33;
+                } else if (grade1 == 'B') {
+                  pointOfGrade = 3.00;
+                } else if (grade1 == 'B-') {
+                  pointOfGrade = 2.67;
+                } else if (grade1 == 'C+') {
+                  pointOfGrade = 2.33;
+                } else if (grade1 == 'C') {
+                  pointOfGrade = 2.00;
+                } else if (grade1 == 'C-') {
+                  pointOfGrade = 1.67;
+                } else if (grade1 == 'D+') {
+                  pointOfGrade = 1.33;
+                } else if (grade1 == 'D') {
+                  pointOfGrade = 1.00;
+                } else if (grade1 == 'F') {
+                  pointOfGrade = 0.00;
+                } else if (grade1 == 'S') {
+                  pointOfGrade = -1.00;
+                } else if (grade1 == 'Non') {
+                  pointOfGrade = -3.00;
+                } else {
+                  // u grade
+                  pointOfGrade = -2.00;
+                }
+                if (grade2 != null && grade2.isNotEmpty) {
+                  if (grade2 == 'A') {
+                    pointOfGrade2 = 4.00;
+                  } else if (grade2 == 'A-') {
+                    pointOfGrade2 = 3.67;
+                  } else if (grade2 == 'B+') {
+                    pointOfGrade2 = 3.33;
+                  } else if (grade2 == 'B') {
+                    pointOfGrade2 = 3.00;
+                  } else if (grade2 == 'B-') {
+                    pointOfGrade2 = 2.67;
+                  } else if (grade2 == 'C+') {
+                    pointOfGrade2 = 2.33;
+                  } else if (grade2 == 'C') {
+                    pointOfGrade2 = 2.00;
+                  } else if (grade2 == 'C-') {
+                    pointOfGrade2 = 1.67;
+                  } else if (grade2 == 'D+') {
+                    pointOfGrade2 = 1.33;
+                  } else if (grade2 == 'D') {
+                    pointOfGrade2 = 1.00;
+                  } else if (grade2 == 'F') {
+                    pointOfGrade2 = 0.00;
+                  } else if (grade2 == 'S') {
+                    pointOfGrade2 = -1.00;
+                  } else if (grade2 == 'Non') {
+                    pointOfGrade2 = -3.00;
+                  } else {
+                    // u grade
+                    pointOfGrade2 = -2.00;
+                  }
+                }
+                if (grade2 == null) {
+                  if (pointOfGrade >= 0.00) {
+                    // not s/u course
+                    totalCredit_without_SU = totalCredit_without_SU + credit;
+                    totalCredit = totalCredit + credit;
+                    pointOfCourse = pointOfGrade * credit;
+                    totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                  } else {
+                    // s/u course
+                    totalCredit = totalCredit + credit;
+                  }
+
+                  if (!(pointOfGrade == 0.00 ||
+                      pointOfGrade == -2.00 ||
+                      pointOfGrade == -3.00)) {
+                    //  passed course
+                    earnCredit = earnCredit + credit;
+                  }
+                } else if ((pointOfGrade2 == -1.00 ||
+                    pointOfGrade2 == -2.00 ||
+                    pointOfGrade2 == -3.00)) {
+                  if (pointOfGrade2 == -1.00 && pointOfGrade == -2.00) {
+                    earnCredit = earnCredit + credit;
+                    totalCredit = totalCredit + credit;
+                  } else if (pointOfGrade2 == -2.00 && pointOfGrade == -1.00) {
+                    earnCredit = earnCredit - credit;
+                  }
+                } else {
+                  double p2 = pointOfGrade2 * credit;
+                  double p1 = pointOfGrade * credit;
+
+                  if (p2 >= p1 && pointOfGrade2 != 0.00) {
+                    if (p1 == 0.00 && p2 == 0.00) {
+                    } else if (p1 == 0.00 && p2 != 0.00) {
+                      earnCredit = earnCredit + credit;
+                      pointOfCourse = p2 - p1;
+                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                    } else {
+                      pointOfCourse = p2 - p1;
+                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                    }
+                  } else {
+                    // p2<p1
+                    if (p2 == 0.00 && p1 != 0.00) {
+                      earnCredit = earnCredit - credit;
+                      totalCredit_without_SU = totalCredit_without_SU + credit;
+                    } else {
+                      // p1 == 0.00 && p2 == 0.00
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (totalPointsOfSemest == 0.0 && totalCredit_without_SU == 0) {
+        CGPA = 0.0;
+      } else {
+        CGPA = (totalPointsOfSemest / totalCredit_without_SU);
+      }
+      if (CGPA > 4.0) {
+        CGPA = 4.0;
+      }
+    } else {}
+    //
 
     /// todo: the next line  may be cause some bugs
     double cgpa = (allSemesters.length > 1 && CGPA != 0.0) ? CGPA : 4.00;
