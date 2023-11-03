@@ -56,6 +56,8 @@ class _SemesterFinState extends State<SemesterFin> {
   String? repeatedField;
   String? validNameInList;
   String? validRequirements;
+  String? halfLoad;
+  String? repeated;
   String? creditMoreThanThree;
   String? creditEqZero;
 
@@ -77,6 +79,9 @@ class _SemesterFinState extends State<SemesterFin> {
     setState(() {
       listOfCoursesInSemester = widget.semesterCourses;
       repeatedSemestersIds = [];
+      halfLoadCourseId = [];
+      repeatedCoursesIDs = [];
+
       namesCoursesNotInListIds = [];
       namesCoursesNotInRequirements = [];
       creditsCoursesNotInListIds = [];
@@ -194,6 +199,8 @@ class _SemesterFinState extends State<SemesterFin> {
       List<String> coursesIDs = [];
       List<bool> val = [];
       List<bool> val2 = [];
+      List<bool> val3 = [];
+      List<bool> val4 = [];
       for (List course in listOfCoursesInSemester) {
         coursesIDs.add(course[6]);
       }
@@ -202,6 +209,20 @@ class _SemesterFinState extends State<SemesterFin> {
           val.add(true);
         } else {
           val.add(false);
+        }
+      }
+      for (String v in halfLoadCourseId) {
+        if (coursesIDs.contains(v)) {
+          val3.add(true);
+        } else {
+          val3.add(false);
+        }
+      }
+      for (String v in repeatedCoursesIDs) {
+        if (coursesIDs.contains(v)) {
+          val4.add(true);
+        } else {
+          val4.add(false);
         }
       }
 
@@ -223,6 +244,8 @@ class _SemesterFinState extends State<SemesterFin> {
         }
       }
       bool isValidRequirements = val2.contains(true);
+      bool isHalfLoad = val3.contains(true);
+      bool isRep = val4.contains(true);
       // print(
       //     'dhjjjjjjjj$isValidRequirements jjjjj: $namesCoursesNotInRequirements');
 
@@ -236,6 +259,25 @@ class _SemesterFinState extends State<SemesterFin> {
       } else {
         setState(() {
           validRequirements = null;
+        });
+      }
+
+      if (isHalfLoad) {
+        setState(() {
+          halfLoad = 'Half-Load, this course is not allowed to enroll ';
+        });
+      } else {
+        setState(() {
+          halfLoad = null;
+        });
+      }
+      if (isRep) {
+        setState(() {
+          repeated = 'repeated';
+        });
+      } else {
+        setState(() {
+          repeated = null;
         });
       }
 
@@ -267,7 +309,7 @@ class _SemesterFinState extends State<SemesterFin> {
       }
     }
 
-    if (isRepeated) {
+    if (isRepeated || repeated != null) {
       setState(() {
         repeatedField = 'there is repeated field';
       });
@@ -477,11 +519,19 @@ class _SemesterFinState extends State<SemesterFin> {
 
   bool isValide() {
     findErrors();
+    // print('emptyField: $emptyField');
+    // print('creditEqZero: $creditEqZero');
+    // print('creditMoreThanThree: $creditMoreThanThree');
+    // print('validRequirements: $validRequirements');
+    // print('validNameInList: $validNameInList');
+    // print('halfLoad: $halfLoad');
+    // print('repeatedField: $repeatedField');
     if (emptyField == null &&
         creditEqZero == null &&
         creditMoreThanThree == null &&
         validNameInList == null &&
         validRequirements == null &&
+        halfLoad == null &&
         repeatedField == null) {
       return true;
     } else {
@@ -588,6 +638,17 @@ class _SemesterFinState extends State<SemesterFin> {
                       validRequirements != null
                           ? Text(
                               '$validRequirements',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 2,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
+                      halfLoad != null
+                          ? Text(
+                              '$halfLoad',
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
                               maxLines: 2,
@@ -933,6 +994,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           creditMoreThanThree == null &&
                           validNameInList == null &&
                           validRequirements == null &&
+                          halfLoad == null &&
                           repeatedField == null) {
                         collectDate();
                         calcGPA();
@@ -947,6 +1009,7 @@ class _SemesterFinState extends State<SemesterFin> {
                         repeatedField = null;
                         validNameInList = null;
                         validRequirements = null;
+                        halfLoad = null;
                         creditMoreThanThree = null;
                         creditEqZero = null;
                         errorTypeGrade.clear();
@@ -990,6 +1053,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               creditMoreThanThree == null &&
                               validNameInList == null &&
                               validRequirements == null &&
+                              halfLoad == null &&
                               repeatedField == null) {
                             collectDate();
                             calcGPA();
@@ -1006,6 +1070,7 @@ class _SemesterFinState extends State<SemesterFin> {
                             repeatedField = null;
                             validNameInList = null;
                             validRequirements = null;
+                            halfLoad = null;
                             creditMoreThanThree = null;
                             creditEqZero = null;
                             errorTypeGrade.clear();

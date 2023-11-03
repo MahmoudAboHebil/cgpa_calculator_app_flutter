@@ -680,11 +680,8 @@ class CoursesService {
     return ['There are no courses left'];
   }
 
-  static List<String> getSuggestions(
-    String query,
-    List listInSemester,
-    int semestId,
-  ) {
+  static List<String> getSuggestions(String query, List listInSemester,
+      int semestId, bool isQuery, int semesterIndex) {
     UniversityRequirement universityRequirement = UniversityRequirement();
     FreeChoice freeChoice = FreeChoice();
     List<String> matches = <String>[];
@@ -696,144 +693,143 @@ class CoursesService {
     earnCredit = 0;
     totalCredit = 0;
     if (allSemesters.isNotEmpty) {
-      for (List semester in allSemesters) {
+      for (int i = 0; i < semesterIndex; i++) {
         // semester = [[],[],]
+        // print("i:$i ,semesterIndex :$semesterIndex");
 
-        for (List course in semester) {
-          if (course[0] < semestId) {
-            if (course[1] != null && course[2] != null && course[3] != null) {
-              String grade1 = course[3];
-              String? grade2 = course[4];
+        for (List course in allSemesters[i]) {
+          if (course[1] != null && course[2] != null && course[3] != null) {
+            String grade1 = course[3];
+            String? grade2 = course[4];
+            String grade = grade2 ?? grade1;
+
+            // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
+
+            int credit = int.parse(course[2]);
+            double pointOfGrade = 0.0;
+            double pointOfGrade2 = 0.0;
+            double pointOfCourse = 0.0;
+            if (course[1] ==
+                    universityRequirement.mandatoryUniversityRequirements[0]
+                        [0] ||
+                grade == 'W') {
+              // totalCredit = totalCredit + credit;
               String grade = grade2 ?? grade1;
-
-              // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one') ],....]
-
-              int credit = int.parse(course[2]);
-              double pointOfGrade = 0.0;
-              double pointOfGrade2 = 0.0;
-              double pointOfCourse = 0.0;
-              if (course[1] ==
-                      universityRequirement.mandatoryUniversityRequirements[0]
-                          [0] ||
-                  grade == 'W') {
-                // totalCredit = totalCredit + credit;
-                String grade = grade2 ?? grade1;
-                // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
-                //   //  passed course
-                //   earnCredit = earnCredit + credit;
-                // }
+              // if (!(grade == 'Non' || grade == 'F' || grade == 'U')) {
+              //   //  passed course
+              //   earnCredit = earnCredit + credit;
+              // }
+            } else {
+              if (grade1 == 'A') {
+                pointOfGrade = 4.00;
+              } else if (grade1 == 'A-') {
+                pointOfGrade = 3.67;
+              } else if (grade1 == 'B+') {
+                pointOfGrade = 3.33;
+              } else if (grade1 == 'B') {
+                pointOfGrade = 3.00;
+              } else if (grade1 == 'B-') {
+                pointOfGrade = 2.67;
+              } else if (grade1 == 'C+') {
+                pointOfGrade = 2.33;
+              } else if (grade1 == 'C') {
+                pointOfGrade = 2.00;
+              } else if (grade1 == 'C-') {
+                pointOfGrade = 1.67;
+              } else if (grade1 == 'D+') {
+                pointOfGrade = 1.33;
+              } else if (grade1 == 'D') {
+                pointOfGrade = 1.00;
+              } else if (grade1 == 'F') {
+                pointOfGrade = 0.00;
+              } else if (grade1 == 'S') {
+                pointOfGrade = -1.00;
+              } else if (grade1 == 'Non') {
+                pointOfGrade = -3.00;
               } else {
-                if (grade1 == 'A') {
-                  pointOfGrade = 4.00;
-                } else if (grade1 == 'A-') {
-                  pointOfGrade = 3.67;
-                } else if (grade1 == 'B+') {
-                  pointOfGrade = 3.33;
-                } else if (grade1 == 'B') {
-                  pointOfGrade = 3.00;
-                } else if (grade1 == 'B-') {
-                  pointOfGrade = 2.67;
-                } else if (grade1 == 'C+') {
-                  pointOfGrade = 2.33;
-                } else if (grade1 == 'C') {
-                  pointOfGrade = 2.00;
-                } else if (grade1 == 'C-') {
-                  pointOfGrade = 1.67;
-                } else if (grade1 == 'D+') {
-                  pointOfGrade = 1.33;
-                } else if (grade1 == 'D') {
-                  pointOfGrade = 1.00;
-                } else if (grade1 == 'F') {
-                  pointOfGrade = 0.00;
-                } else if (grade1 == 'S') {
-                  pointOfGrade = -1.00;
-                } else if (grade1 == 'Non') {
-                  pointOfGrade = -3.00;
+                // u grade
+                pointOfGrade = -2.00;
+              }
+              if (grade2 != null && grade2.isNotEmpty) {
+                if (grade2 == 'A') {
+                  pointOfGrade2 = 4.00;
+                } else if (grade2 == 'A-') {
+                  pointOfGrade2 = 3.67;
+                } else if (grade2 == 'B+') {
+                  pointOfGrade2 = 3.33;
+                } else if (grade2 == 'B') {
+                  pointOfGrade2 = 3.00;
+                } else if (grade2 == 'B-') {
+                  pointOfGrade2 = 2.67;
+                } else if (grade2 == 'C+') {
+                  pointOfGrade2 = 2.33;
+                } else if (grade2 == 'C') {
+                  pointOfGrade2 = 2.00;
+                } else if (grade2 == 'C-') {
+                  pointOfGrade2 = 1.67;
+                } else if (grade2 == 'D+') {
+                  pointOfGrade2 = 1.33;
+                } else if (grade2 == 'D') {
+                  pointOfGrade2 = 1.00;
+                } else if (grade2 == 'F') {
+                  pointOfGrade2 = 0.00;
+                } else if (grade2 == 'S') {
+                  pointOfGrade2 = -1.00;
+                } else if (grade2 == 'Non') {
+                  pointOfGrade2 = -3.00;
                 } else {
                   // u grade
-                  pointOfGrade = -2.00;
+                  pointOfGrade2 = -2.00;
                 }
-                if (grade2 != null && grade2.isNotEmpty) {
-                  if (grade2 == 'A') {
-                    pointOfGrade2 = 4.00;
-                  } else if (grade2 == 'A-') {
-                    pointOfGrade2 = 3.67;
-                  } else if (grade2 == 'B+') {
-                    pointOfGrade2 = 3.33;
-                  } else if (grade2 == 'B') {
-                    pointOfGrade2 = 3.00;
-                  } else if (grade2 == 'B-') {
-                    pointOfGrade2 = 2.67;
-                  } else if (grade2 == 'C+') {
-                    pointOfGrade2 = 2.33;
-                  } else if (grade2 == 'C') {
-                    pointOfGrade2 = 2.00;
-                  } else if (grade2 == 'C-') {
-                    pointOfGrade2 = 1.67;
-                  } else if (grade2 == 'D+') {
-                    pointOfGrade2 = 1.33;
-                  } else if (grade2 == 'D') {
-                    pointOfGrade2 = 1.00;
-                  } else if (grade2 == 'F') {
-                    pointOfGrade2 = 0.00;
-                  } else if (grade2 == 'S') {
-                    pointOfGrade2 = -1.00;
-                  } else if (grade2 == 'Non') {
-                    pointOfGrade2 = -3.00;
-                  } else {
-                    // u grade
-                    pointOfGrade2 = -2.00;
-                  }
+              }
+              if (grade2 == null) {
+                if (pointOfGrade >= 0.00) {
+                  // not s/u course
+                  totalCredit_without_SU = totalCredit_without_SU + credit;
+                  totalCredit = totalCredit + credit;
+                  pointOfCourse = pointOfGrade * credit;
+                  totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
+                } else {
+                  // s/u course
+                  totalCredit = totalCredit + credit;
                 }
-                if (grade2 == null) {
-                  if (pointOfGrade >= 0.00) {
-                    // not s/u course
-                    totalCredit_without_SU = totalCredit_without_SU + credit;
-                    totalCredit = totalCredit + credit;
-                    pointOfCourse = pointOfGrade * credit;
+
+                if (!(pointOfGrade == 0.00 ||
+                    pointOfGrade == -2.00 ||
+                    pointOfGrade == -3.00)) {
+                  //  passed course
+                  earnCredit = earnCredit + credit;
+                }
+              } else if ((pointOfGrade2 == -1.00 ||
+                  pointOfGrade2 == -2.00 ||
+                  pointOfGrade2 == -3.00)) {
+                if (pointOfGrade2 == -1.00 && pointOfGrade == -2.00) {
+                  earnCredit = earnCredit + credit;
+                  totalCredit = totalCredit + credit;
+                } else if (pointOfGrade2 == -2.00 && pointOfGrade == -1.00) {
+                  earnCredit = earnCredit - credit;
+                }
+              } else {
+                double p2 = pointOfGrade2 * credit;
+                double p1 = pointOfGrade * credit;
+
+                if (p2 >= p1 && pointOfGrade2 != 0.00) {
+                  if (p1 == 0.00 && p2 == 0.00) {
+                  } else if (p1 == 0.00 && p2 != 0.00) {
+                    earnCredit = earnCredit + credit;
+                    pointOfCourse = p2 - p1;
                     totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
                   } else {
-                    // s/u course
-                    totalCredit = totalCredit + credit;
-                  }
-
-                  if (!(pointOfGrade == 0.00 ||
-                      pointOfGrade == -2.00 ||
-                      pointOfGrade == -3.00)) {
-                    //  passed course
-                    earnCredit = earnCredit + credit;
-                  }
-                } else if ((pointOfGrade2 == -1.00 ||
-                    pointOfGrade2 == -2.00 ||
-                    pointOfGrade2 == -3.00)) {
-                  if (pointOfGrade2 == -1.00 && pointOfGrade == -2.00) {
-                    earnCredit = earnCredit + credit;
-                    totalCredit = totalCredit + credit;
-                  } else if (pointOfGrade2 == -2.00 && pointOfGrade == -1.00) {
-                    earnCredit = earnCredit - credit;
+                    pointOfCourse = p2 - p1;
+                    totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
                   }
                 } else {
-                  double p2 = pointOfGrade2 * credit;
-                  double p1 = pointOfGrade * credit;
-
-                  if (p2 >= p1 && pointOfGrade2 != 0.00) {
-                    if (p1 == 0.00 && p2 == 0.00) {
-                    } else if (p1 == 0.00 && p2 != 0.00) {
-                      earnCredit = earnCredit + credit;
-                      pointOfCourse = p2 - p1;
-                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-                    } else {
-                      pointOfCourse = p2 - p1;
-                      totalPointsOfSemest = totalPointsOfSemest + pointOfCourse;
-                    }
+                  // p2<p1
+                  if (p2 == 0.00 && p1 != 0.00) {
+                    earnCredit = earnCredit - credit;
+                    totalCredit_without_SU = totalCredit_without_SU + credit;
                   } else {
-                    // p2<p1
-                    if (p2 == 0.00 && p1 != 0.00) {
-                      earnCredit = earnCredit - credit;
-                      totalCredit_without_SU = totalCredit_without_SU + credit;
-                    } else {
-                      // p1 == 0.00 && p2 == 0.00
-                    }
+                    // p1 == 0.00 && p2 == 0.00
                   }
                 }
               }
@@ -849,17 +845,23 @@ class CoursesService {
       if (CGPA > 4.0) {
         CGPA = 4.0;
       }
+      // print('semesterIndex:$semesterIndex , CGPA:$CGPA');
     } else {}
     //
 
     /// todo: the next line  may be cause some bugs
-    double cgpa = (allSemesters.length > 1 && CGPA != 0.0) ? CGPA : 4.00;
+    double cgpa = (CGPA != 0.0) ? CGPA : 5.00;
+    // print('semesterIndex:$semesterIndex , cgpa:$cgpa');
+
     if (systemOption) {
       // avoiding repeating course in the list
       List<String> coursesNamesEntered = [];
-      for (List semester in allSemesters) {
-        for (List course in semester) {
+      for (int i = 0; i < semesterIndex; i++) {
+        for (List course in allSemesters[i]) {
           if (cgpa <= 1.67) {
+            if (coursesNamesEntered.contains(course[1])) {
+              coursesNamesEntered.remove(course[1]);
+            }
             if (course[1] != null && course[3] != null) {
               if (course[3] != 'A' &&
                   course[3] != 'A-' &&
@@ -879,101 +881,26 @@ class CoursesService {
                   course[4] != 'Non') {
                 coursesNamesEntered.add(course[1]);
               }
-            } else {
-              if (course[1] != null && course[3] != null) {
-                if (course[3] != 'U' &&
-                    course[3] != 'F' &&
-                    course[3] != 'Non' &&
-                    course[3] != 'W' &&
-                    course[4] == null) {
-                  coursesNamesEntered.add(course[1]);
-                } else if (course[4] != null &&
-                    course[4] != 'U' &&
-                    course[4] != 'F' &&
-                    course[4] != 'W' &&
-                    course[4] != 'Non') {
-                  coursesNamesEntered.add(course[1]);
-                }
+            }
+          } else {
+            if (course[1] != null && course[3] != null) {
+              if (course[3] != 'U' &&
+                  course[3] != 'F' &&
+                  course[3] != 'Non' &&
+                  course[3] != 'W' &&
+                  course[4] == null) {
+                coursesNamesEntered.add(course[1]);
+              } else if (course[4] != null &&
+                  course[4] != 'U' &&
+                  course[4] != 'F' &&
+                  course[4] != 'W' &&
+                  course[4] != 'Non') {
+                coursesNamesEntered.add(course[1]);
               }
             }
           }
         }
-
-        List<String> namesCoursesInSemest = [];
-        for (List course in listInSemester) {
-          if (course[1] != null) {
-            namesCoursesInSemest.add(course[1]);
-          }
-        }
-
-        for (List course in getDivisionList()) {
-          bool val;
-          if (!(cgpa <= 1.67)) {
-            val = !coursesNamesEntered.contains(course[0]);
-          } else {
-            val = coursesNamesEntered.contains(course[0]);
-          }
-
-          if (
-
-              ///  TODO: in the next line you will not allow the user to improve their grade .
-              val &&
-                  !namesCoursesInSemest.contains(course[0]) &&
-                  courseEnrollingSystem(course[0], semestId, listInSemester)) {
-            matches.add(course[0]);
-          }
-        }
-        if (departmentOption) {
-          for (List course in getDepartmentList()) {
-            bool val;
-            if (!(cgpa <= 1.67)) {
-              val = !coursesNamesEntered.contains(course[0]);
-            } else {
-              val = coursesNamesEntered.contains(course[0]);
-            }
-            if (
-
-                ///  TODO: in the next line you will not allow the user to improve their grade .
-                val &&
-                    !namesCoursesInSemest.contains(course[0]) &&
-                    courseEnrollingSystem(
-                        course[0], semestId, listInSemester)) {
-              matches.add(course[0]);
-            }
-          }
-        }
-        for (List course
-            in universityRequirement.universityRequirementsCourses) {
-          bool val;
-          if (!(cgpa <= 1.67)) {
-            val = !coursesNamesEntered.contains(course[0]);
-          } else {
-            val = coursesNamesEntered.contains(course[0]);
-          }
-          if (
-
-              ///  TODO: in the next line you will not allow the user to improve their grade .
-              val && !namesCoursesInSemest.contains(course[0])) {
-            matches.add(course[0]);
-          }
-        }
-
-        for (List course in freeChoice.freeChoiceCourses) {
-          bool val;
-          if (!(cgpa <= 1.67)) {
-            val = !coursesNamesEntered.contains(course[0]);
-          } else {
-            val = coursesNamesEntered.contains(course[0]);
-          }
-          if (
-
-              ///  TODO: in the next line you will not allow the user to improve their grade .
-              val && !namesCoursesInSemest.contains(course[0])) {
-            matches.add(course[0]);
-          }
-        }
       }
-
       List<String> namesCoursesInSemest = [];
       for (List course in listInSemester) {
         if (course[1] != null) {
@@ -981,11 +908,26 @@ class CoursesService {
         }
       }
 
+      if (!isQuery && cgpa > 1.67) {
+        coursesNamesEntered =
+            LinkedHashSet<String>.from(coursesNamesEntered).toList();
+        if (coursesNamesEntered.contains(query)) {
+          coursesNamesEntered.remove(query);
+        }
+      }
+      if (!isQuery) {
+        namesCoursesInSemest =
+            LinkedHashSet<String>.from(namesCoursesInSemest).toList();
+        if (namesCoursesInSemest.contains(query)) {
+          namesCoursesInSemest.remove(query);
+        }
+      }
       for (List course in getDivisionList()) {
         bool val;
         if (!(cgpa <= 1.67)) {
           val = !coursesNamesEntered.contains(course[0]);
         } else {
+          // half load
           val = coursesNamesEntered.contains(course[0]);
         }
         if (
@@ -1047,7 +989,10 @@ class CoursesService {
     }
     matches = LinkedHashSet<String>.from(matches).toList();
     if (matches.isNotEmpty) {
-      matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+      if (isQuery) {
+        matches
+            .retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+      }
       return matches;
     }
     return ['There are no courses left'];

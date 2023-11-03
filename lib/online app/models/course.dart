@@ -10,6 +10,9 @@ import '../pages/home_with_firestore_page.dart';
 import 'courses_service.dart';
 
 List<String> repeatedSemestersIds = [];
+List<String> repeatedCoursesIDs = [];
+List<String> halfLoadCourseId = [];
+
 List<String> namesCoursesNotInListIds = [];
 List<String> namesCoursesNotInRequirements = [];
 List<String> creditsCoursesNotInListIds = [];
@@ -158,8 +161,10 @@ class _CourseState extends State<Course> {
   }
 
   bool isValidNameSystem() {
-    var Name = _controller_Name.text ?? '';
+    String Name = _controller_Name.text ?? '';
     bool isRepeatedName = true;
+    bool isRepeated = false;
+    bool isHalfLoad = false;
     bool isInList = true;
     bool isValidRequirements = true;
     bool val = CoursesService.isGlobalDepartmentValidationOK() &&
@@ -167,13 +172,63 @@ class _CourseState extends State<Course> {
 
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       if (CoursesService.systemOption) {
-        //  is the name in the courses Of college
-        // print('Name :${CoursesService.departmentName}');
-        // print('departmentOpt`ion :${CoursesService.departmentOption}');
-        // print('divisionName :${CoursesService.divisionName}');
-        // print('departmentOption :${CoursesService.departmentOption}');
-
         ///todo: if the value is not at list means ( there is repeating or  half-load )
+
+        // print('#########herrrrrrrrrrrrrrrrrrrrrr');
+
+        // print(CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
+        //     semesterID, false, widget.semesterIndex));
+
+        if (!CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
+                    semesterID, false, widget.semesterIndex)
+                .contains(Name) &&
+            CoursesService.getCoursesNames().contains(Name) &&
+            CGPA <= 1.67 &&
+            CGPA != 0.0) {
+          print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
+          // print(Name);
+          // print(CoursesService.getSuggestions(
+          //     Name,
+          //     widget.listCoursesInSemester,
+          //     semesterID,
+          //     false,
+          //     widget.semesterIndex));
+          setState(() {
+            halfLoadCourseId.add(courseID.toString());
+            halfLoadCourseId =
+                LinkedHashSet<String>.from(halfLoadCourseId).toList();
+            isHalfLoad = true;
+          });
+        } else {
+          setState(() {
+            bool isExist = halfLoadCourseId.contains(courseID.toString());
+            if (isExist) {
+              halfLoadCourseId.remove(courseID);
+            }
+            isHalfLoad = false;
+          });
+        }
+        // if (!CoursesService.getSuggestions(
+        //             Name, widget.listCoursesInSemester, semesterID, false)
+        //         .contains(Name) &&
+        //     CoursesService.getCoursesNames().contains(Name) &&
+        //     CGPA > 1.67) {
+        //   setState(() {
+        //     repeatedCoursesIDs.add(courseID.toString());
+        //     repeatedCoursesIDs =
+        //         LinkedHashSet<String>.from(repeatedCoursesIDs).toList();
+        //     isRepeated = true;
+        //   });
+        // } else {
+        //   setState(() {
+        //     bool isExist = repeatedCoursesIDs.contains(courseID.toString());
+        //     if (isExist) {
+        //       repeatedCoursesIDs.remove(courseID);
+        //     }
+        //     isRepeated = false;
+        //   });
+        // }
+
         ///todo: if the value is not allowed case CGPA<1.67
 
         if (!CoursesService.getCoursesNames().contains(Name) && !val) {
@@ -258,7 +313,11 @@ class _CourseState extends State<Course> {
       isInList = true;
     }
 
-    return isRepeatedName && isInList && isValidRequirements;
+    return isRepeatedName &&
+        isInList &&
+        isValidRequirements &&
+        !isHalfLoad &&
+        !isRepeated;
   }
 
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
@@ -924,6 +983,7 @@ class _CourseState extends State<Course> {
   Widget build(BuildContext context) {
     errorGrade();
     validationMethod();
+    // print(halfLoadCourseId);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -1083,8 +1143,12 @@ class _CourseState extends State<Course> {
                                 ),
                                 hideSuggestionsOnKeyboardHide: false,
                                 suggestionsCallback: (pattern) async {
-                                  return CoursesService.getSuggestions(pattern,
-                                      widget.listCoursesInSemester, semesterID);
+                                  return CoursesService.getSuggestions(
+                                      pattern,
+                                      widget.listCoursesInSemester,
+                                      semesterID,
+                                      true,
+                                      widget.semesterIndex);
                                 },
                                 itemBuilder: (context, String suggestion) {
                                   return suggestion !=
