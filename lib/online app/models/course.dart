@@ -13,6 +13,7 @@ List<String> repeatedSemestersIds = [];
 List<String> repeatedCoursesIDs = [];
 List<String> halfLoadCourseId = [];
 
+//
 List<String> namesCoursesNotInListIds = [];
 List<String> namesCoursesNotInRequirements = [];
 List<String> creditsCoursesNotInListIds = [];
@@ -162,7 +163,7 @@ class _CourseState extends State<Course> {
 
   bool isValidNameSystem() {
     String Name = _controller_Name.text ?? '';
-    bool isRepeatedName = true;
+    bool isRepeatedName = false;
     bool isRepeated = false;
     bool isHalfLoad = false;
     bool isInList = true;
@@ -171,6 +172,13 @@ class _CourseState extends State<Course> {
         !CoursesService.departmentOption;
 
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
+      //  is the name is repeated
+
+      if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
+        isRepeatedName = true;
+      } else {
+        isRepeatedName = false;
+      }
       if (CoursesService.systemOption) {
         ///todo: if the value is not at list means ( there is repeating or  half-load )
 
@@ -183,9 +191,8 @@ class _CourseState extends State<Course> {
                     semesterID, false, widget.semesterIndex)
                 .contains(Name) &&
             CoursesService.getCoursesNames().contains(Name) &&
-            CGPA <= 1.67 &&
             CGPA != 0.0) {
-          print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
+          // print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
           // print(Name);
           // print(CoursesService.getSuggestions(
           //     Name,
@@ -208,26 +215,6 @@ class _CourseState extends State<Course> {
             isHalfLoad = false;
           });
         }
-        // if (!CoursesService.getSuggestions(
-        //             Name, widget.listCoursesInSemester, semesterID, false)
-        //         .contains(Name) &&
-        //     CoursesService.getCoursesNames().contains(Name) &&
-        //     CGPA > 1.67) {
-        //   setState(() {
-        //     repeatedCoursesIDs.add(courseID.toString());
-        //     repeatedCoursesIDs =
-        //         LinkedHashSet<String>.from(repeatedCoursesIDs).toList();
-        //     isRepeated = true;
-        //   });
-        // } else {
-        //   setState(() {
-        //     bool isExist = repeatedCoursesIDs.contains(courseID.toString());
-        //     if (isExist) {
-        //       repeatedCoursesIDs.remove(courseID);
-        //     }
-        //     isRepeated = false;
-        //   });
-        // }
 
         ///todo: if the value is not allowed case CGPA<1.67
 
@@ -285,13 +272,35 @@ class _CourseState extends State<Course> {
 
           isValidRequirements = true;
         }
-      }
-      //  is the name is repeated
-
-      if (isRepeatedCourseModel(Name, courseID, semesterID.toString())) {
-        isRepeatedName = false;
-      } else {
-        isRepeatedName = true;
+        if (widget.semesterIndex == 1) {
+          // print('##################################');
+          // print(Name);
+          // print(CoursesService.getSuggestions(
+          //         '', [], semesterID, true, widget.semesterIndex)
+          //     .contains(Name));
+        }
+        if (!CoursesService.getSuggestions(
+                    '', [], semesterID, true, widget.semesterIndex)
+                .contains(Name) &&
+            CoursesService.getCoursesNames().contains(Name) &&
+            isValidRequirements &&
+            !isRepeated &&
+            !isHalfLoad) {
+          setState(() {
+            repeatedCoursesIDs.add(courseID.toString());
+            repeatedCoursesIDs =
+                LinkedHashSet<String>.from(repeatedCoursesIDs).toList();
+            isRepeated = true;
+          });
+        } else {
+          setState(() {
+            bool isExist = repeatedCoursesIDs.contains(courseID.toString());
+            if (isExist) {
+              repeatedCoursesIDs.remove(courseID);
+            }
+            isRepeated = false;
+          });
+        }
       }
     } else {
       bool isExist = namesCoursesNotInListIds.contains(courseID.toString());
@@ -307,13 +316,27 @@ class _CourseState extends State<Course> {
           namesCoursesNotInRequirements.remove(courseID);
         }
       });
+      bool isExist2 = repeatedCoursesIDs.contains(courseID.toString());
+      setState(() {
+        if (isExist2) {
+          repeatedCoursesIDs.remove(courseID);
+        }
+      });
+      bool isExist3 = halfLoadCourseId.contains(courseID.toString());
+
+      setState(() {
+        if (isExist3) {
+          halfLoadCourseId.remove(courseID);
+        }
+      });
+      isHalfLoad = false;
 
       isValidRequirements = true;
 
       isInList = true;
     }
 
-    return isRepeatedName &&
+    return !isRepeatedName &&
         isInList &&
         isValidRequirements &&
         !isHalfLoad &&
@@ -983,7 +1006,7 @@ class _CourseState extends State<Course> {
   Widget build(BuildContext context) {
     errorGrade();
     validationMethod();
-    // print(halfLoadCourseId);
+    print(repeatedCoursesIDs);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),

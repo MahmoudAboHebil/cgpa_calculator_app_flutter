@@ -265,6 +265,7 @@ class CoursesService {
     return credit;
   }
 
+//
   static List getOpenCoursesId(String id) {
     List ids = [];
     for (List course in getDivisionList()) {
