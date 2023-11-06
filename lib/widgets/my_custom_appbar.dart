@@ -91,7 +91,9 @@ class AppBar extends StatelessWidget {
                             child: Text(
                               '${cgpa.toStringAsFixed(4)}',
                               style: TextStyle(
-                                  color: Color(0xff4562a7),
+                                  color: (cgpa < 2 && cgpa != 0.0)
+                                      ? Colors.red.shade900
+                                      : Color(0xff4562a7),
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -103,7 +105,9 @@ class AppBar extends StatelessWidget {
                         lineHeight: 15,
                         percent: cgpa / 4,
                         backgroundColor: Colors.grey.shade400,
-                        progressColor: Color(0xff4562a7),
+                        progressColor: (cgpa < 2 && cgpa != 0.0)
+                            ? Colors.red.shade900
+                            : Color(0xff4562a7),
                         animation: true,
                         barRadius: Radius.circular(10),
                       ),

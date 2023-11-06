@@ -694,7 +694,7 @@ class CoursesService {
     earnCredit = 0;
     totalCredit = 0;
     if (allSemesters.isNotEmpty) {
-      for (int i = 0; i < semesterIndex; i++) {
+      for (int i = 1; i < semesterIndex; i++) {
         // semester = [[],[],]
         // print("i:$i ,semesterIndex :$semesterIndex");
 

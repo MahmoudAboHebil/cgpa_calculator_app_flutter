@@ -870,7 +870,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _visible
-                        ? MyCustomAppBar(100, CGPA, earnCredit, totalCredit)
+                        ? MyCustomAppBar(100, CGPA,
+                            earnCredit == -1 ? 0 : earnCredit, totalCredit)
                         : MyCustomAppBar(
                             100, CGPAPage2, totalCreditPage2, totalCreditPage2),
                     Expanded(
