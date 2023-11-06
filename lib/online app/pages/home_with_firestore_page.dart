@@ -339,25 +339,28 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _courses = null;
-      _usersInfo = null;
-      semestersRef = null;
-      loggedInUser = null;
-      showSpinner = true;
-      CGPA = 0.000;
-      totalCredit = 0;
-      earnCredit = -1;
 
-      allSemesters.clear();
-      allSemesters2.clear();
-      homeWithFireStoreServices = null;
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        _courses = null;
+        _usersInfo = null;
+        semestersRef = null;
+        loggedInUser = null;
+        showSpinner = true;
+        CGPA = 0.000;
+        totalCredit = 0;
+        earnCredit = -1;
+
+        allSemesters.clear();
+        allSemesters2.clear();
+        homeWithFireStoreServices = null;
+      });
+      getCurrentUser();
+      setState(() {
+        _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+      });
+      getInfo();
     });
-    getCurrentUser();
-    setState(() {
-      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
-    });
-    getInfo();
   }
 
   Widget getInfo() {

@@ -1185,7 +1185,7 @@ class _SearchFieldSampleState extends State<SearchFieldSample> {
           searchStyle: TextStyle(color: Color(0xff004d60)),
           suggestionItemDecoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: Colors.white))),
-          scrollbarAlwaysVisible: false,
+          // scrollbarAlwaysVisible: false,
           onSearchTextChanged: (query) {
             final filter = suggestions
                 .where((element) =>

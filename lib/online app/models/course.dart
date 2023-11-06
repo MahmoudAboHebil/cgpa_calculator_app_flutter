@@ -1006,7 +1006,6 @@ class _CourseState extends State<Course> {
   Widget build(BuildContext context) {
     errorGrade();
     validationMethod();
-    print(repeatedCoursesIDs);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -1061,6 +1060,7 @@ class _CourseState extends State<Course> {
                             ? TypeAheadFormField(
                                 textFieldConfiguration: TextFieldConfiguration(
                                   controller: _controller_Name,
+                                  scrollPadding: EdgeInsets.only(bottom: 200),
                                   textAlign: TextAlign.center,
                                   textAlignVertical: TextAlignVertical.bottom,
                                   focusNode: _focusName,
@@ -1165,6 +1165,7 @@ class _CourseState extends State<Course> {
                                   ),
                                 ),
                                 hideSuggestionsOnKeyboardHide: false,
+
                                 suggestionsCallback: (pattern) async {
                                   return CoursesService.getSuggestions(
                                       pattern,
