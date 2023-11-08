@@ -1,6 +1,7 @@
 import 'package:cgp_calculator/online%20app/collage_courses_data/university_requirement_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+// ToDo:  Future.delayed makes problems in speed
 
 import '../pages/home_with_firestore_page.dart';
 import 'course.dart';
@@ -56,6 +57,7 @@ class _SemesterFinState extends State<SemesterFin> {
   String? repeatedField;
   String? validNameInList;
   String? validRequirements;
+  String? validNumberCredits;
   String? halfLoad;
   String? repeated;
   String? creditMoreThanThree;
@@ -246,8 +248,6 @@ class _SemesterFinState extends State<SemesterFin> {
       bool isValidRequirements = val2.contains(true);
       bool isHalfLoad = val3.contains(true);
       bool isRep = val4.contains(true);
-      // print(
-      //     'dhjjjjjjjj$isValidRequirements jjjjj: $namesCoursesNotInRequirements');
 
       ///todo: if the value is not allowed case CGPA<1.67
 
@@ -271,6 +271,30 @@ class _SemesterFinState extends State<SemesterFin> {
           halfLoad = null;
         });
       }
+
+      // if (widget.index > 1 &&
+      //     CGPA < 2 &&
+      //     CGPA != 0.0 &&
+      //     numberCreditsValidation() > 12 &&
+      //     numberCreditsValidation() != 0) {
+      //   setState(() {
+      //     validNumberCredits = ' Max total credits must be 12 cause half-load ';
+      //   });
+      // } else if (numberCreditsValidation() < 12 &&
+      //     numberCreditsValidation() != 0) {
+      //   setState(() {
+      //     validNumberCredits = ' Min total credits must be 12 ';
+      //   });
+      // } else if (numberCreditsValidation() > 17 &&
+      //     numberCreditsValidation() != 0) {
+      //   setState(() {
+      //     validNumberCredits = ' Max total credits must be 17 ';
+      //   });
+      // } else {
+      //   setState(() {
+      //     validNumberCredits = null;
+      //   });
+      // }
       if (isRep) {
         setState(() {
           repeated = 'repeated';
@@ -531,6 +555,7 @@ class _SemesterFinState extends State<SemesterFin> {
         creditMoreThanThree == null &&
         validNameInList == null &&
         validRequirements == null &&
+        validNumberCredits == null &&
         halfLoad == null &&
         repeatedField == null) {
       return true;
@@ -646,6 +671,17 @@ class _SemesterFinState extends State<SemesterFin> {
                               width: 0,
                               height: 0,
                             ),
+                      validNumberCredits != null
+                          ? Text(
+                              '$validNumberCredits',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                              maxLines: 2,
+                            )
+                          : SizedBox(
+                              width: 0,
+                              height: 0,
+                            ),
                       halfLoad != null
                           ? Text(
                               '$halfLoad',
@@ -732,18 +768,46 @@ class _SemesterFinState extends State<SemesterFin> {
     }
   }
 
+  int numberCreditsValidation() {
+    int totalCredits = 0;
+    for (List course in listOfCoursesInSemester) {
+      var credit = course[2];
+      if (credit != null) {
+        totalCredits = totalCredits + int.parse(credit);
+      }
+    }
+    return totalCredits;
+  }
+
   @override
   Widget build(BuildContext context) {
     // print(namesCoursesNotInListIds);
-    Future.delayed(Duration.zero, () {
+    setState(() {
+      if (CoursesService.systemOption) {
+        if (widget.index > 1 &&
+            CGPA < 2 &&
+            CGPA != 0.0 &&
+            numberCreditsValidation() > 12 &&
+            numberCreditsValidation() != 0) {
+          validNumberCredits = ' Max total credits must be 12 cause half-load ';
+        } else if (numberCreditsValidation() < 12 &&
+            numberCreditsValidation() != 0) {
+          validNumberCredits = ' Min total credits must be 12 ';
+        } else if (numberCreditsValidation() > 17 &&
+            numberCreditsValidation() != 0) {
+          validNumberCredits = ' Max total credits must be 17 ';
+        } else {
+          validNumberCredits = null;
+        }
+      }
       if (isRepeatedSemesterModel()) {
         // print('repeatedCourseInSemestIddddd  $repeatedCourseInSemestId');
-        setState(() {
-          widget.isChanged = true;
-          widget.ChangeList(widget.index, true, false);
-        });
+        widget.isChanged = true;
+        widget.ChangeList(widget.index, true, false);
       }
+      calcGPA();
     });
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 30),
       child: GestureDetector(
@@ -773,7 +837,11 @@ class _SemesterFinState extends State<SemesterFin> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(20)),
-                    border: Border.all(color: Colors.white54, width: 2),
+                    // border: Border.all(color: Colors.red, width: 1),
+
+                    border: validNumberCredits != null
+                        ? Border.all(color: Colors.red, width: 1)
+                        : Border.all(color: Colors.white54, width: 2),
                     boxShadow: [
                       BoxShadow(
                           blurRadius: 1,
@@ -818,7 +886,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           SizedBox(
                             height: 5,
                           ),
-                          !widget.isChanged
+                          (!widget.isChanged && validNumberCredits == null)
                               ? Text(
                                   '${GPA.toStringAsFixed(2)}',
                                   style: TextStyle(
@@ -847,21 +915,13 @@ class _SemesterFinState extends State<SemesterFin> {
                           SizedBox(
                             height: 5,
                           ),
-                          !widget.isChanged
-                              ? Text(
-                                  '$earnCredit / $totalCredit',
-                                  style: TextStyle(
-                                    color: Color(0xff4562a7),
-                                    fontSize: 18,
-                                  ),
-                                )
-                              : Text(
-                                  '0 / 0',
-                                  style: TextStyle(
-                                    color: Color(0xff4562a7),
-                                    fontSize: 18,
-                                  ),
-                                )
+                          Text(
+                            '$earnCredit / $totalCredit',
+                            style: TextStyle(
+                              color: Color(0xff4562a7),
+                              fontSize: 18,
+                            ),
+                          )
                         ],
                       ),
                     ],
@@ -994,6 +1054,7 @@ class _SemesterFinState extends State<SemesterFin> {
                           creditMoreThanThree == null &&
                           validNameInList == null &&
                           validRequirements == null &&
+                          validNumberCredits == null &&
                           halfLoad == null &&
                           repeatedField == null) {
                         collectDate();
@@ -1009,6 +1070,7 @@ class _SemesterFinState extends State<SemesterFin> {
                         repeatedField = null;
                         validNameInList = null;
                         validRequirements = null;
+                        validNumberCredits = null;
                         halfLoad = null;
                         creditMoreThanThree = null;
                         creditEqZero = null;
@@ -1053,6 +1115,7 @@ class _SemesterFinState extends State<SemesterFin> {
                               creditMoreThanThree == null &&
                               validNameInList == null &&
                               validRequirements == null &&
+                              validNumberCredits == null &&
                               halfLoad == null &&
                               repeatedField == null) {
                             collectDate();
@@ -1070,6 +1133,7 @@ class _SemesterFinState extends State<SemesterFin> {
                             repeatedField = null;
                             validNameInList = null;
                             validRequirements = null;
+                            // validNumberCredits = null;
                             halfLoad = null;
                             creditMoreThanThree = null;
                             creditEqZero = null;

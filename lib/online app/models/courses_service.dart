@@ -859,7 +859,7 @@ class CoursesService {
       List<String> coursesNamesEntered = [];
       for (int i = 0; i < semesterIndex; i++) {
         for (List course in allSemesters[i]) {
-          if (cgpa <= 1.67) {
+          if (cgpa <= 2) {
             if (coursesNamesEntered.contains(course[1])) {
               coursesNamesEntered.remove(course[1]);
             }
@@ -909,7 +909,7 @@ class CoursesService {
         }
       }
 
-      if (!isQuery && cgpa > 1.67) {
+      if (!isQuery && cgpa > 2) {
         coursesNamesEntered =
             LinkedHashSet<String>.from(coursesNamesEntered).toList();
         if (coursesNamesEntered.contains(query)) {
@@ -925,7 +925,7 @@ class CoursesService {
       }
       for (List course in getDivisionList()) {
         bool val;
-        if (!(cgpa <= 1.67)) {
+        if (!(cgpa <= 2)) {
           val = !coursesNamesEntered.contains(course[0]);
         } else {
           // half load
@@ -943,7 +943,7 @@ class CoursesService {
       if (departmentOption) {
         for (List course in getDepartmentList()) {
           bool val;
-          if (!(cgpa <= 1.67)) {
+          if (!(cgpa <= 2)) {
             val = !coursesNamesEntered.contains(course[0]);
           } else {
             val = coursesNamesEntered.contains(course[0]);
@@ -960,7 +960,7 @@ class CoursesService {
       }
       for (List course in universityRequirement.universityRequirementsCourses) {
         bool val;
-        if (!(cgpa <= 1.67)) {
+        if (!(cgpa <= 2)) {
           val = !coursesNamesEntered.contains(course[0]);
         } else {
           val = coursesNamesEntered.contains(course[0]);
@@ -975,7 +975,7 @@ class CoursesService {
 
       for (List course in freeChoice.freeChoiceCourses) {
         bool val;
-        if (!(cgpa <= 1.67)) {
+        if (!(cgpa <= 2)) {
           val = !coursesNamesEntered.contains(course[0]);
         } else {
           val = coursesNamesEntered.contains(course[0]);

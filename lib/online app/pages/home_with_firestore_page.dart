@@ -1,8 +1,9 @@
 import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:cgp_calculator/online%20app/pages/welcome_page.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// ToDo:  Future.delayed makes problems in speed
+
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +15,6 @@ import '../../widgets/my_navigation_drawer.dart';
 import '../collage_courses_data/university_requirement_courses.dart';
 import '../models/courses_service.dart';
 import '../models/semester.dart';
-import 'courses_page.dart';
 import 'home_with_semester_page.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
