@@ -57,7 +57,7 @@ class _CourseState extends State<Course> {
   bool isValidRequirements = true;
   void repeatedAndHalfLoad(String Name) {
     if (!CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
-                semesterID, false, widget.semesterIndex)
+                semesterID, false, false, widget.semesterIndex)
             .contains(Name) &&
         CoursesService.getCoursesNames().contains(Name) &&
         CGPA != 0.0) {
@@ -84,8 +84,8 @@ class _CourseState extends State<Course> {
         isHalfLoad = false;
       });
     }
-    if (!CoursesService.getSuggestions(
-                '', [], semesterID, true, widget.semesterIndex)
+    if (!CoursesService.getSuggestions('', widget.listCoursesInSemester,
+                semesterID, true, true, widget.semesterIndex)
             .contains(Name) &&
         CoursesService.getCoursesNames().contains(Name) &&
         isValidRequirements &&
@@ -1193,6 +1193,7 @@ class _CourseState extends State<Course> {
                                       widget.listCoursesInSemester,
                                       semesterID,
                                       true,
+                                      false,
                                       widget.semesterIndex);
                                 },
                                 itemBuilder: (context, String suggestion) {

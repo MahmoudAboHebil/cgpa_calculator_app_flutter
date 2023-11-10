@@ -87,16 +87,14 @@ class _SemesterFinState extends State<SemesterFin> {
       namesCoursesNotInListIds = [];
       namesCoursesNotInRequirements = [];
       creditsCoursesNotInListIds = [];
-      Future.delayed(Duration.zero, () {
-        if (!isValide()) {
-          // print('fffffffffffffffffffffffffffffffffff');
-          widget.isChanged = true;
-          widget.ChangeList(widget.index, true, false);
-        }
-        if (!widget.isChanged) {
-          calcGPA();
-        }
-      });
+      if (!isValide()) {
+        // print('fffffffffffffffffffffffffffffffffff');
+        widget.isChanged = true;
+        widget.ChangeList(widget.index, true, false);
+      }
+      if (!widget.isChanged) {
+        calcGPA();
+      }
     });
   }
 

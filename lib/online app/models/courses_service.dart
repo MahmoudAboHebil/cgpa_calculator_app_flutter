@@ -682,7 +682,7 @@ class CoursesService {
   }
 
   static List<String> getSuggestions(String query, List listInSemester,
-      int semestId, bool isQuery, int semesterIndex) {
+      int semestId, bool isQuery, bool removeList, int semesterIndex) {
     UniversityRequirement universityRequirement = UniversityRequirement();
     FreeChoice freeChoice = FreeChoice();
     List<String> matches = <String>[];
@@ -902,9 +902,11 @@ class CoursesService {
         }
       }
       List<String> namesCoursesInSemest = [];
-      for (List course in listInSemester) {
-        if (course[1] != null) {
-          namesCoursesInSemest.add(course[1]);
+      if (!removeList) {
+        for (List course in listInSemester) {
+          if (course[1] != null) {
+            namesCoursesInSemest.add(course[1]);
+          }
         }
       }
 

@@ -340,27 +340,25 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        _courses = null;
-        _usersInfo = null;
-        semestersRef = null;
-        loggedInUser = null;
-        showSpinner = true;
-        CGPA = 0.000;
-        totalCredit = 0;
-        earnCredit = -1;
+    setState(() {
+      _courses = null;
+      _usersInfo = null;
+      semestersRef = null;
+      loggedInUser = null;
+      showSpinner = true;
+      CGPA = 0.000;
+      totalCredit = 0;
+      earnCredit = -1;
 
-        allSemesters.clear();
-        allSemesters2.clear();
-        homeWithFireStoreServices = null;
-      });
-      getCurrentUser();
-      setState(() {
-        _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
-      });
-      getInfo();
+      allSemesters.clear();
+      allSemesters2.clear();
+      homeWithFireStoreServices = null;
     });
+    getCurrentUser();
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+    getInfo();
   }
 
   Widget getInfo() {
@@ -836,15 +834,13 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration.zero, () {
-      if (flag2 && loggedInUser != null && _courses != null) {
-        setState(() {
-          homeWithFireStoreServices =
-              HomeWithFireStoreServices(_courses!, loggedInUser!);
-          flag2 = false;
-        });
-      }
-    });
+    if (flag2 && loggedInUser != null && _courses != null) {
+      setState(() {
+        homeWithFireStoreServices =
+            HomeWithFireStoreServices(_courses!, loggedInUser!);
+        flag2 = false;
+      });
+    }
 
     return WillPopScope(
       onWillPop: () async {
