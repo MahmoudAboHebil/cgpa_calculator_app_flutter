@@ -52,6 +52,62 @@ class _CourseState extends State<Course> {
   late TextEditingController _controller_Name;
   late TextEditingController _controller_Credit;
   String? _selectedCity;
+  bool isHalfLoad = false;
+  bool isRepeated = false;
+  bool isValidRequirements = true;
+  void repeatedAndHalfLoad(String Name) {
+    if (!CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
+                semesterID, false, widget.semesterIndex)
+            .contains(Name) &&
+        CoursesService.getCoursesNames().contains(Name) &&
+        CGPA != 0.0) {
+      // print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
+      // print(Name);
+      // print(CoursesService.getSuggestions(
+      //     Name,
+      //     widget.listCoursesInSemester,
+      //     semesterID,
+      //     false,
+      //     widget.semesterIndex));
+      setState(() {
+        halfLoadCourseId.add(courseID.toString());
+        halfLoadCourseId =
+            LinkedHashSet<String>.from(halfLoadCourseId).toList();
+        isHalfLoad = true;
+      });
+    } else {
+      setState(() {
+        bool isExist = halfLoadCourseId.contains(courseID.toString());
+        if (isExist) {
+          halfLoadCourseId.remove(courseID);
+        }
+        isHalfLoad = false;
+      });
+    }
+    if (!CoursesService.getSuggestions(
+                '', [], semesterID, true, widget.semesterIndex)
+            .contains(Name) &&
+        CoursesService.getCoursesNames().contains(Name) &&
+        isValidRequirements &&
+        !isRepeated &&
+        !isHalfLoad) {
+      setState(() {
+        repeatedCoursesIDs.add(courseID.toString());
+        repeatedCoursesIDs =
+            LinkedHashSet<String>.from(repeatedCoursesIDs).toList();
+        isRepeated = true;
+      });
+    } else {
+      setState(() {
+        bool isExist = repeatedCoursesIDs.contains(courseID.toString());
+        if (isExist) {
+          repeatedCoursesIDs.remove(courseID);
+        }
+        isRepeated = false;
+      });
+    }
+  }
+
   bool isRepeatedCourseModel(
       String courseName, String courseId, String semesterID) {
     List courseNames = [];
@@ -168,7 +224,6 @@ class _CourseState extends State<Course> {
     bool isRepeated = false;
     bool isHalfLoad = false;
     bool isInList = true;
-    bool isValidRequirements = true;
     bool val = CoursesService.isGlobalDepartmentValidationOK() &&
         !CoursesService.departmentOption;
 
@@ -187,35 +242,6 @@ class _CourseState extends State<Course> {
 
         // print(CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
         //     semesterID, false, widget.semesterIndex));
-
-        if (!CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
-                    semesterID, false, widget.semesterIndex)
-                .contains(Name) &&
-            CoursesService.getCoursesNames().contains(Name) &&
-            CGPA != 0.0) {
-          // print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
-          // print(Name);
-          // print(CoursesService.getSuggestions(
-          //     Name,
-          //     widget.listCoursesInSemester,
-          //     semesterID,
-          //     false,
-          //     widget.semesterIndex));
-          setState(() {
-            halfLoadCourseId.add(courseID.toString());
-            halfLoadCourseId =
-                LinkedHashSet<String>.from(halfLoadCourseId).toList();
-            isHalfLoad = true;
-          });
-        } else {
-          setState(() {
-            bool isExist = halfLoadCourseId.contains(courseID.toString());
-            if (isExist) {
-              halfLoadCourseId.remove(courseID);
-            }
-            isHalfLoad = false;
-          });
-        }
 
         ///todo: if the value is not allowed case CGPA<1.67
 
@@ -259,9 +285,8 @@ class _CourseState extends State<Course> {
             namesCoursesNotInRequirements =
                 LinkedHashSet<String>.from(namesCoursesNotInRequirements)
                     .toList();
+            isValidRequirements = false;
           });
-
-          isValidRequirements = false;
         } else {
           bool isExist =
               namesCoursesNotInRequirements.contains(courseID.toString());
@@ -269,9 +294,8 @@ class _CourseState extends State<Course> {
             if (isExist) {
               namesCoursesNotInRequirements.remove(courseID);
             }
+            isValidRequirements = true;
           });
-
-          isValidRequirements = true;
         }
         if (widget.semesterIndex == 1) {
           // print('##################################');
@@ -279,28 +303,6 @@ class _CourseState extends State<Course> {
           // print(CoursesService.getSuggestions(
           //         '', [], semesterID, true, widget.semesterIndex)
           //     .contains(Name));
-        }
-        if (!CoursesService.getSuggestions(
-                    '', [], semesterID, true, widget.semesterIndex)
-                .contains(Name) &&
-            CoursesService.getCoursesNames().contains(Name) &&
-            isValidRequirements &&
-            !isRepeated &&
-            !isHalfLoad) {
-          setState(() {
-            repeatedCoursesIDs.add(courseID.toString());
-            repeatedCoursesIDs =
-                LinkedHashSet<String>.from(repeatedCoursesIDs).toList();
-            isRepeated = true;
-          });
-        } else {
-          setState(() {
-            bool isExist = repeatedCoursesIDs.contains(courseID.toString());
-            if (isExist) {
-              repeatedCoursesIDs.remove(courseID);
-            }
-            isRepeated = false;
-          });
         }
       }
     } else {
@@ -329,10 +331,9 @@ class _CourseState extends State<Course> {
         if (isExist3) {
           halfLoadCourseId.remove(courseID);
         }
+        isValidRequirements = true;
       });
       isHalfLoad = false;
-
-      isValidRequirements = true;
 
       isInList = true;
     }
@@ -416,6 +417,7 @@ class _CourseState extends State<Course> {
       }
     });
     validationMethod();
+    repeatedAndHalfLoad(name ?? '');
   }
 
   void _onFocusNameChange() {
@@ -538,6 +540,8 @@ class _CourseState extends State<Course> {
   deleteCourse() async {
     setState(() {
       pressDeleteCourse = true;
+      isHalfLoad = false;
+      isRepeated = false;
     });
     if (widget.listCoursesInSemester.length == 1) {
       setState(() {
@@ -1045,12 +1049,18 @@ class _CourseState extends State<Course> {
                         border: Border(
                       bottom: _focusName.hasFocus
                           ? BorderSide(
-                              color: valideName && isValidNameSystem()
+                              color: valideName &&
+                                      isValidNameSystem() &&
+                                      !isRepeated &&
+                                      !isHalfLoad
                                   ? Color(0xff4562a7)
                                   : Color(0xffce2029),
                             )
                           : BorderSide(
-                              color: valideName && isValidNameSystem()
+                              color: valideName &&
+                                      isValidNameSystem() &&
+                                      !isRepeated &&
+                                      !isHalfLoad
                                   ? Colors.white
                                   : Color(0xffce2029)),
                     )),
@@ -1146,6 +1156,7 @@ class _CourseState extends State<Course> {
                                         selectedValueIs1Null;
                                         selectedValueIs2Null;
                                       });
+                                      repeatedAndHalfLoad(value);
                                     }
                                   },
                                   maxLines: 1,
@@ -1297,6 +1308,7 @@ class _CourseState extends State<Course> {
                                       selectedValueIs1Null;
                                       selectedValueIs2Null;
                                     });
+                                    repeatedAndHalfLoad(suggestion);
                                   }
                                 },
                                 itemSeparatorBuilder: (context, index) {
@@ -1397,6 +1409,7 @@ class _CourseState extends State<Course> {
                                     selectedValueIs1Null;
                                     selectedValueIs2Null;
                                   });
+                                  repeatedAndHalfLoad(value);
                                 },
                                 maxLines: 1,
                                 decoration: InputDecoration(

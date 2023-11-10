@@ -691,8 +691,7 @@ class CoursesService {
     double totalPointsOfSemest = 0.0;
     double totalCredit = 0;
     double CGPA = 0.0;
-    earnCredit = 0;
-    totalCredit = 0;
+    int earnCredit = 0;
     if (allSemesters.isNotEmpty) {
       for (int i = 1; i < semesterIndex; i++) {
         // semester = [[],[],]
