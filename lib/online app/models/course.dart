@@ -417,23 +417,31 @@ class _CourseState extends State<Course> {
       }
     });
     validationMethod();
-    repeatedAndHalfLoad(name ?? '');
+    // repeatedAndHalfLoad(name ?? '');
   }
 
   void _onFocusNameChange() {
     suggestionBoxController.suggestionsBox?.close();
-    errorGrade();
-    validationMethod();
+
+    if (!_focusName.hasFocus) {
+      errorGrade();
+      validationMethod();
+      repeatedAndHalfLoad(_controller_Name.text);
+    }
   }
 
   void _onFocusCreditChange() {
-    errorGrade();
-    validationMethod();
+    if (!_focusCredit.hasFocus) {
+      errorGrade();
+      validationMethod();
+    }
   }
 
   void _onFocusGradeChange() {
-    errorGrade();
-    validationMethod();
+    if (!_focusGrade.hasFocus) {
+      errorGrade();
+      validationMethod();
+    }
   }
 
   String? get _errorCredit {
@@ -1009,8 +1017,8 @@ class _CourseState extends State<Course> {
 
   @override
   Widget build(BuildContext context) {
-    errorGrade();
-    validationMethod();
+    // errorGrade();
+    // validationMethod();
 
     return Padding(
       padding: EdgeInsets.fromLTRB(5, 15, 20, 15),
@@ -1142,8 +1150,6 @@ class _CourseState extends State<Course> {
                                               widget.index][1] = null;
                                         }
 
-                                        errorGrade();
-
                                         allSemesters[widget.semesterIndex]
                                                 [widget.index] =
                                             widget.listCoursesInSemester[
@@ -1156,7 +1162,6 @@ class _CourseState extends State<Course> {
                                         selectedValueIs1Null;
                                         selectedValueIs2Null;
                                       });
-                                      repeatedAndHalfLoad(value);
                                     }
                                   },
                                   maxLines: 1,
@@ -1271,7 +1276,6 @@ class _CourseState extends State<Course> {
                                         }
                                       }
 
-                                      errorGrade();
                                       widget.courseList[1] = suggestion;
                                       name = suggestion;
                                       if (suggestion.isNotEmpty) {
@@ -1308,7 +1312,6 @@ class _CourseState extends State<Course> {
                                       selectedValueIs1Null;
                                       selectedValueIs2Null;
                                     });
-                                    repeatedAndHalfLoad(suggestion);
                                   }
                                 },
                                 itemSeparatorBuilder: (context, index) {
@@ -1409,7 +1412,6 @@ class _CourseState extends State<Course> {
                                     selectedValueIs1Null;
                                     selectedValueIs2Null;
                                   });
-                                  repeatedAndHalfLoad(value);
                                 },
                                 maxLines: 1,
                                 decoration: InputDecoration(
