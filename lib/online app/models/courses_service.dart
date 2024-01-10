@@ -9,7 +9,7 @@ import 'package:collection/collection.dart';
 import '../collage_courses_data/common_department_courses.dart';
 import '../collage_courses_data/university_requirement_courses.dart';
 
-class CoursesService {
+class CollegeService {
   static bool systemOption = false;
   static bool departmentOption = false;
   static String departmentName = '';
@@ -357,7 +357,7 @@ class CoursesService {
     List<bool> val = [true];
     List<List> validCourse = [];
     List<List> collegeRequirements = [];
-    for (List course in CoursesService.getDivisionList()) {
+    for (List course in CollegeService.getDivisionList()) {
       collegeRequirements.add([course[0], course[1]]);
     }
     for (List semester in allSemesters) {
@@ -401,7 +401,7 @@ class CoursesService {
       }
     }
 
-    return !val.contains(false) && CoursesService.systemOption;
+    return !val.contains(false) && CollegeService.systemOption;
   }
 
   static bool courseEnrollingSystem(

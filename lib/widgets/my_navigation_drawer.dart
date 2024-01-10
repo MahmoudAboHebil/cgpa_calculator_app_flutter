@@ -79,8 +79,8 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
 
                     departmentOption = userInfo['departmentOption'];
                     //########################################################
-                    if (!CoursesService.isGlobalDepartmentValidationOK() ||
-                        !CoursesService.departments.contains(department)) {
+                    if (!CollegeService.isGlobalDepartmentValidationOK() ||
+                        !CollegeService.departments.contains(department)) {
                       departmentOption = false;
                     }
                   });
@@ -362,7 +362,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                         child: Text('Review')),
                   ),
                   email.isNotEmpty &&
-                          CoursesService.divisions.contains(division) &&
+                          CollegeService.divisions.contains(division) &&
                           collageOption
                       ? ListTile(
                           leading: Icon(Icons.reviews),
@@ -418,7 +418,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                 ],
               ),
             ),
-            email.isNotEmpty && CoursesService.divisions.contains(division)
+            email.isNotEmpty && CollegeService.divisions.contains(division)
                 ? Container(
                     padding: EdgeInsets.all(24),
                     child: Column(
@@ -452,7 +452,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                               setState(() {
                                 collageOption = !collageOption;
                                 setCollageChanges(collageOption);
-                                CoursesService.systemOption = collageOption;
+                                CollegeService.systemOption = collageOption;
                               });
                               Navigator.pushReplacement(
                                   context,
@@ -493,13 +493,13 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                 title: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      if (CoursesService.departments
+                                      if (CollegeService.departments
                                               .contains(department) &&
-                                          CoursesService
+                                          CollegeService
                                               .isGlobalDepartmentValidationOK()) {
                                         departmentOption = !departmentOption;
                                         setDepartmentChanges(departmentOption);
-                                        CoursesService.departmentOption =
+                                        CollegeService.departmentOption =
                                             departmentOption;
                                         Navigator.pushReplacement(
                                             context,
@@ -507,9 +507,9 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
                                               builder: (context) =>
                                                   HomeWithFireStorePage(),
                                             ));
-                                      } else if (!CoursesService.departments
+                                      } else if (!CollegeService.departments
                                               .contains(department) &&
-                                          CoursesService
+                                          CollegeService
                                               .isGlobalDepartmentValidationOK()) {
                                         Navigator.pop(context);
                                         message(

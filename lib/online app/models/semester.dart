@@ -195,7 +195,7 @@ class _SemesterFinState extends State<SemesterFin> {
       }
     }
     bool isRepeated = isRepeatedSemesterModel();
-    if (CoursesService.systemOption) {
+    if (CollegeService.systemOption) {
       List<String> coursesIDs = [];
       List<bool> val = [];
       List<bool> val2 = [];
@@ -313,8 +313,8 @@ class _SemesterFinState extends State<SemesterFin> {
           }
         }
         if (val4.contains(true) &&
-            !CoursesService.isGlobalDepartmentValidationOK() &&
-            !CoursesService.departmentOption) {
+            !CollegeService.isGlobalDepartmentValidationOK() &&
+            !CollegeService.departmentOption) {
           setState(() {
             validNameInList =
                 'you have to finish requirements Courses (متطلب كلية)';
@@ -781,7 +781,7 @@ class _SemesterFinState extends State<SemesterFin> {
   Widget build(BuildContext context) {
     // print(namesCoursesNotInListIds);
     setState(() {
-      if (CoursesService.systemOption) {
+      if (CollegeService.systemOption) {
         if (widget.index > 1 &&
             CGPA < 2 &&
             CGPA != 0.0 &&
@@ -1042,10 +1042,10 @@ class _SemesterFinState extends State<SemesterFin> {
                     FocusManager.instance.primaryFocus?.unfocus();
                     addCourse();
 
-                    if (CoursesService.isGlobalDepartmentValidationOK() &&
-                        CoursesService.departmentOption &&
+                    if (CollegeService.isGlobalDepartmentValidationOK() &&
+                        CollegeService.departmentOption &&
                         widget.department.isEmpty &&
-                        CoursesService.systemOption) {
+                        CollegeService.systemOption) {
                       findErrors();
                       if (emptyField == null &&
                           creditEqZero == null &&

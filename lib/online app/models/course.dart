@@ -56,10 +56,10 @@ class _CourseState extends State<Course> {
   bool isRepeated = false;
   bool isValidRequirements = true;
   void repeatedAndHalfLoad(String Name) {
-    if (!CoursesService.getSuggestions(Name, widget.listCoursesInSemester,
+    if (!CollegeService.getSuggestions(Name, widget.listCoursesInSemester,
                 semesterID, false, false, widget.semesterIndex)
             .contains(Name) &&
-        CoursesService.getCoursesNames().contains(Name) &&
+        CollegeService.getCoursesNames().contains(Name) &&
         CGPA != 0.0) {
       // print('widget.semesterIndex :${widget.semesterIndex} , Name:$Name');
       // print(Name);
@@ -84,10 +84,10 @@ class _CourseState extends State<Course> {
         isHalfLoad = false;
       });
     }
-    if (!CoursesService.getSuggestions('', widget.listCoursesInSemester,
+    if (!CollegeService.getSuggestions('', widget.listCoursesInSemester,
                 semesterID, true, true, widget.semesterIndex)
             .contains(Name) &&
-        CoursesService.getCoursesNames().contains(Name) &&
+        CollegeService.getCoursesNames().contains(Name) &&
         isValidRequirements &&
         !isRepeated &&
         !isHalfLoad) {
@@ -179,16 +179,16 @@ class _CourseState extends State<Course> {
     bool isInList = true;
 
     // disable validation when departmentOption is false only after Requirements is succeed
-    bool val = CoursesService.isGlobalDepartmentValidationOK() &&
-        !CoursesService.departmentOption &&
-        !CoursesService.getCoursesNames().contains(name);
-    if (CoursesService.systemOption) {
+    bool val = CollegeService.isGlobalDepartmentValidationOK() &&
+        !CollegeService.departmentOption &&
+        !CollegeService.getCoursesNames().contains(name);
+    if (CollegeService.systemOption) {
       if (creditInput.isNotEmpty &&
           creditInput.trim().isNotEmpty &&
           !namesCoursesNotInListIds.contains(courseID.toString()) &&
           !val) {
         var name = _controller_Name.text ?? '';
-        creditList = CoursesService.getCredit(name);
+        creditList = CollegeService.getCredit(name);
         if (creditList != creditInput) {
           setState(() {
             creditsCoursesNotInListIds.add(courseID.toString());
@@ -224,8 +224,8 @@ class _CourseState extends State<Course> {
     bool isRepeated = false;
     bool isHalfLoad = false;
     bool isInList = true;
-    bool val = CoursesService.isGlobalDepartmentValidationOK() &&
-        !CoursesService.departmentOption;
+    bool val = CollegeService.isGlobalDepartmentValidationOK() &&
+        !CollegeService.departmentOption;
 
     if (Name.isNotEmpty && Name.trim().isNotEmpty) {
       //  is the name is repeated
@@ -235,7 +235,7 @@ class _CourseState extends State<Course> {
       } else {
         isRepeatedName = false;
       }
-      if (CoursesService.systemOption) {
+      if (CollegeService.systemOption) {
         ///todo: if the value is not at list means ( there is repeating or  half-load )
 
         // print('#########herrrrrrrrrrrrrrrrrrrrrr');
@@ -245,7 +245,7 @@ class _CourseState extends State<Course> {
 
         ///todo: if the value is not allowed case CGPA<1.67
 
-        if (!CoursesService.getCoursesNames().contains(Name) && !val) {
+        if (!CollegeService.getCoursesNames().contains(Name) && !val) {
           setState(() {
             namesCoursesNotInListIds.add(courseID.toString());
             namesCoursesNotInListIds =
@@ -264,7 +264,7 @@ class _CourseState extends State<Course> {
         }
         // is the name valid about courses requirements
 
-        if (!CoursesService.courseEnrollingSystem(
+        if (!CollegeService.courseEnrollingSystem(
             Name, semesterID, widget.listCoursesInSemester)) {
           List<int> allSemesterIds = [];
           List<int> allSemesterIdsBeforeTheCurrentSemest = [];
@@ -1077,7 +1077,7 @@ class _CourseState extends State<Course> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CoursesService.systemOption
+                        CollegeService.systemOption
                             ? TypeAheadFormField(
                                 textFieldConfiguration: TextFieldConfiguration(
                                   controller: _controller_Name,
@@ -1188,7 +1188,7 @@ class _CourseState extends State<Course> {
                                 hideSuggestionsOnKeyboardHide: false,
 
                                 suggestionsCallback: (pattern) async {
-                                  return CoursesService.getSuggestions(
+                                  return CollegeService.getSuggestions(
                                       pattern,
                                       widget.listCoursesInSemester,
                                       semesterID,
@@ -1294,7 +1294,7 @@ class _CourseState extends State<Course> {
 
                                       //  auto credit
                                       String value =
-                                          CoursesService.getCredit(suggestion);
+                                          CollegeService.getCredit(suggestion);
                                       credit = value;
                                       _controller_Credit.text = value;
                                       if (value.isNotEmpty) {

@@ -112,7 +112,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
                   style: TextStyle(color: Colors.red, fontSize: 18),
                 ),
                 onPressed: () async {
-                  CoursesService.departmentOption = false;
+                  CollegeService.departmentOption = false;
                   await FirebaseFirestore.instance
                       .collection('UsersInfo')
                       .doc(loggedInUser!.email)
@@ -146,7 +146,7 @@ Future<dynamic> departmentMessage(BuildContext _context) {
 }
 
 User? loggedInUser;
-CollectionReference? _courses;
+CollectionReference? coursesRef;
 
 CollectionReference? semestersRef;
 bool showSpinner = true;
@@ -239,7 +239,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                         ),
                       ),
                       suggestionsCallback: (pattern) async {
-                        return CoursesService.divisions;
+                        return CollegeService.divisions;
                       },
                       itemBuilder: (context, String suggestion) {
                         return Container(
@@ -300,7 +300,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                       style: TextStyle(color: Colors.green, fontSize: 20)),
                   onPressed: () async {
                     if (_controller_div.text.isNotEmpty) {
-                      bool div = (CoursesService.divisions
+                      bool div = (CollegeService.divisions
                               .contains(_controller_div.text)
                           ? true
                           : false);
@@ -341,7 +341,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     super.initState();
 
     setState(() {
-      _courses = null;
+      coursesRef = null;
       _usersInfo = null;
       semestersRef = null;
       loggedInUser = null;
@@ -380,23 +380,23 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               if (userInfo['email'] == loggedInUser!.email) {
                 division = userInfo['division'];
                 department = userInfo['department'];
-                CoursesService.systemOption = userInfo['divisionOption'];
-                CoursesService.departmentOption = userInfo['departmentOption'];
+                CollegeService.systemOption = userInfo['divisionOption'];
+                CollegeService.departmentOption = userInfo['departmentOption'];
               }
             }
           }
           if (division.isNotEmpty) {
-            if (CoursesService.divisions.contains(division)) {
-              CoursesService.divisionName = division;
+            if (CollegeService.divisions.contains(division)) {
+              CollegeService.divisionName = division;
             } else {
-              CoursesService.divisionName = '';
+              CollegeService.divisionName = '';
             }
           }
           if (department.isNotEmpty) {
-            if (CoursesService.departments.contains(department)) {
-              CoursesService.departmentName = department;
+            if (CollegeService.departments.contains(department)) {
+              CollegeService.departmentName = department;
             } else {
-              CoursesService.departmentName = '';
+              CollegeService.departmentName = '';
             }
           }
           Future.delayed(Duration.zero, () {
@@ -469,7 +469,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       'Credits': null,
     });
     setState(() {
-      _courses = FirebaseFirestore.instance
+      coursesRef = FirebaseFirestore.instance
           .collection('UsersCourses')
           .doc('${user.email}')
           .collection('courses');
@@ -493,7 +493,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
           if (!exist) {
             setNewUser(user);
           } else {
-            _courses = FirebaseFirestore.instance
+            coursesRef = FirebaseFirestore.instance
                 .collection('UsersCourses')
                 .doc('${user.email}')
                 .collection('courses');
@@ -516,9 +516,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   int maxSemester = 0;
 
   Widget Content() {
-    if (_courses != null) {
+    if (coursesRef != null) {
       return StreamBuilder(
-        stream: _courses!.snapshots(),
+        stream: coursesRef!.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
           if (streamSnapshot.hasData) {
             List<int> keys = [];
@@ -834,10 +834,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (flag2 && loggedInUser != null && _courses != null) {
+    if (flag2 && loggedInUser != null && coursesRef != null) {
       setState(() {
         homeWithFireStoreServices =
-            HomeWithFireStoreServices(_courses!, loggedInUser!);
+            HomeWithFireStoreServices(coursesRef!, loggedInUser!);
         flag2 = false;
       });
     }
@@ -918,10 +918,10 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
-                    if (CoursesService.isGlobalDepartmentValidationOK() &&
-                        CoursesService.departmentOption &&
+                    if (CollegeService.isGlobalDepartmentValidationOK() &&
+                        CollegeService.departmentOption &&
                         department.isEmpty &&
-                        CoursesService.systemOption) {
+                        CollegeService.systemOption) {
                       departmentMessage(context);
                     }
                   },

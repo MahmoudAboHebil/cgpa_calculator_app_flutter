@@ -309,7 +309,7 @@ class _DrawerUIState extends State<DrawerUI> {
                         child: Text('Review')),
                   ),
                   email.isNotEmpty &&
-                          CoursesService.divisions.contains(division) &&
+                          CollegeService.divisions.contains(division) &&
                           collageOption
                       ? ListTile(
                           leading: Icon(Icons.reviews),
@@ -362,7 +362,7 @@ class _DrawerUIState extends State<DrawerUI> {
 
             //####################  bottom content ##################
 
-            email.isNotEmpty && CoursesService.divisions.contains(division)
+            email.isNotEmpty && CollegeService.divisions.contains(division)
                 ? Container(
                     padding: EdgeInsets.all(24),
                     child: Column(

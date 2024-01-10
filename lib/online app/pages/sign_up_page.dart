@@ -265,7 +265,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
     bool isExist = await checkExist('$email');
     bool div = division == null
         ? false
-        : (CoursesService.divisions.contains(division) ? true : false);
+        : (CollegeService.divisions.contains(division) ? true : false);
 
     if (!isExist) {
       // firstTime
@@ -495,7 +495,7 @@ class _ContentSignUpState extends State<ContentSignUp> {
                                   ),
                                 ),
                                 suggestionsCallback: (pattern) async {
-                                  return CoursesService.divisions;
+                                  return CollegeService.divisions;
                                 },
                                 itemBuilder: (context, String suggestion) {
                                   return Container(

@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _controller_div = TextEditingController(text: widget.division);
     _controller_dp = TextEditingController(text: widget.department);
     setState(() {
-      showDepartment = CoursesService.isGlobalDepartmentValidationOK();
+      showDepartment = CollegeService.isGlobalDepartmentValidationOK();
       print('222222222222222222222222222222222222222222222');
       print(showDepartment);
     });
@@ -101,8 +101,8 @@ class _ProfilePageState extends State<ProfilePage> {
     bool divOp = division != widget.division;
 
     if (depOp && divOp) {
-      bool divV = CoursesService.divisions.contains(division);
-      bool depV = CoursesService.departments.contains(department);
+      bool divV = CollegeService.divisions.contains(division);
+      bool depV = CollegeService.departments.contains(department);
 
       await FirebaseFirestore.instance
           .collection('UsersInfo')
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'divisionOption': divV,
       });
     } else if (depOp) {
-      bool depV = CoursesService.departments.contains(department);
+      bool depV = CollegeService.departments.contains(department);
       await FirebaseFirestore.instance
           .collection('UsersInfo')
           .doc(email)
@@ -130,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'departmentOption': depV,
       });
     } else if (divOp) {
-      bool divV = CoursesService.divisions.contains(division);
+      bool divV = CollegeService.divisions.contains(division);
 
       await FirebaseFirestore.instance
           .collection('UsersInfo')
@@ -429,7 +429,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                             suggestionsCallback: (pattern) async {
-                              return CoursesService.divisions;
+                              return CollegeService.divisions;
                             },
                             itemBuilder: (context, String suggestion) {
                               return Container(
@@ -511,7 +511,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   suggestionsCallback: (pattern) async {
-                                    return CoursesService.departments;
+                                    return CollegeService.departments;
                                   },
                                   itemBuilder: (context, String suggestion) {
                                     return Container(

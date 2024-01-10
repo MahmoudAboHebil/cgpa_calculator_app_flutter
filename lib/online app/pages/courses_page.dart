@@ -54,15 +54,15 @@ class _CoursesPageState extends State<CoursesPage> {
 
     Widget? selectedWidget;
     Widget college = CoursesBlock('College-Mandatory    (متطلب كلية)',
-        CoursesService.getDivisionList(), _selectFocus, selectedCourse);
+        CollegeService.getDivisionList(), _selectFocus, selectedCourse);
     Widget majorMandatory = CoursesBlock('Major-Mandatory    (رئيسى إجبارى)',
-        CoursesService.getMajor_Mandatory(), _selectFocus, selectedCourse);
+        CollegeService.getMajor_Mandatory(), _selectFocus, selectedCourse);
     Widget majorElective = CoursesBlock('Major-Elective    (رئيسى إختيارى)',
-        CoursesService.getMajor_Elective(), _selectFocus, selectedCourse);
+        CollegeService.getMajor_Elective(), _selectFocus, selectedCourse);
     Widget minorMandatory = CoursesBlock('Minor-Mandatory    (فرعى إجبارى)',
-        CoursesService.getMinor_Mandatory(), _selectFocus, selectedCourse);
+        CollegeService.getMinor_Mandatory(), _selectFocus, selectedCourse);
     Widget minorElective = CoursesBlock('Minor-Elective    (فرعى إختيارى)',
-        CoursesService.getMinor_Elective(), _selectFocus, selectedCourse);
+        CollegeService.getMinor_Elective(), _selectFocus, selectedCourse);
     Widget university = CoursesBlock(
         'University-Courses    (متطلب جامعة)',
         universityRequirement.universityRequirementsCourses,
@@ -197,7 +197,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                 setState(() {
                                   isChanged = true;
                                   if (value != 'There are no courses left') {
-                                    selectDp = CoursesService
+                                    selectDp = CollegeService
                                         .getCourseNickNameDpByName(
                                             _selectController.text);
                                   } else {
@@ -221,7 +221,7 @@ class _CoursesPageState extends State<CoursesPage> {
                               ),
                             ),
                             suggestionsCallback: (pattern) async {
-                              return CoursesService.getSuggestionsCoursePage(
+                              return CollegeService.getSuggestionsCoursePage(
                                   pattern);
                             },
                             itemBuilder: (context, String suggestion) {
@@ -273,7 +273,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                 if (suggestion != 'There are no courses left') {
                                   _selectController.text = suggestion;
                                   selectDp =
-                                      CoursesService.getCourseNickNameDpByName(
+                                      CollegeService.getCourseNickNameDpByName(
                                           suggestion);
                                 } else {
                                   selectDp = null;
@@ -507,11 +507,11 @@ class _CoursesBlockState extends State<CoursesBlock> {
                 itemBuilder: (context, index) => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CoursesService.getDepartmentCourseNameById(
+                        CollegeService.getDepartmentCourseNameById(
                                     mandotery[index])
                                 .isNotEmpty
                             ? Text(
-                                '${CoursesService.getDepartmentCourseNameById(mandotery[index])}',
+                                '${CollegeService.getDepartmentCourseNameById(mandotery[index])}',
                                 maxLines: 2,
                                 style: TextStyle(
                                   fontSize: 16,
@@ -571,7 +571,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        '${CoursesService.getDepartmentCourseNameById(option[index])}',
+                        '${CollegeService.getDepartmentCourseNameById(option[index])}',
                         maxLines: 2,
                         style: TextStyle(
                           fontSize: 16,
@@ -779,7 +779,7 @@ class _CoursesBlockState extends State<CoursesBlock> {
                           message(
                               listOfCourses[index][0],
                               id,
-                              CoursesService.getOpenCoursesId(id),
+                              CollegeService.getOpenCoursesId(id),
                               listOfCourses[index][6]);
                         }
                       },
