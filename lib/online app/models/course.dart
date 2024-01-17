@@ -678,8 +678,8 @@ class _CourseState extends State<Course> {
                                         )),
                                         child: Text(
                                           item,
-                                          style: const TextStyle(
-                                            fontSize: 18,
+                                          style: TextStyle(
+                                            fontSize: 16,
                                             color: Color(0xff4562a7),
                                           ),
                                         ),
@@ -709,7 +709,7 @@ class _CourseState extends State<Course> {
                           },
                           dropdownStyleData: DropdownStyleData(
                             maxHeight: 200,
-                            width: 60,
+                            width: 65,
                             padding: null,
                             elevation: 2,
                             decoration: BoxDecoration(
@@ -718,7 +718,7 @@ class _CourseState extends State<Course> {
                                   bottomRight: Radius.circular(10)),
                               color: Color(0xffb8c8d1),
                             ),
-                            offset: const Offset(0, 0),
+                            offset: const Offset(-10, 0),
                             scrollbarTheme: ScrollbarThemeData(
                               radius: const Radius.circular(40),
                               thickness: MaterialStateProperty.all(0),
@@ -786,7 +786,7 @@ class _CourseState extends State<Course> {
                                       child: Text(
                                         item,
                                         style: const TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           color: Color(0xff4562a7),
                                         ),
                                       ),
@@ -816,7 +816,7 @@ class _CourseState extends State<Course> {
                         },
                         dropdownStyleData: DropdownStyleData(
                           maxHeight: 200,
-                          width: 60,
+                          width: 65,
                           padding: null,
                           elevation: 2,
                           decoration: BoxDecoration(
@@ -1053,7 +1053,7 @@ class _CourseState extends State<Course> {
                   ),
                   Container(
                     width: 125,
-                    height: 28,
+                    height: 30,
                     margin: EdgeInsets.only(top: 0, left: 10),
                     decoration: BoxDecoration(
                         border: Border(
@@ -1074,279 +1074,22 @@ class _CourseState extends State<Course> {
                                   ? Colors.white
                                   : Color(0xffce2029)),
                     )),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CollegeService.systemOption
-                            ? TypeAheadFormField(
-                                textFieldConfiguration: TextFieldConfiguration(
-                                  controller: _controller_Name,
-                                  scrollPadding: EdgeInsets.only(bottom: 200),
-                                  textAlign: TextAlign.center,
-                                  textAlignVertical: TextAlignVertical.bottom,
-                                  focusNode: _focusName,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color(0xff004d60),
-                                  ),
-                                  onChanged: (value) {
-                                    if (value != 'There are no courses left') {
-                                      // print(
-                                      //     '######################44#####################');
-                                      setState(() {
-                                        // auto grade2 if grade 1 fail
-                                        for (List semester in allSemesters) {
-                                          for (List course in semester) {
-                                            if (course[1] ==
-                                                _controller_Name.text) {
-                                              if ((course[3] == 'U' ||
-                                                      course[3] == 'Non' ||
-                                                      course[3] == 'F') &&
-                                                  course[4] == null) {
-                                                val = true;
-
-                                                selectedValue1 = course[3];
-                                                selectedValueIs1Null = false;
-                                                widget.listCoursesInSemester[
-                                                        widget.index][3] =
-                                                    selectedValue1;
-                                                widget.courseList[3] =
-                                                    selectedValue1;
-
-                                                widget.listCoursesInSemester[
-                                                    widget.index][5] = 'two';
-                                              } else if ((course[4] == 'U' ||
-                                                      course[4] == 'Non' ||
-                                                      course[4] == 'F') &&
-                                                  course[4] != null) {
-                                                val = true;
-
-                                                selectedValue1 = course[4];
-                                                selectedValueIs1Null = false;
-
-                                                widget.listCoursesInSemester[
-                                                        widget.index][3] =
-                                                    selectedValue1;
-                                                widget.courseList[3] =
-                                                    selectedValue1;
-
-                                                widget.listCoursesInSemester[
-                                                    widget.index][5] = 'two';
-                                              }
-                                              credit = course[2];
-                                              _controller_Credit.text = credit!;
-                                              widget.courseList[2] = credit!;
-
-                                              widget.listCoursesInSemester[
-                                                  widget.index][2] = credit!;
-                                            }
-                                          }
-                                        }
-                                        widget.courseList[1] = value;
-                                        name = value;
-                                        if (value.isNotEmpty) {
-                                          widget.listCoursesInSemester[
-                                              widget.index][1] = value;
-                                        } else {
-                                          widget.listCoursesInSemester[
-                                              widget.index][1] = null;
-                                        }
-
-                                        errorGrade();
-
-                                        allSemesters[widget.semesterIndex]
-                                                [widget.index] =
-                                            widget.listCoursesInSemester[
-                                                widget.index];
-                                        widget
-                                            .callBackUpdateListCoursesInSemester(
-                                                widget.listCoursesInSemester);
-                                        widget.callBackUpdateChange();
-
-                                        selectedValueIs1Null;
-                                        selectedValueIs2Null;
-                                      });
-                                    }
-                                  },
-                                  maxLines: 1,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    hintText: 'Enter Course',
-                                    hintStyle: TextStyle(
-                                        color: Colors.grey, fontSize: 18),
-                                    enabledBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            width: 0,
-                                            color: Colors.transparent)),
-                                    focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            width: 0,
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                                hideSuggestionsOnKeyboardHide: false,
-
-                                suggestionsCallback: (pattern) async {
-                                  return CollegeService.getSuggestions(
-                                      pattern,
-                                      widget.listCoursesInSemester,
-                                      semesterID,
-                                      true,
-                                      false,
-                                      widget.semesterIndex);
-                                },
-                                itemBuilder: (context, String suggestion) {
-                                  return suggestion !=
-                                          'There are no courses left'
-                                      ? Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 10),
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: Text(suggestion,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Color(0xff4562a7),
-                                                )),
-                                          ),
-                                        )
-                                      : Container(
-                                          alignment: Alignment.center,
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 15, horizontal: 10),
-                                          child: Text(suggestion,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                color: Colors.grey.shade700,
-                                              )),
-                                        );
-                                },
-                                suggestionsBoxController:
-                                    suggestionBoxController,
-                                hideOnEmpty: false,
-                                onSuggestionSelected: (String suggestion) {
-                                  if (suggestion !=
-                                      'There are no courses left') {
-                                    this._controller_Name.text = suggestion;
-
-                                    setState(() {
-                                      // auto grade2 if grade 1 fail
-                                      for (List semester in allSemesters) {
-                                        for (List course in semester) {
-                                          if (course[1] ==
-                                              _controller_Name.text) {
-                                            if ((course[3] == 'U' ||
-                                                    course[3] == 'Non' ||
-                                                    course[3] == 'F') &&
-                                                course[4] == null) {
-                                              val = true;
-
-                                              selectedValue1 = course[3];
-                                              selectedValueIs1Null = false;
-                                              widget.listCoursesInSemester[
-                                                      widget.index][3] =
-                                                  selectedValue1;
-                                              widget.courseList[3] =
-                                                  selectedValue1;
-
-                                              widget.listCoursesInSemester[
-                                                  widget.index][5] = 'two';
-                                            } else if ((course[4] == 'U' ||
-                                                    course[4] == 'Non' ||
-                                                    course[4] == 'F') &&
-                                                course[4] != null) {
-                                              val = true;
-
-                                              selectedValue1 = course[4];
-                                              selectedValueIs1Null = false;
-
-                                              widget.listCoursesInSemester[
-                                                      widget.index][3] =
-                                                  selectedValue1;
-                                              widget.courseList[3] =
-                                                  selectedValue1;
-
-                                              widget.listCoursesInSemester[
-                                                  widget.index][5] = 'two';
-                                            }
-                                            credit = course[2];
-                                            _controller_Credit.text = credit!;
-                                            widget.courseList[2] = credit!;
-
-                                            widget.listCoursesInSemester[
-                                                widget.index][2] = credit!;
-                                          }
-                                        }
-                                      }
-
-                                      errorGrade();
-                                      widget.courseList[1] = suggestion;
-                                      name = suggestion;
-                                      if (suggestion.isNotEmpty) {
-                                        widget.listCoursesInSemester[
-                                            widget.index][1] = suggestion;
-                                      } else {
-                                        widget.listCoursesInSemester[
-                                            widget.index][1] = null;
-                                      }
-
-                                      //  auto credit
-                                      String value =
-                                          CollegeService.getCredit(suggestion);
-                                      credit = value;
-                                      _controller_Credit.text = value;
-                                      if (value.isNotEmpty) {
-                                        widget.listCoursesInSemester[
-                                            widget.index][2] = value;
-                                      } else {
-                                        widget.listCoursesInSemester[
-                                            widget.index][2] = null;
-                                      }
-
-                                      allSemesters[widget.semesterIndex]
-                                              [widget.index] =
-                                          widget.listCoursesInSemester[
-                                              widget.index];
-
-                                      widget
-                                          .callBackUpdateListCoursesInSemester(
-                                              widget.listCoursesInSemester);
-                                      widget.callBackUpdateChange();
-
-                                      selectedValueIs1Null;
-                                      selectedValueIs2Null;
-                                    });
-                                  }
-                                },
-                                itemSeparatorBuilder: (context, index) {
-                                  return Divider(
-                                    color: Colors.white,
-                                  );
-                                },
-                                suggestionsBoxDecoration:
-                                    SuggestionsBoxDecoration(
-                                  constraints: BoxConstraints(
-                                    maxHeight: 250,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  elevation: 8.0,
-                                  color: Color(0xffb8c8d1),
-                                ),
-                                // hideSuggestionsOnKeyboardHide: true,
-                                // hideKeyboard: true,
-                              )
-                            : TextField(
-                                controller: _controller_Name,
-                                textAlign: TextAlign.center,
-                                textAlignVertical: TextAlignVertical.bottom,
-                                focusNode: _focusName,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xff004d60),
-                                ),
-                                onChanged: (value) {
+                    child: CollegeService.systemOption
+                        ? TypeAheadFormField(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: _controller_Name,
+                              scrollPadding: EdgeInsets.only(bottom: 200),
+                              textAlign: TextAlign.center,
+                              textAlignVertical: TextAlignVertical.bottom,
+                              focusNode: _focusName,
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xff004d60),
+                              ),
+                              onChanged: (value) {
+                                if (value != 'There are no courses left') {
+                                  // print(
+                                  //     '######################44#####################');
                                   setState(() {
                                     // auto grade2 if grade 1 fail
                                     for (List semester in allSemesters) {
@@ -1394,7 +1137,6 @@ class _CourseState extends State<Course> {
                                         }
                                       }
                                     }
-
                                     widget.courseList[1] = value;
                                     name = value;
                                     if (value.isNotEmpty) {
@@ -1418,33 +1160,264 @@ class _CourseState extends State<Course> {
                                     selectedValueIs1Null;
                                     selectedValueIs2Null;
                                   });
-                                },
-                                maxLines: 1,
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: 'Enter Course',
-                                  hintStyle: TextStyle(
-                                      color: Colors.grey, fontSize: 18),
-                                  enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          width: 0, color: Colors.transparent)),
-                                  focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          width: 0, color: Colors.transparent)),
-                                ),
+                                }
+                              },
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.only(bottom: 3),
+                                hintText: 'Enter Course',
+                                hintStyle:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 0, color: Colors.transparent)),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 0, color: Colors.transparent)),
                               ),
-                        SizedBox(
-                          height: 0.5,
-                        )
-                      ],
-                    ),
+                            ),
+                            hideSuggestionsOnKeyboardHide: false,
+
+                            suggestionsCallback: (pattern) async {
+                              return CollegeService.getSuggestions(
+                                  pattern,
+                                  widget.listCoursesInSemester,
+                                  semesterID,
+                                  true,
+                                  false,
+                                  widget.semesterIndex);
+                            },
+                            itemBuilder: (context, String suggestion) {
+                              return suggestion != 'There are no courses left'
+                                  ? Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 10),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(suggestion,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Color(0xff4562a7),
+                                            )),
+                                      ),
+                                    )
+                                  : Container(
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 10),
+                                      child: Text(suggestion,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.grey.shade700,
+                                          )),
+                                    );
+                            },
+                            suggestionsBoxController: suggestionBoxController,
+                            hideOnEmpty: false,
+                            onSuggestionSelected: (String suggestion) {
+                              if (suggestion != 'There are no courses left') {
+                                this._controller_Name.text = suggestion;
+
+                                setState(() {
+                                  // auto grade2 if grade 1 fail
+                                  for (List semester in allSemesters) {
+                                    for (List course in semester) {
+                                      if (course[1] == _controller_Name.text) {
+                                        if ((course[3] == 'U' ||
+                                                course[3] == 'Non' ||
+                                                course[3] == 'F') &&
+                                            course[4] == null) {
+                                          val = true;
+
+                                          selectedValue1 = course[3];
+                                          selectedValueIs1Null = false;
+                                          widget.listCoursesInSemester[
+                                              widget.index][3] = selectedValue1;
+                                          widget.courseList[3] = selectedValue1;
+
+                                          widget.listCoursesInSemester[
+                                              widget.index][5] = 'two';
+                                        } else if ((course[4] == 'U' ||
+                                                course[4] == 'Non' ||
+                                                course[4] == 'F') &&
+                                            course[4] != null) {
+                                          val = true;
+
+                                          selectedValue1 = course[4];
+                                          selectedValueIs1Null = false;
+
+                                          widget.listCoursesInSemester[
+                                              widget.index][3] = selectedValue1;
+                                          widget.courseList[3] = selectedValue1;
+
+                                          widget.listCoursesInSemester[
+                                              widget.index][5] = 'two';
+                                        }
+                                        credit = course[2];
+                                        _controller_Credit.text = credit!;
+                                        widget.courseList[2] = credit!;
+
+                                        widget.listCoursesInSemester[
+                                            widget.index][2] = credit!;
+                                      }
+                                    }
+                                  }
+
+                                  errorGrade();
+                                  widget.courseList[1] = suggestion;
+                                  name = suggestion;
+                                  if (suggestion.isNotEmpty) {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [1] = suggestion;
+                                  } else {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [1] = null;
+                                  }
+
+                                  //  auto credit
+                                  String value =
+                                      CollegeService.getCredit(suggestion);
+                                  credit = value;
+                                  _controller_Credit.text = value;
+                                  if (value.isNotEmpty) {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [2] = value;
+                                  } else {
+                                    widget.listCoursesInSemester[widget.index]
+                                        [2] = null;
+                                  }
+
+                                  allSemesters[widget.semesterIndex]
+                                          [widget.index] =
+                                      widget
+                                          .listCoursesInSemester[widget.index];
+
+                                  widget.callBackUpdateListCoursesInSemester(
+                                      widget.listCoursesInSemester);
+                                  widget.callBackUpdateChange();
+
+                                  selectedValueIs1Null;
+                                  selectedValueIs2Null;
+                                });
+                              }
+                            },
+                            itemSeparatorBuilder: (context, index) {
+                              return Divider(
+                                color: Colors.white,
+                              );
+                            },
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              constraints: BoxConstraints(
+                                maxHeight: 250,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                              elevation: 8.0,
+                              color: Color(0xffb8c8d1),
+                            ),
+                            // hideSuggestionsOnKeyboardHide: true,
+                            // hideKeyboard: true,
+                          )
+                        : TextField(
+                            controller: _controller_Name,
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.bottom,
+                            focusNode: _focusName,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xff004d60),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                // auto grade2 if grade 1 fail
+                                for (List semester in allSemesters) {
+                                  for (List course in semester) {
+                                    if (course[1] == _controller_Name.text) {
+                                      if ((course[3] == 'U' ||
+                                              course[3] == 'Non' ||
+                                              course[3] == 'F') &&
+                                          course[4] == null) {
+                                        val = true;
+
+                                        selectedValue1 = course[3];
+                                        selectedValueIs1Null = false;
+                                        widget.listCoursesInSemester[
+                                            widget.index][3] = selectedValue1;
+                                        widget.courseList[3] = selectedValue1;
+
+                                        widget.listCoursesInSemester[
+                                            widget.index][5] = 'two';
+                                      } else if ((course[4] == 'U' ||
+                                              course[4] == 'Non' ||
+                                              course[4] == 'F') &&
+                                          course[4] != null) {
+                                        val = true;
+
+                                        selectedValue1 = course[4];
+                                        selectedValueIs1Null = false;
+
+                                        widget.listCoursesInSemester[
+                                            widget.index][3] = selectedValue1;
+                                        widget.courseList[3] = selectedValue1;
+
+                                        widget.listCoursesInSemester[
+                                            widget.index][5] = 'two';
+                                      }
+                                      credit = course[2];
+                                      _controller_Credit.text = credit!;
+                                      widget.courseList[2] = credit!;
+
+                                      widget.listCoursesInSemester[widget.index]
+                                          [2] = credit!;
+                                    }
+                                  }
+                                }
+
+                                widget.courseList[1] = value;
+                                name = value;
+                                if (value.isNotEmpty) {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = value;
+                                } else {
+                                  widget.listCoursesInSemester[widget.index]
+                                      [1] = null;
+                                }
+
+                                errorGrade();
+
+                                allSemesters[widget.semesterIndex]
+                                        [widget.index] =
+                                    widget.listCoursesInSemester[widget.index];
+                                widget.callBackUpdateListCoursesInSemester(
+                                    widget.listCoursesInSemester);
+                                widget.callBackUpdateChange();
+
+                                selectedValueIs1Null;
+                                selectedValueIs2Null;
+                              });
+                            },
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                              hintText: 'Enter Course',
+                              hintStyle:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 0, color: Colors.transparent)),
+                              focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 0, color: Colors.transparent)),
+                            ),
+                          ),
                   ),
                 ],
               ),
               Container(
                 width: 60,
-                height: 28,
+                height: 30,
                 decoration: BoxDecoration(
                     border: Border(
                   bottom: _focusCredit.hasFocus
@@ -1458,51 +1431,42 @@ class _CourseState extends State<Course> {
                               ? Colors.white
                               : Color(0xffce2029)),
                 )),
-                child: Column(
-                  children: [
-                    TextField(
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      controller: _controller_Credit,
-                      focusNode: _focusCredit,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() {
-                          credit = value;
-                          if (value.isNotEmpty) {
-                            widget.listCoursesInSemester[widget.index][2] =
-                                value;
-                          } else {
-                            widget.listCoursesInSemester[widget.index][2] =
-                                null;
-                          }
-                          widget.callBackUpdateListCoursesInSemester(
-                              widget.listCoursesInSemester);
-                          widget.callBackUpdateChange();
-                        });
-                      },
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xff4562a7),
-                      ),
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                        hintText: 'Credit',
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                width: 0, color: Colors.transparent)),
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                width: 0, color: Colors.transparent)),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1,
-                    )
-                  ],
+                child: TextField(
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  controller: _controller_Credit,
+                  focusNode: _focusCredit,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      credit = value;
+                      if (value.isNotEmpty) {
+                        widget.listCoursesInSemester[widget.index][2] = value;
+                      } else {
+                        widget.listCoursesInSemester[widget.index][2] = null;
+                      }
+                      widget.callBackUpdateListCoursesInSemester(
+                          widget.listCoursesInSemester);
+                      widget.callBackUpdateChange();
+                    });
+                  },
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xff4562a7),
+                  ),
+                  maxLines: 1,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.only(bottom: 3),
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                    hintText: 'Credit',
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(width: 0, color: Colors.transparent)),
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(width: 0, color: Colors.transparent)),
+                  ),
                 ),
               ),
               gradeContainer()

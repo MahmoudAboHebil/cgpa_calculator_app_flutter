@@ -17,7 +17,6 @@ class HomeWithSemesterPage extends StatefulWidget {
 
 List<List> allSemesters2 = [];
 
-final _keySemester = GlobalKey<AnimatedListState>();
 Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
 
 void updateData(CollectionReference? ref, double? SGPA, int? Credits,
@@ -31,6 +30,8 @@ void updateData(CollectionReference? ref, double? SGPA, int? Credits,
 }
 
 class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
+  GlobalKey<AnimatedListState> _keySemester = GlobalKey<AnimatedListState>();
+
   bool isChanged = false;
   double cgpa = 0.0;
   int totCredits = 0;
@@ -310,14 +311,14 @@ class _HomeWithSemesterPageState extends State<HomeWithSemesterPage> {
                   sizeFactor: animation,
                   key: ObjectKey(allSemesters2[index][2]),
                   child: SemesterWithSGPA(
-                    index,
-                    allSemesters2[index][3],
-                    allSemesters2[index][0],
-                    allSemesters2[index][1],
-                    allSemesters2[index][2],
-                    isValueChanged,
-                    updataCGPA,
-                  ),
+                      index,
+                      allSemesters2[index][3],
+                      allSemesters2[index][0],
+                      allSemesters2[index][1],
+                      allSemesters2[index][2],
+                      isValueChanged,
+                      updataCGPA,
+                      _keySemester),
                 );
               },
               initialItemCount: allSemesters2.length,
@@ -533,9 +534,17 @@ class SemesterWithSGPA extends StatefulWidget {
   final String semesterId;
   final Function callBackchanged;
   final Function callBackUpdateCGPA;
+  GlobalKey<AnimatedListState> _SemestersKey;
 
-  SemesterWithSGPA(this.index, this.indexDB, this.SGPA, this.credits,
-      this.semesterId, this.callBackchanged, this.callBackUpdateCGPA,
+  SemesterWithSGPA(
+      this.index,
+      this.indexDB,
+      this.SGPA,
+      this.credits,
+      this.semesterId,
+      this.callBackchanged,
+      this.callBackUpdateCGPA,
+      this._SemestersKey,
       {Key? key})
       : super(key: key);
 
@@ -663,19 +672,19 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
     if (allSemesters2.length != 1) {
       setState(() {
         allSemesters2.removeAt(widget.index);
-        _keySemester.currentState!.removeItem(widget.index,
+        widget._SemestersKey.currentState!.removeItem(widget.index,
             (context, animation) {
-          return SlideTransition(
-              position: animation.drive(_offset),
+          return SizeTransition(
+              sizeFactor: animation,
               child: SemesterWithSGPA(
-                widget.index,
-                widget.indexDB,
-                widget.SGPA,
-                widget.credits,
-                widget.semesterId,
-                () {},
-                () {},
-              ));
+                  widget.index,
+                  widget.indexDB,
+                  widget.SGPA,
+                  widget.credits,
+                  widget.semesterId,
+                  () {},
+                  () {},
+                  widget._SemestersKey));
         }, duration: Duration(milliseconds: 300));
       });
       deleteSemesterFromDB(widget.semesterId);
@@ -728,7 +737,7 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                 ),
                 Container(
                   width: 125,
-                  height: 28,
+                  height: 30,
                   margin: EdgeInsets.only(top: 0, left: 10),
                   // padding: EdgeInsets.,
                   decoration: BoxDecoration(
@@ -745,60 +754,51 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                                 : Color(0xffce2029)),
                   )),
                   // padding: EdgeInsets.only(bottom: 4),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: _controller_SGPA,
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.bottom,
-                        // focusNode: _focusSGPA,
-                        // autofocus: true,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                        ],
-                        onChanged: (val) {
-                          setState(() {
-                            if (val.isNotEmpty) {
-                              double? va;
-                              try {
-                                va = double.parse(val);
-                              } catch (error) {
-                                va = -1;
-                              }
-                              allSemesters2[widget.index][0] = va;
-                            } else {
-                              allSemesters2[widget.index][0] = null;
-                            }
-                            widget.callBackchanged();
-                            validationMethod();
-                          });
-                        },
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xff004d60),
-                        ),
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                          // errorText: _errorSGPA,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          hintText: 'Enter SGPA',
-                          hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 18),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 0, color: Colors.transparent)),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 0.5,
-                      )
+                  child: TextFormField(
+                    controller: _controller_SGPA,
+                    textAlign: TextAlign.center,
+                    textAlignVertical: TextAlignVertical.bottom,
+                    // focusNode: _focusSGPA,
+                    // autofocus: true,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                     ],
+                    onChanged: (val) {
+                      setState(() {
+                        if (val.isNotEmpty) {
+                          double? va;
+                          try {
+                            va = double.parse(val);
+                          } catch (error) {
+                            va = -1;
+                          }
+                          allSemesters2[widget.index][0] = va;
+                        } else {
+                          allSemesters2[widget.index][0] = null;
+                        }
+                        widget.callBackchanged();
+                        validationMethod();
+                      });
+                    },
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xff004d60),
+                    ),
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                      // errorText: _errorSGPA,
+                      isDense: true,
+                      contentPadding: EdgeInsets.only(bottom: 3),
+                      hintText: 'Enter SGPA',
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide:
+                              BorderSide(width: 0, color: Colors.transparent)),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide:
+                              BorderSide(width: 0, color: Colors.transparent)),
+                    ),
                   ),
                 ),
               ],
@@ -806,7 +806,7 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
             Container(
               width: 70,
               // height: 34,
-              height: 28,
+              height: 30,
               // margin: EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
                   border: Border(
@@ -820,61 +820,54 @@ class _SemesterWithSGPAState extends State<SemesterWithSGPA> {
                         color:
                             isCreditsValide ? Colors.white : Color(0xffce2029)),
               )),
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _controller_Credits,
-                    // autofocus: true,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    textAlign: TextAlign.center,
-                    // focusNode: _focusCredits,
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xff4562a7),
-                    ),
-                    maxLines: 1,
-                    onChanged: (val) {
-                      setState(() {
-                        if (val.isNotEmpty) {
-                          int? va;
-                          try {
-                            va = int.parse(val);
-                          } catch (error) {
-                            va = -1;
-                          }
-                          allSemesters2[widget.index][1] = va;
-                        } else {
-                          allSemesters2[widget.index][1] = null;
-                        }
+              child: TextFormField(
+                controller: _controller_Credits,
+                // autofocus: true,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                textAlign: TextAlign.center,
+                // focusNode: _focusCredits,
+                keyboardType: TextInputType.number,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Color(0xff4562a7),
+                ),
+                maxLines: 1,
+                onChanged: (val) {
+                  setState(() {
+                    if (val.isNotEmpty) {
+                      int? va;
+                      try {
+                        va = int.parse(val);
+                      } catch (error) {
+                        va = -1;
+                      }
+                      allSemesters2[widget.index][1] = va;
+                    } else {
+                      allSemesters2[widget.index][1] = null;
+                    }
 
-                        widget.callBackchanged();
-                        validationMethod();
-                      });
-                    },
+                    widget.callBackchanged();
+                    validationMethod();
+                  });
+                },
 
-                    decoration: InputDecoration(
-                      // errorText: _errorCredits,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                      hintText: 'Credits',
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(width: 0, color: Colors.transparent)),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(width: 0, color: Colors.transparent)),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 1,
-                  )
-                ],
+                decoration: InputDecoration(
+                  // errorText: _errorCredits,
+                  isDense: true,
+                  contentPadding: EdgeInsets.only(bottom: 3),
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                  hintText: 'Credits',
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(width: 0, color: Colors.transparent)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(width: 0, color: Colors.transparent)),
+                ),
               ),
             ),
             Container(
-              padding: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: 0),
               decoration: BoxDecoration(
                   border: Border(bottom: BorderSide(color: Colors.white))),
               child: Text(

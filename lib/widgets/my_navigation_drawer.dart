@@ -298,17 +298,18 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: SingleChildScrollView(
         child: Column(
           children: [
             Container(
-              height: department.isEmpty || division.isEmpty ? 250 : 270,
+              height: department.isEmpty || division.isEmpty ? 250 : 285,
               color: Color(0xff4562a7),
               child: headerContent(),
               padding: EdgeInsets.all(10),
             ),
             Container(
-              padding: EdgeInsets.all(24),
+              padding: EdgeInsets.only(top: 24, right: 24, left: 24),
               child: Column(
                 children: [
                   ListTile(
@@ -420,7 +421,7 @@ class _MyNavigationDrawerState extends State<MyNavigationDrawer> {
             ),
             email.isNotEmpty && CollegeService.divisions.contains(division)
                 ? Container(
-                    padding: EdgeInsets.all(24),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                     child: Column(
                       children: [
                         ListTile(

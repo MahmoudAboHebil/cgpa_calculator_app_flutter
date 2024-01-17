@@ -2,14 +2,12 @@ import 'package:cgp_calculator/online%20app/home_with_firestore_services.dart';
 import 'package:cgp_calculator/online%20app/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// ToDo:  Future.delayed makes problems in speed
-
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:collection/collection.dart';
+import 'package:uuid/uuid.dart';
 import '../../widgets/my_custom_appbar.dart';
 import '../../widgets/my_navigation_drawer.dart';
 import '../collage_courses_data/university_requirement_courses.dart';
@@ -18,8 +16,6 @@ import '../models/semester.dart';
 import 'home_with_semester_page.dart';
 
 // [[semesterNum,courseName,credit,grade1,grade2,('two' for two grade otherwise 'one'),id ],....]
-// ToDo:  the calcCPA button disappear when adding a new semester (done - but there is a Special case when removing a course)
-// ToDo:  profile sitting  (done - but there is no implementation for Department field in DB )
 class MyBehavior extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(
@@ -28,29 +24,13 @@ class MyBehavior extends ScrollBehavior {
   }
 }
 
-bool isTab = false;
-int earnCredit = -1;
-double CGPA = 0.0;
-bool flag3 = true;
-
-List allSemesters = [
-  // // semester one
-  // [
-  //   ['1', null, null, null, null, 'one', '1'],
-  //   ['1', null, null, null, null, 'one', '2']
-  // ],
-  // // semester two
-  // [
-  //   ['2', null, null, null, null, 'one', '3']
-  // ],
-  // // semester three
-];
 int countOccurrencesUsingLoop(List values, String? element) {
   if (values.isEmpty) {
     return 0;
   }
 
   int count = 0;
+  //[x,y,z,x]
   for (String? value in values) {
     if (value == element) {
       count++;
@@ -62,95 +42,117 @@ int countOccurrencesUsingLoop(List values, String? element) {
 
 Future<dynamic> departmentMessage(BuildContext _context) {
   return showDialog(
-      context: _context,
-      builder: (context) => AlertDialog(
-            alignment: Alignment.center,
-            backgroundColor: Color(0xffb8c8d1),
-            content: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "congratulation!",
-                  maxLines: 2,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Now, you can choose your department at profile page",
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xff4562a7),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Is your department Computer Science and Statistics (Alex)?",
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xff4562a7),
-                  ),
-                ),
-              ],
+    context: _context,
+    builder: (context) {
+      return AlertDialog(
+        alignment: Alignment.center,
+        backgroundColor: Color(0xffb8c8d1),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "congratulation!",
+              maxLines: 2,
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.green,
+              ),
             ),
-            // alignment: Alignment.center,
-
-            actions: [
-              TextButton(
-                child: Text(
-                  "No",
-                  style: TextStyle(color: Colors.red, fontSize: 18),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "Now, you can choose your department at profile page",
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xff4562a7),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Is your department Computer Science and Statistics (Alex)?",
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xff4562a7),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              "No",
+              style: TextStyle(color: Colors.red, fontSize: 18),
+            ),
+            onPressed: () async {
+              CollegeService.departmentOption = false;
+              await FirebaseFirestore.instance
+                  .collection('UsersInfo')
+                  .doc(loggedInUser!.email)
+                  .update({
+                'departmentOption': false,
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text("Yes",
+                style: TextStyle(color: Colors.green, fontSize: 18)),
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('UsersInfo')
+                  .doc(loggedInUser!.email)
+                  .update({
+                'departmentOption': true,
+                'department': 'Computer Science and Statistics (Alex)',
+              });
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WelcomePage(),
                 ),
-                onPressed: () async {
-                  CollegeService.departmentOption = false;
-                  await FirebaseFirestore.instance
-                      .collection('UsersInfo')
-                      .doc(loggedInUser!.email)
-                      .update({
-                    'departmentOption': false,
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: Text("Yes",
-                    style: TextStyle(color: Colors.green, fontSize: 18)),
-                onPressed: () async {
-                  await FirebaseFirestore.instance
-                      .collection('UsersInfo')
-                      .doc(loggedInUser!.email)
-                      .update({
-                    'departmentOption': true,
-                    'department': 'Computer Science and Statistics (Alex)',
-                  });
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WelcomePage(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ));
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
+
+//##################################################################
+bool isTab = false;
+int earnCredit = -1;
+double CGPA = 0.0;
+bool flag3 = true;
+List allSemesters = [
+  // // semester one
+  // [
+  //   ['1', null, null, null, null, 'one', '1'],
+  //   ['1', null, null, null, null, 'one', '2']
+  // ],
+  // // semester two
+  // [
+  //   ['2', null, null, null, null, 'one', '3']
+  // ],
+
+  // // semester three
+];
+bool showSpinner = true;
+//###################
 
 User? loggedInUser;
 CollectionReference? coursesRef;
-
 CollectionReference? semestersRef;
-bool showSpinner = true;
-late HomeWithFireStoreServices? homeWithFireStoreServices;
+HomeWithFireStoreServices? homeWithFireStoreServices;
+
+//##################################################################
 
 class HomeWithFireStorePage extends StatefulWidget {
   @override
@@ -158,19 +160,19 @@ class HomeWithFireStorePage extends StatefulWidget {
 }
 
 class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
-  GlobalKey<AnimatedListState> _keySemester =
-      GlobalKey<AnimatedListState>(debugLabel: '__RIKEY1  semest __');
+  GlobalKey<AnimatedListState> _keySemester = GlobalKey<AnimatedListState>();
   final _pageViewController = PageController();
   final _auth = FirebaseAuth.instance;
   CollectionReference? _usersInfo =
       FirebaseFirestore.instance.collection('UsersInfo');
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   final _controller_div = TextEditingController();
+  var uuid = Uuid();
+//##################################################################
 
   List<bool> isChangeList =
       []; // to update calc_GPA button when there is any changing  in the course
   List keySemesters = [];
-  var uuid = Uuid();
   bool _visible = true;
   double CGPAPage2 = 0.0;
   int totalCreditPage2 = 0;
@@ -180,8 +182,191 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   bool calcFlag = true;
   String division = 'non';
   String department = '';
+  int maxSemester = 0;
+  //##################################################################
 
-  // bool showSpinner2 = true;
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+      coursesRef = null;
+      _usersInfo = null;
+      semestersRef = null;
+      loggedInUser = null;
+      showSpinner = true;
+
+      CGPA = 0.000;
+      totalCredit = 0;
+      earnCredit = -1;
+
+      allSemesters.clear();
+      allSemesters2.clear();
+      homeWithFireStoreServices = null;
+    });
+    //###
+    getCurrentUser();
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+
+    getInfo();
+  }
+
+  Widget getInfo() {
+    setState(() {
+      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
+    });
+    if (_usersInfo != null && loggedInUser != null) {
+      return StreamBuilder(
+        stream: _usersInfo!.snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData &&
+              loggedInUser != null &&
+              snapshot.data != null) {
+            // {'email':'mahmoud'}
+
+            for (int i = 0; i < snapshot.data!.docs.length; i++) {
+              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
+              if (userInfo['email'] == loggedInUser!.email) {
+                division = userInfo['division'];
+                department = userInfo['department'];
+                CollegeService.systemOption = userInfo['divisionOption'];
+                CollegeService.departmentOption = userInfo['departmentOption'];
+              }
+            }
+          }
+          //############ System college#############
+          if (division.isNotEmpty) {
+            if (CollegeService.divisions.contains(division)) {
+              CollegeService.divisionName = division;
+            } else {
+              CollegeService.divisionName = '';
+            }
+          }
+          if (department.isNotEmpty) {
+            if (CollegeService.departments.contains(department)) {
+              CollegeService.departmentName = department;
+            } else {
+              CollegeService.departmentName = '';
+            }
+          }
+          //#########################
+
+          Future.delayed(Duration.zero, () {
+            if (flag3 && division.isEmpty) {
+              divisionMessage();
+              setState(() {
+                flag3 = false;
+              });
+            }
+          });
+
+          return Container();
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  void getCurrentUser() async {
+    setState(() {
+      showSpinner = true;
+    });
+    try {
+      final user = await _auth.currentUser;
+      if (user != null) {
+        bool exist = await checkExist('${user.email}');
+        setState(() {
+          loggedInUser = user;
+          if (!exist) {
+            setNewUser(user);
+          } else {
+            coursesRef = FirebaseFirestore.instance
+                .collection('UsersCourses')
+                .doc('${user.email}')
+                .collection('courses');
+            semestersRef = FirebaseFirestore.instance
+                .collection('UsersSemesters')
+                .doc('${user.email}')
+                .collection('Semesters');
+          }
+        });
+        // print(loggedInUser!.email);
+      }
+      setState(() {
+        showSpinner = false;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<bool> checkExist(String docID) async {
+    bool exist = false;
+    try {
+      await FirebaseFirestore.instance
+          .doc("UsersCourses/$docID")
+          .get()
+          .then((doc) {
+        exist = doc.exists;
+      });
+      return exist;
+    } catch (e) {
+      // If any error
+      return false;
+    }
+  }
+
+  void setNewUser(User user) async {
+    await FirebaseFirestore.instance
+        .collection('UsersCourses')
+        .doc('${user.email}')
+        .set({'email': '${user.email}'});
+
+    await FirebaseFirestore.instance
+        .collection('UsersCourses')
+        .doc('${user.email}')
+        .collection('courses')
+        .doc('init')
+        .set({
+      'courseName': null,
+      'credit': null,
+      'grade1': null,
+      'grade2': null,
+      'semestId': -1,
+      'type': 'one',
+      'id': 'init',
+    });
+    await FirebaseFirestore.instance
+        .collection('UsersSemesters')
+        .doc('${user.email}')
+        .set({'email': '${user.email}'});
+
+    await FirebaseFirestore.instance
+        .collection('UsersSemesters')
+        .doc('${user.email}')
+        .collection('Semesters')
+        .doc('init')
+        .set({
+      'semesterId': 'first',
+      'semesterIndex': -1,
+      'SGPA': null,
+      'Credits': null,
+    });
+    setState(() {
+      coursesRef = FirebaseFirestore.instance
+          .collection('UsersCourses')
+          .doc('${user.email}')
+          .collection('courses');
+      semestersRef = FirebaseFirestore.instance
+          .collection('UsersSemesters')
+          .doc('${user.email}')
+          .collection('Semesters');
+    });
+  }
+
   Future<dynamic> divisionMessage() {
     return showDialog(
         context: context,
@@ -229,7 +414,9 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                           hintStyle:
                               TextStyle(color: Colors.grey, fontSize: 18),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                            ),
                           ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -319,6 +506,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             ));
   }
 
+  //###########
   callBackChangeList(int index, bool value, remove) {
     setState(() {
       if (remove) {
@@ -336,184 +524,12 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-
+  callBackToUpdateAllSemestersList(List allSemest) {
     setState(() {
-      coursesRef = null;
-      _usersInfo = null;
-      semestersRef = null;
-      loggedInUser = null;
-      showSpinner = true;
-      CGPA = 0.000;
-      totalCredit = 0;
-      earnCredit = -1;
-
-      allSemesters.clear();
-      allSemesters2.clear();
-      homeWithFireStoreServices = null;
-    });
-    getCurrentUser();
-    setState(() {
-      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
-    });
-    getInfo();
-  }
-
-  Widget getInfo() {
-    // print('_usersInfo${_usersInfo == null}');
-    // print('loggedInUser${loggedInUser == null}');
-
-    setState(() {
-      _usersInfo = FirebaseFirestore.instance.collection('UsersInfo');
-    });
-    if (_usersInfo != null && loggedInUser != null) {
-      return StreamBuilder(
-        stream: _usersInfo!.snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasData &&
-              loggedInUser != null &&
-              snapshot.data != null) {
-            for (int i = 0; i < snapshot.data!.docs.length; i++) {
-              final DocumentSnapshot userInfo = snapshot.data!.docs[i];
-              if (userInfo['email'] == loggedInUser!.email) {
-                division = userInfo['division'];
-                department = userInfo['department'];
-                CollegeService.systemOption = userInfo['divisionOption'];
-                CollegeService.departmentOption = userInfo['departmentOption'];
-              }
-            }
-          }
-          if (division.isNotEmpty) {
-            if (CollegeService.divisions.contains(division)) {
-              CollegeService.divisionName = division;
-            } else {
-              CollegeService.divisionName = '';
-            }
-          }
-          if (department.isNotEmpty) {
-            if (CollegeService.departments.contains(department)) {
-              CollegeService.departmentName = department;
-            } else {
-              CollegeService.departmentName = '';
-            }
-          }
-          Future.delayed(Duration.zero, () {
-            if (flag3 && division.isEmpty) {
-              divisionMessage();
-              setState(() {
-                flag3 = false;
-              });
-            }
-          });
-
-          return Container();
-        },
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  static Future<bool> checkExist(String docID) async {
-    bool exist = false;
-    try {
-      await FirebaseFirestore.instance
-          .doc("UsersCourses/$docID")
-          .get()
-          .then((doc) {
-        exist = doc.exists;
-      });
-      return exist;
-    } catch (e) {
-      // If any error
-      return false;
-    }
-  }
-
-  void setNewUser(User user) async {
-    await FirebaseFirestore.instance
-        .collection('UsersCourses')
-        .doc('${user.email}')
-        .set({'email': '${user.email}'});
-
-    await FirebaseFirestore.instance
-        .collection('UsersCourses')
-        .doc('${user.email}')
-        .collection('courses')
-        .doc('init')
-        .set({
-      'courseName': null,
-      'credit': null,
-      'grade1': null,
-      'grade2': null,
-      'semestId': -1,
-      'type': 'one',
-      'id': 'init',
-    });
-    await FirebaseFirestore.instance
-        .collection('UsersSemesters')
-        .doc('${user.email}')
-        .set({'email': '${user.email}'});
-
-    await FirebaseFirestore.instance
-        .collection('UsersSemesters')
-        .doc('${user.email}')
-        .collection('Semesters')
-        .doc('init')
-        .set({
-      'semesterId': 'first',
-      'semesterIndex': -1,
-      'SGPA': null,
-      'Credits': null,
-    });
-    setState(() {
-      coursesRef = FirebaseFirestore.instance
-          .collection('UsersCourses')
-          .doc('${user.email}')
-          .collection('courses');
-      semestersRef = FirebaseFirestore.instance
-          .collection('UsersSemesters')
-          .doc('${user.email}')
-          .collection('Semesters');
+      allSemesters = allSemest;
     });
   }
-
-  void getCurrentUser() async {
-    setState(() {
-      showSpinner = true;
-    });
-    try {
-      final user = await _auth.currentUser;
-      if (user != null) {
-        bool exist = await checkExist('${user.email}');
-        setState(() {
-          loggedInUser = user;
-          if (!exist) {
-            setNewUser(user);
-          } else {
-            coursesRef = FirebaseFirestore.instance
-                .collection('UsersCourses')
-                .doc('${user.email}')
-                .collection('courses');
-            semestersRef = FirebaseFirestore.instance
-                .collection('UsersSemesters')
-                .doc('${user.email}')
-                .collection('Semesters');
-          }
-        });
-        // print(loggedInUser!.email);
-      }
-      setState(() {
-        showSpinner = false;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  int maxSemester = 0;
+  //###########
 
   Widget Content() {
     if (coursesRef != null) {
@@ -529,14 +545,28 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
             }
             maxSemester = keys.max;
             keys = keys.toSet().toList();
-            keys.sort();
+            //[1,4,2,3]
+            keys.sort(); //[1,2,3,4]
             keys.remove(-1);
+
             if (flag) {
+              //keys= [1,2,3]
+              //########
+              // allSemesters =[
+              //
+              // ];
               for (int i = 0; i < keys.length; i++) {
+                // i=0
                 if (allSemesters.length < keys.length) {
                   allSemesters.add(getSemesterCourses(keys[i], streamSnapshot));
                 }
               }
+              // allSemesters =[
+
+              // ];
+              //
+
+              //
               if (allSemesters.isEmpty) {
                 // print('jerrrrrrrrrrrrrrr');
                 allSemesters = [
@@ -559,6 +589,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               for (int i = 0; i < keys.length; i++) {
                 isChangeList.add(false);
               }
+              //[false,false,false]
               // print(isChangeList);
               if (isChangeList.isEmpty) {
                 isChangeList = [false];
@@ -568,15 +599,25 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
               });
               flag = false;
             }
-
-            // print(allSemesters.length);
-
+            //allsemester=[[course1],[course1]] length=2
+            // 0  allsemester[0]
+            // 1  allsemester[1]
             return AnimatedList(
               shrinkWrap: true,
               physics: ScrollPhysics(),
               initialItemCount: allSemesters.length,
               key: _keySemester,
               itemBuilder: (context, index, animation) {
+                // // semester one
+                // [
+                //   ['1', null, null, null, null, 'one', '1'],
+                //   ['1', null, null, null, null, 'one', '2'],
+                // ],
+                // // semester two
+                // [
+                //   ['2', null, null, null, null, 'one', '3']
+                // ],
+
                 return SizeTransition(
                   sizeFactor: animation,
                   key: ObjectKey(allSemesters[index][0][0]),
@@ -610,6 +651,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
   }
 
   List getSemesterCourses(int ID, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+    //[ [courseanme,course id ],,course2,course3 ]
+
     List courses = [];
     for (int i = 0; i < streamSnapshot.data!.docs.length; i++) {
       final DocumentSnapshot course = streamSnapshot.data!.docs[i];
@@ -629,12 +672,6 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
     return courses;
   }
 
-  callBackToUpdateAllSemestersList(List allSemest) {
-    setState(() {
-      allSemesters = allSemest;
-    });
-  }
-
   void addSemester() {
     setState(() {
       // String year = DateTime.now().year.toString();
@@ -644,6 +681,8 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       // String minute = DateTime.now().minute.toString();
       // String second = DateTime.now().second.toString();
       // String semestDateID = '$year-$month-$day-$hour-$minute-$second';
+
+      //[a,b,c]  => 3-1=2
       int insertIndex =
           allSemesters.isEmpty ? allSemesters.length : allSemesters.length - 1;
 
@@ -831,6 +870,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
       // print('################## Empty CGPA#################');
     }
   }
+  //##################################################################
 
   @override
   Widget build(BuildContext context) {
@@ -866,10 +906,13 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _visible
-                        ? MyCustomAppBar(100, CGPA,
-                            earnCredit == -1 ? 0 : earnCredit, totalCredit)
-                        : MyCustomAppBar(
-                            100, CGPAPage2, totalCreditPage2, totalCreditPage2),
+                        ? MyCustomAppBar(
+                            100,
+                            CGPA,
+                            earnCredit == -1 ? 0 : earnCredit,
+                            totalCredit) // page 1 (index =0)
+                        : MyCustomAppBar(100, CGPAPage2, totalCreditPage2,
+                            totalCreditPage2), // page 2 (index =1)
                     Expanded(
                       child: PageView(
                         scrollDirection: Axis.horizontal,
@@ -879,31 +922,26 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                         onPageChanged: (page) {
                           setState(() {
                             if (page == 1) {
-                              _visible = false;
+                              _visible = false; // page 2
                             } else {
-                              _visible = true;
+                              _visible = true; // page1
                             }
                           });
                         },
                         children: [
-                          Stack(
-                            children: [
-                              ScrollConfiguration(
-                                behavior: MyBehavior(),
-                                child: ListView(
-                                  shrinkWrap: true,
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  children: [
-                                    showSpinner ? Container() : Content(),
-                                    showSpinner ? Container() : getInfo(),
-                                    SizedBox(
-                                      height: 100,
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
+                          ScrollConfiguration(
+                            behavior: MyBehavior(),
+                            child: ListView(
+                              shrinkWrap: true,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                showSpinner ? Container() : Content(),
+                                showSpinner ? Container() : getInfo(),
+                                SizedBox(
+                                  height: 100,
+                                )
+                              ],
+                            ),
                           ),
                           HomeWithSemesterPage(callBackPage2),
                         ],
@@ -918,6 +956,7 @@ class _HomeWithFireStorePageState extends State<HomeWithFireStorePage> {
                   backgroundColor: Color(0xff4562a7),
                   onPressed: () async {
                     addSemester();
+                    // College system
                     if (CollegeService.isGlobalDepartmentValidationOK() &&
                         CollegeService.departmentOption &&
                         department.isEmpty &&
