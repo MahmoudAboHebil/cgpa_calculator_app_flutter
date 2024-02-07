@@ -15,6 +15,11 @@ class BlocInfoLoaded extends BlocInfoState {
   List<Object> get props => [userModelInfo];
 }
 
+class BlocInfoUpdate extends BlocInfoState {
+  @override
+  List<Object> get props => [];
+}
+
 class BlocInfoError extends BlocInfoState {
   final String error;
   BlocInfoError({required this.error});

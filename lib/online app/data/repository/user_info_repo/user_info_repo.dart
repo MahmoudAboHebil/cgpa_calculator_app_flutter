@@ -18,12 +18,14 @@ class UserInfoRepo {
     });
   }
 
-  Future<void> updateUserInfo(String email, UserModelInfo userModelInfo) async {
+  Future<void> updateUserInfo(UserModelInfo userModelInfo) async {
     try {
-      DocumentReference dr = await _userInfoService.getUserInfoDocument(email);
+      DocumentReference dr =
+          await _userInfoService.getUserInfoDocument(userModelInfo.email);
       return dr.update(userModelInfo.toDocument());
     } catch (e) {
-      DocumentReference dr = await _userInfoService.getUserInfoDocument(email);
+      DocumentReference dr =
+          await _userInfoService.getUserInfoDocument(userModelInfo.email);
       return dr.set(userModelInfo.toDocument());
     }
   }

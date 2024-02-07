@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
           child: BlocProvider<BlocInfo>(
             create: (context) => BlocInfo(
               userInfoRepo: RepositoryProvider.of<UserInfoRepo>(context),
-              email: 'Mahmoud@gmail.com',
+              email: 'mahmoudbloc1@gmail.com',
             )..add(LoadedInfoUserEvent()),
             child: TestInfo(),
           ),

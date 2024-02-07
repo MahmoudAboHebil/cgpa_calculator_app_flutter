@@ -1,4 +1,5 @@
 import 'package:cgp_calculator/online%20app/logic/bloc_info/bloc_info.dart';
+import 'package:cgp_calculator/online%20app/logic/bloc_info/bloc_info_events.dart';
 import 'package:cgp_calculator/online%20app/logic/bloc_info/bloc_info_states.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,31 @@ class TestInfo extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else if (state is BlocInfoLoaded) {
-          return Center(
-            child: Text('Loaded'),
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    BlocProvider.of<BlocInfo>(context).add(
+                      UpdateInfoUserEvent(
+                        currentInfo: state.userModelInfo,
+                        divisionOption: true,
+                        name: 'yyyyyyyyy',
+                      ),
+                    );
+                  },
+                  child: Text('Update')),
+              SizedBox(
+                height: 10,
+              ),
+              Text(' name :    ${state.userModelInfo.name}'),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                  ' divisionOption :    ${state.userModelInfo.divisionOption}'),
+            ],
           );
         } else if (state is BlocInfoError) {
           return Center(

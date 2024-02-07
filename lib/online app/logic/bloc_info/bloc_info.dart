@@ -10,7 +10,7 @@ import '../../data/repository/user_info_repo/user_info_repo.dart';
 class BlocInfo extends Bloc<BlocInfoEvent, BlocInfoState> {
   final UserInfoRepo userInfoRepo;
   final String email;
-  late StreamSubscription _streamSubscription;
+  StreamSubscription? _streamSubscription;
   BlocInfo({required this.userInfoRepo, required this.email})
       : super(BlocInfoLoading()) {
     on<LoadedInfoUserEvent>((event, emit) async {
@@ -21,11 +21,23 @@ class BlocInfo extends Bloc<BlocInfoEvent, BlocInfoState> {
         emit(BlocInfoError(error: e.toString()));
       }
     });
+    on<UpdateInfoUserEvent>((event, emit) async {
+      emit(BlocInfoLoading());
+      try {
+        await userInfoRepo.updateUserInfo(event.updatedInfo);
+        await _mapLoadedEventToLoadedState();
+      } catch (e) {
+        emit(BlocInfoError(error: e.toString()));
+      }
+    });
   }
 
   Future<StreamSubscription<UserModelInfo>>
       _mapLoadedEventToLoadedState() async {
     Stream<UserModelInfo> stream = await userInfoRepo.getUserInfo(email);
+    if (_streamSubscription != null) {
+      _streamSubscription!.cancel();
+    }
     return _streamSubscription = stream.listen((userModelInfo) {
       emit(BlocInfoLoaded(userModelInfo: userModelInfo));
     });
@@ -33,7 +45,7 @@ class BlocInfo extends Bloc<BlocInfoEvent, BlocInfoState> {
 
   @override
   Future<void> close() {
-    _streamSubscription.cancel();
+    _streamSubscription!.cancel();
     return super.close();
   }
 
