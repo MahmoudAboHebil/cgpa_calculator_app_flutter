@@ -1,16 +1,16 @@
 import 'package:cgp_calculator/online%20app/data/models/user_model/user_model_courses.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModelCoursesSemesters {
   final String semesterId;
-  List<UserModelCourses>? courses;
+  final List<UserModelCourses>? courses;
   UserModelCoursesSemesters({
     required this.semesterId,
     this.courses,
   });
-  factory UserModelCoursesSemesters.fromJson(
-      Map<String, dynamic> jsonSemester) {
+  factory UserModelCoursesSemesters.fromSnapshot(DocumentSnapshot snap) {
     return UserModelCoursesSemesters(
-      semesterId: jsonSemester['semesterId'],
+      semesterId: snap['semesterId'],
     );
   }
 }

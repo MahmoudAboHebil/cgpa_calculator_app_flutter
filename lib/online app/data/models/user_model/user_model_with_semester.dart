@@ -1,8 +1,8 @@
 class UserModelWithSemester {
   final String semesterId;
   final int semesterIndex;
-  int? credits;
-  double? cgpa;
+  final int? credits;
+  final double? cgpa;
   UserModelWithSemester(
       {required this.semesterId,
       required this.semesterIndex,

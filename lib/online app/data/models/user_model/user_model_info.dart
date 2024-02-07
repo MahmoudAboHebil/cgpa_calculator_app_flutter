@@ -1,11 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModelInfo {
   final String email;
-  String name;
-  String image;
-  String division;
-  String department;
-  bool divisionOption;
-  bool departmentOption;
+  final String name;
+  final String image;
+  final String division;
+  final String department;
+  final bool divisionOption;
+  final bool departmentOption;
   UserModelInfo({
     required this.name,
     required this.email,
@@ -16,15 +18,26 @@ class UserModelInfo {
     required this.departmentOption,
   });
 
-  factory UserModelInfo.fromJson(Map<String, dynamic> json) {
+  factory UserModelInfo.fromSnapshot(DocumentSnapshot snap) {
     return UserModelInfo(
-      name: json['name'],
-      email: json['email'],
-      image: json['image'],
-      division: json['division'],
-      department: json['department'],
-      divisionOption: json['divisionOption'],
-      departmentOption: json['departmentOption'],
+      name: snap['name'],
+      email: snap['email'],
+      image: snap['image'],
+      division: snap['division'],
+      department: snap['department'],
+      divisionOption: snap['divisionOption'],
+      departmentOption: snap['departmentOption'],
     );
+  }
+  Map<String, dynamic> toDocument() {
+    return {
+      'email': email,
+      'name': name,
+      'image': image,
+      'division': division,
+      'department': department,
+      'divisionOption': divisionOption,
+      'departmentOption': departmentOption,
+    };
   }
 }

@@ -1,11 +1,15 @@
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModelCourses {
   final String courseId;
   final String semesterId;
-  String? courseName;
-  int? credit;
-  String? grade1;
-  String? grade2;
-  int type;
+  final String? courseName;
+  final int? credit;
+  final String? grade1;
+  final String? grade2;
+  final int type;
   UserModelCourses({
     required this.courseId,
     required this.semesterId,
@@ -15,15 +19,15 @@ class UserModelCourses {
     this.grade2,
     this.type = 1,
   });
-  factory UserModelCourses.fromJson(Map<String, dynamic> json) {
+  factory UserModelCourses.fromSnapshot(DocumentSnapshot snap) {
     return UserModelCourses(
-      courseId: json['courseId'],
-      semesterId: json['semesterId'],
-      courseName: json['courseName'],
-      grade2: json['grade2'],
-      grade1: json['grade1'],
-      credit: json['credit'],
-      type: json['type'],
+      courseId: snap['courseId'],
+      semesterId: snap['semesterId'],
+      courseName: snap['courseName'],
+      grade2: snap['grade2'],
+      grade1: snap['grade1'],
+      credit: snap['credit'],
+      type: snap['type'],
     );
   }
 }
