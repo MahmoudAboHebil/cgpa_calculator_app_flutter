@@ -7,7 +7,7 @@ class UserInfoService {
   Future<CollectionReference> getUserInfoCollection(String email) async {
     if (!await Config.isExist('users/$email', _firebaseFirestore)) {
       throw Exception(
-          'There is no email with ($email) document called in (getUserInfoCollection)');
+          'There is no email with ($email) document called in (getUserInfoCollection())');
     }
 
     return _firebaseFirestore
@@ -17,15 +17,12 @@ class UserInfoService {
   }
 
   Future<DocumentReference> getUserInfoDocument(String email) async {
+    CollectionReference cr = await getUserInfoCollection(email);
     if (!await Config.isExist(
         'users/$email/userInfo/info', _firebaseFirestore)) {
       throw Exception(
-          'There is no info document  called in (getUserInfoDocument)');
+          'There is no info document  called in (getUserInfoDocument())');
     }
-    return _firebaseFirestore
-        .collection('users')
-        .doc(email)
-        .collection('userInfo')
-        .doc('info');
+    return cr.doc('info');
   }
 }

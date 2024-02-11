@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModelCoursesSemesters {
   final String semesterId;
-  final List<UserModelCourses>? courses;
+  final Stream<List<UserModelCourses>>? courses;
   UserModelCoursesSemesters({
     required this.semesterId,
     this.courses,
   });
   factory UserModelCoursesSemesters.fromSnapshot(DocumentSnapshot snap) {
     return UserModelCoursesSemesters(
-      semesterId: snap['semesterId'],
+      semesterId: snap.id,
     );
   }
 }
